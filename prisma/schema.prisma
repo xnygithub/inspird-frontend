@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum AIFilter {
+  HIDE @map("hide")
+  BLUR @map("blur")
+  SHOW @map("show")
+}
+
+enum NSFWFilter {
+  HIDE @map("hide")
+  BLUR @map("blur")
+  SHOW @map("show")
+}
+
+// ---------- Users ----------
+model Users {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique @db.VarChar(50)
+  username    String   @unique @db.VarChar(20)
+  displayName String   @db.VarChar(50)
+  supabaseId  String   @unique @db.VarChar(50)
+  pictureUrl  String?  @db.VarChar(255)
+  private     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  posts        Post[]
+  folders      Folders[]
+  savedItems   SavedItem[]
+  savedFolders SavedFolders[]
+  filters      UserFilters?
+
+  @@index([username])
+  @@index([supabaseId])
+  @@map("users")
+}
+
+// ---------- UserFilters (1:1 with shared PK = user_id) ----------
+model UserFilters {
+  userId     Int        @id
+  user       Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  AIFilter   AIFilter   @default(SHOW)
+  NSFWFilter NSFWFilter @default(SHOW)
+
+  @@map("user_filters")
+}
+
+// ---------- Tags ----------
+model Tags {
+  id      Int    @id @default(autoincrement())
+  tagName String @unique @db.VarChar(20)
+
+  // If you want explicit join table (to match your existing schema)
+  savedItems SavedItemTags[]
+
+  @@map("tags")
+}
+
+// ---------- Posts ----------
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String?  @db.VarChar(50)
+  user_id   Int
+  private   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user    Users       @relation(fields: [user_id], references: [id])
+  stats   PostStats?
+  savedBy SavedItem[]
+
+  @@index([user_id])
+  @@map("posts")
+}
+
+// ---------- PostStats (1:1, shared PK = post_id) ----------
+model PostStats {
+  postId Int  @id
+  views  Int  @default(0)
+  likes  Int  @default(0)
+  saves  Int  @default(0)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_stats")
+}
+
+// ---------- SavedItem ----------
+model SavedItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // Tags via explicit join (to keep table name & constraints)
+  tags SavedItemTags[]
+
+  // Folder placements
+  folderLocations SavedItemLocation[]
+
+  @@unique([userId, postId], map: "uq_user_saved_post")
+  @@index([userId])
+  @@index([postId])
+  @@map("saved_items")
+}
+
+// ---------- saved_item_tags (explicit M:N join) ----------
+model SavedItemTags {
+  savedItemId Int
+  tagId       Int
+
+  savedItem SavedItem @relation(fields: [savedItemId], references: [id], onDelete: Cascade)
+  tag       Tags      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([savedItemId, tagId])
+  @@map("saved_item_tags")
+}
+
+// ---------- SavedItemLocation (placement into folders/sections) ----------
+model SavedItemLocation {
+  id          Int  @id @default(autoincrement())
+  savedItemId Int
+  folderId    Int
+  sectionId   Int?
+
+  savedItem SavedItem       @relation(fields: [savedItemId], references: [id], onDelete: Cascade)
+  folder    Folders         @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  section   FolderSections? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  // A saved item can only be in a given (folder, section) once
+  @@unique([savedItemId, folderId, sectionId], map: "uq_saved_item_folder_section")
+  @@index([savedItemId])
+  @@index([folderId])
+  @@index([sectionId])
+  @@map("saved_item_locations")
+}
+
+// ---------- SavedFolders (explicit M:N join + timestamps) ----------
+model SavedFolders {
+  userId    Int
+  folderId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder Folders @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  @@id([userId, folderId])
+  @@index([userId])
+  @@index([folderId])
+  @@map("saved_folders")
+}
+
+// ---------- Folders ----------
+model Folders {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user         Users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections     FolderSections[]
+  savedItems   SavedItemLocation[]
+  savedByUsers SavedFolders[]
+
+  @@unique([userId, name], map: "uq_user_folder_name")
+  @@index([userId])
+  @@map("folders")
+}
+
+// ---------- FolderSections ----------
+model FolderSections {
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(20)
+  folderId Int
+
+  folder     Folders             @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  savedItems SavedItemLocation[]
+
+  @@unique([folderId, name], map: "uq_folder_section_name")
+  @@index([folderId])
+  @@map("folder_sections")
+}

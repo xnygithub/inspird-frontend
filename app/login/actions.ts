@@ -10,20 +10,36 @@ export async function login(formData: FormData) {
 
     // type-casting here for convenience
     // in practice, you should validate your inputs
-    const data = {
+    const creds = {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
     }
 
-    const { error } = await supabase.auth.signInWithPassword(data)
+    const { data, error } = await supabase.auth.signInWithPassword(creds)
+    if (error) redirect('/error')
 
-    if (error) {
-        console.error(error)
-        redirect('/error')
-    }
+    const r = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.session?.access_token}`
+        }
+    })
+    if (!r.ok) redirect('/error')
+    const rData = await r.json()
+    const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+            username: rData.username,
+            displayName: rData.displayName,
+            avatarURL: rData.avatar,
+        }
+    })
+
+    console.log(updateError)
+    if (updateError) redirect('/error')
 
     revalidatePath('/', 'layout')
-    redirect('/private')
+    redirect(`/${rData.username}`)
 }
 
 export async function signup(formData: FormData) {
@@ -31,17 +47,14 @@ export async function signup(formData: FormData) {
 
     // type-casting here for convenience
     // in practice, you should validate your inputs
-    const data = {
+    const creds = {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
     }
 
-    const { error } = await supabase.auth.signUp(data)
+    const { error } = await supabase.auth.signUp(creds)
 
-    if (error) {
-        redirect('/error')
-    }
-
+    if (error) redirect('/error')
     revalidatePath('/', 'layout')
     redirect('/')
 }
