@@ -6,6 +6,7 @@ export const SearchBar = () => {
     const [searchQuery, setSearchQuery] = useState("");
     return (
         <>
+            {isSearchDropdownOpen && <div id="search-overlay" />}
             <div
                 id="search-container"
                 className={`${isSearchDropdownOpen ? 'w-[500px]' : 'w-[300px]'}`}

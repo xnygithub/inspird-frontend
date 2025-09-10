@@ -59,7 +59,7 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
                 <Masonry>
                     {
                         posts.map((post) => (
-                            <div key={post.id} className="group relative w-full h-full">
+                            <div key={post.id} className="group z-[-10] relative w-full h-full">
                                 <Image
                                     alt="Post"
                                     src={post.posts.media_url}
