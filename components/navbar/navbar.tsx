@@ -13,7 +13,7 @@ export const Navbar = async () => {
         <div id="navbar">
             {data.user !== null ? (
                 <>
-                    <p>Inspird</p>
+                    <p>INSPIRD</p>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
                         <UploadImage />

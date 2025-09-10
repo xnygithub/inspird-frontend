@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function getUserProfileByUsername(username: string) {
     const supabase = await createClient();
     // TODO: Filter out private posts from the count
+    const currentUser = await supabase.auth.getUser();
 
     // Get core user data
     const { data, error } = await supabase
@@ -30,6 +31,7 @@ export async function getUserProfileByUsername(username: string) {
 
     data.post_count = postCount;
     data.saved_items_count = savedItemsCount;
+    data.is_me = data.auth_sub === currentUser.data.user?.id;
     return data;
 }
 

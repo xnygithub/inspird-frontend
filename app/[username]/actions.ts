@@ -1,6 +1,7 @@
-import { createClient } from "@/utils/supabase/client";
+"use server"
+import { createClient } from "@/utils/supabase/server";
 
-export async function getUsersPosts(userId: number, from: number = 1, to: number = 1) {
+export async function getUsersPosts(userId: number, from: number, to: number) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("posts")
