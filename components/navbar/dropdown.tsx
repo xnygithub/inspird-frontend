@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/app/login/actions";
-import { Settings } from "@/components/settings";
+import { Settings } from "@/components/layout/settings";
 
 
 export const Dropdown = ({ user }: { user: User }) => {

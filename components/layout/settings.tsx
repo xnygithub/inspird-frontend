@@ -8,7 +8,7 @@ interface SettingsProps {
 export const Settings = ({ open, setOpen }: SettingsProps) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent>
+            <DialogContent className="max-sm:m-0 max-md:m-0 max-md:w-full max-md:h-full">
                 <DialogTitle>Settings</DialogTitle>
                 <DialogHeader>
                     <DialogTitle>Settings</DialogTitle>

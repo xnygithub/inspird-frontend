@@ -52,16 +52,61 @@
   height:50px;
   width: 100%;
   position: sticky;
-  top: 0px;
-  z-index: 100;
+  top: 0rem;
   display: flex;
   align-items: center;
   padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
   @apply bg-navbar text-navbar-foreground;
 }
 
+#search-container {
+  background-color: #111827;
+  position: absolute;
+  left: 50%;
+  translate: -50%;
+  display: flex;
+  flex-direction: row;
+  transition: width 0.5s ease-in-out;
+}
+
+#search-dropdown {
+  background-color: grey;
+  position: absolute;
+  top: 2rem;
+  width: 100%;
+  height: 20rem;
+  z-index: 100;
+}
+
+#pin-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+#pin-save-label {
+  top: 1px;
+  right: 1px;
+  position: absolute;
+  background-color: black;
+  color: white;
+  padding: 0.5rem;
+}
+
+
+#pin-username-label {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  background-color: black;
+  color: white;
+}
+
+
 :root {
-  --radius: 0.625rem;
+  --radius: 0rem; //--radius: 0.625rem;
   --background: oklch(0.95 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

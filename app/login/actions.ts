@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
 
+
 export async function login(formData: FormData) {
     const supabase = await createClient()
 
@@ -18,20 +19,28 @@ export async function login(formData: FormData) {
     const { data, error } = await supabase.auth.signInWithPassword(creds)
     if (error) redirect('/error')
 
-    const r = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${data.session?.access_token}`
-        }
-    })
-    if (!r.ok) redirect('/error')
-    const rData = await r.json()
+    // const r = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me`, {
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${data.session?.access_token}`
+    //     }
+    // })
+    // if (!r.ok) redirect('/error')
+    // const rData = await r.json()
+
+    const { data: responseData, error: resposneError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("auth_sub", data.user?.id)
+        .single();
+
     const { error: updateError } = await supabase.auth.updateUser({
         data: {
-            username: rData.username,
-            displayName: rData.displayName,
-            avatarURL: rData.avatar,
+            id: responseData.id,
+            username: responseData.username,
+            displayName: responseData.displayName,
+            avatarURL: responseData.avatar,
         }
     })
 
@@ -39,7 +48,7 @@ export async function login(formData: FormData) {
     if (updateError) redirect('/error')
 
     revalidatePath('/', 'layout')
-    redirect(`/${rData.username}`)
+    redirect(`/${responseData.username}`)
 }
 
 export async function signup(formData: FormData) {
