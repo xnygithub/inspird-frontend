@@ -1,9 +1,9 @@
 "use client"
 
 import Image from 'next/image'
-import { Post, Users } from '@/app/generated/prisma'
+import { Post, Users, SavedPost } from '@/app/generated/prisma'
 import { getUsersPosts } from '@/app/[username]/actions'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import React from "react"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 
@@ -11,9 +11,14 @@ interface PinsContainerProps {
     user_id: number
 }
 
+interface extendedSavedPost extends SavedPost {
+    posts: Post & { users: Users }
+
+}
+
 export default function PinsContainer({ user_id }: PinsContainerProps) {
     const limit = 10
-    const [posts, setPosts] = useState<(Post & { users: Users })[]>([])
+    const [posts, setPosts] = useState<extendedSavedPost[]>([])
     const [offset, setOffset] = useState<number>(0)
     const [loading, setLoading] = useState<boolean>(false)
     const [hasMore, setHasMore] = useState<boolean>(true)
@@ -23,7 +28,7 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newPosts: (Post & { users: Users })[] = await getUsersPosts(user_id, from, to)
+        const newPosts: extendedSavedPost[] = await getUsersPosts(user_id, from, to)
 
         // If there are no more posts, set hasMore to false
         if (newPosts.length === 0 || newPosts.length < limit) {
@@ -39,10 +44,6 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
         setLoading(false)
     }
 
-    const columnsCountBreakPoints = useMemo(() => {
-        return { 200: 2, 400: 2, 600: 3, 800: 4, 1000: 5, }
-    }, [])
-
 
     // Call getMorePosts when the component mounts
     useEffect(() => {
@@ -53,14 +54,15 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
 
     return (
         <>
-            <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
+            <ResponsiveMasonry
+                columnsCountBreakPoints={{ 200: 2, 400: 2, 600: 3, 800: 4, 1000: 5, }}>
                 <Masonry>
                     {
                         posts.map((post) => (
                             <div key={post.id} className="group relative w-full h-full">
                                 <Image
                                     alt="Post"
-                                    src={post.media_url}
+                                    src={post.posts.media_url}
                                     loading="lazy"
                                     width={0}
                                     height={0}
@@ -69,12 +71,12 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
                                     style={{ width: '100%', height: 'auto' }} // optional
                                 />
                                 <p id="pin-save-label">Save</p>
-                                {post.users.id === user_id && <p id="pin-username-label" >{post.users.username}</p>}
+                                {post.posts.users.id === user_id && <p id="pin-username-label" >{post.posts.users.username}</p>}
                             </div>
                         ))
                     }
                 </Masonry>
-            </ResponsiveMasonry>
+            </ResponsiveMasonry >
 
 
             <button

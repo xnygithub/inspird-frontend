@@ -44,10 +44,6 @@ export const UploadImage = () => {
         }
 
         setStatus("Done!");
-        // You now have the S3 object at `key`. Persist it server-side if needed.
-        // Optionally show a preview (if the bucket is public/behind CF) or call a route to record metadata.
-        console.log({ key });
-
 
         const new_post = {
             user_id: user?.user?.user_metadata?.id as number,
@@ -60,7 +56,19 @@ export const UploadImage = () => {
             media_alt_text: "",
         };
 
-        await supabase.from("posts").insert(new_post).single();
+        const { data, error } = await supabase.from("posts").insert(new_post).select("id").single();
+        if (error) {
+            console.error(error);
+            setStatus("Upload failed");
+            return;
+        }
+
+        const new_saved_post = {
+            postId: data.id,
+            userId: user?.user?.user_metadata?.id as number,
+        }
+        await supabase.from("saved_items").insert(new_saved_post).select("id").single();
+
     }
 
     return (

@@ -10,16 +10,17 @@ datasource db {
 }
 
 model Users {
-  id           Int         @id @default(autoincrement())
-  username     String      @unique @db.VarChar(20)
-  createdAt    DateTime    @default(now())
-  auth_sub     String      @unique @db.VarChar(50)
-  email        String      @unique @db.VarChar(50)
-  display_name String      @db.VarChar(50)
-  avatar_url   String      @default("https://avatars.githubusercontent.com/u/123456789?v=4") @db.VarChar(255)
-  private      Boolean     @default(false)
-  posts        Post[]
-  saved_items  SavedPost[]
+  id            Int         @id @default(autoincrement())
+  username      String      @unique @db.VarChar(20)
+  createdAt     DateTime    @default(now())
+  auth_sub      String      @unique @db.VarChar(50)
+  email         String      @unique @db.VarChar(50)
+  display_name  String      @db.VarChar(50)
+  avatar_url    String      @default("https://avatars.githubusercontent.com/u/123456789?v=4") @db.VarChar(255)
+  private       Boolean     @default(false)
+  has_onboarded Boolean     @default(false)
+  posts         Post[]
+  saved_items   SavedPost[]
 
   @@index([username])
   @@index([auth_sub])
@@ -27,20 +28,21 @@ model Users {
 }
 
 model Post {
-  id                 Int         @id @default(autoincrement())
-  createdAt          DateTime    @default(now())
+  id                 Int              @id @default(autoincrement())
+  createdAt          DateTime         @default(now())
   user_id            Int
-  is_ai_generated    Boolean     @default(false)
-  is_nsfw            Boolean     @default(false)
-  is_private         Boolean     @default(false)
-  media_alt_text     String      @db.VarChar(255)
+  is_ai_generated    Boolean          @default(false)
+  is_nsfw            Boolean          @default(false)
+  is_private         Boolean          @default(false)
+  media_alt_text     String           @db.VarChar(255)
   media_aspect_ratio Float?
   media_height       Int?
   media_size         Int?
-  media_type         MediaType   @default(image)
-  media_url          String      @db.VarChar(255)
+  media_type         MediaType        @default(image)
+  processing_status  ProcessingStatus @default(not_started)
+  media_url          String           @db.VarChar(255)
   media_width        Int?
-  users              Users       @relation(fields: [user_id], references: [id])
+  users              Users            @relation(fields: [user_id], references: [id])
   saved_items        SavedPost[]
 
   @@index([user_id])
@@ -65,4 +67,11 @@ enum MediaType {
   image
   video
   gif
+}
+
+enum ProcessingStatus {
+  not_started
+  in_progress
+  completed
+  failed
 }
