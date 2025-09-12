@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div>
       <h2>Not Found</h2>
-      <p>The user you are looking for does not exist or is private.</p>
+      <p>The post does not exist or the owner has delete/made the post private.</p>
       <Link href="/">Return Home</Link>
     </div>
   )

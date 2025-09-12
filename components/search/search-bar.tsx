@@ -1,31 +1,25 @@
 "use client";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 export const SearchBar = () => {
     const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     return (
         <>
-            {isSearchDropdownOpen && <div id="search-overlay" />}
             <div
                 id="search-container"
-                className={`${isSearchDropdownOpen ? 'w-[500px]' : 'w-[300px]'}`}
+                className={` ${isSearchDropdownOpen ? 'w-[475px]' : 'w-[300px]'}`}
                 onFocus={() => setIsSearchDropdownOpen(true)}
-                onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget)) {
-                        setIsSearchDropdownOpen(false);
-                    }
-                }}
+                onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsSearchDropdownOpen(false); }}
                 tabIndex={-1}
             >
-                <input
+                <Input
                     type="text"
                     placeholder="Search"
-                    className="w-full"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button onClick={() => setSearchQuery("")}>Search</button>
                 {isSearchDropdownOpen && (
                     <div id="search-dropdown">
                         <p>{searchQuery}</p>

@@ -6,6 +6,7 @@ import { getUsersPosts } from '@/app/[username]/actions'
 import { useState, useEffect } from 'react'
 import React from "react"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import Link from 'next/link'
 
 interface PinsContainerProps {
     user_id: number
@@ -29,6 +30,8 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
         const from = offset
         const to = offset + limit - 1
         const newPosts: extendedSavedPost[] = await getUsersPosts(user_id, from, to)
+        console.log("newPosts", newPosts)
+
 
         // If there are no more posts, set hasMore to false
         if (newPosts.length === 0 || newPosts.length < limit) {
@@ -55,26 +58,33 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
     return (
         <>
             <ResponsiveMasonry
-                columnsCountBreakPoints={{ 200: 2, 400: 2, 600: 3, 800: 4, 1000: 5, }}>
+                columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
                 <Masonry>
                     {
                         posts.map((post) => (
-                            <div key={post.id} className="group z-[-10] relative w-full h-full">
-                                <Image
-                                    alt="Post"
-                                    src={post.posts.media_url}
-                                    loading="lazy"
-                                    width={0}
-                                    height={0}
-                                    sizes="100vw"
-                                    className="object-cover"
-                                    style={{ width: '100%', height: 'auto' }} // optional
-                                />
-                                <p id="pin-save-label">Save</p>
-                                {post.posts.users.id === user_id && <p id="pin-username-label" >{post.posts.users.username}</p>}
-                            </div>
+                            <>
+                                <Link href={`/posts/${post.postId}`} className="relative inset-0 w-full h-full">
+                                    <div key={post.id} className="group z-[-10] relative w-full h-full">
+                                        <Image
+                                            alt="Post"
+                                            src={post.posts.media_url}
+                                            loading="lazy"
+                                            width={0}
+                                            height={0}
+                                            sizes="100vw"
+                                            className="object-cover"
+                                            style={{ width: '100%', height: 'auto' }}
+
+                                        />
+
+                                        <p id="pin-save-label">Save</p>
+                                        {post.posts.users.id === user_id && <p id="pin-username-label" >{post.posts.users.username}</p>}
+                                    </div>
+                                </Link>
+                            </>
                         ))
                     }
+
                 </Masonry>
             </ResponsiveMasonry >
 
