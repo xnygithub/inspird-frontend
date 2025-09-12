@@ -1,3 +1,4 @@
+import './username.css'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getUserProfileByUsername } from '@/app/[username]/actions'

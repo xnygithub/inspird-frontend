@@ -1,3 +1,4 @@
+import './post.css'
 import SidebarProvider from "@/app/posts/[id]/_components/sidebar"
 import { createClient } from "@/utils/supabase/client"
 import Image from "next/image"

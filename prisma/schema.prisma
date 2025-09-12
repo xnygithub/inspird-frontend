@@ -35,13 +35,13 @@ model Post {
   is_nsfw            Boolean          @default(false)
   is_private         Boolean          @default(false)
   media_alt_text     String           @db.VarChar(255)
-  media_aspect_ratio Float?
-  media_height       Int?
-  media_size         Int?
+  media_aspect_ratio Float
+  media_height       Int
+  media_size         Int
   media_type         MediaType        @default(image)
   processing_status  ProcessingStatus @default(not_started)
   media_url          String           @db.VarChar(255)
-  media_width        Int?
+  media_width        Int
   users              Users            @relation(fields: [user_id], references: [id])
   saved_items        SavedPost[]
 

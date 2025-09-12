@@ -5,8 +5,6 @@ export async function getUserProfileByUsername(username: string) {
     const supabase = await createClient();
     // TODO: Filter out private posts from the count
     const currentUser = await supabase.auth.getUser();
-
-    // Get core user data
     const { data, error } = await supabase
         .from("users")
         .select("*")
@@ -14,7 +12,6 @@ export async function getUserProfileByUsername(username: string) {
         .single();
 
     if (error) return null
-
 
     const { count: savedItemsCount, error: savedItemsError } = await supabase
         .from("saved_items")
@@ -32,10 +29,9 @@ export async function getUsersPosts(userId: number, from: number, to: number) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("saved_items")
-        .select(`*, 
-            posts(media_url, media_type, media_width, media_height, media_size, media_aspect_ratio, media_alt_text, 
-            users(username, avatar_url))`)
+        .select(`*, posts!inner(*, users(username, avatar_url))`)
         .eq("userId", userId)
+        .eq("posts.processing_status", "not_started")
         .order("createdAt", { ascending: false })
         .range(from, to);
 

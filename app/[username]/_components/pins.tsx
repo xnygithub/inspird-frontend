@@ -6,24 +6,22 @@ import { getUsersPosts } from '@/app/[username]/actions'
 import { useState, useEffect } from 'react'
 import React from "react"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import { useInView } from "react-intersection-observer";
 import Link from 'next/link'
-
-interface PinsContainerProps {
-    user_id: number
-}
 
 interface extendedSavedPost extends SavedPost {
     posts: Post & { users: Users }
 
 }
 
-export default function PinsContainer({ user_id }: PinsContainerProps) {
+export default function PinsContainer({ user_id }: { user_id: number }) {
     const limit = 10
-    const [posts, setPosts] = useState<extendedSavedPost[]>([])
     const [offset, setOffset] = useState<number>(0)
-    const [loading, setLoading] = useState<boolean>(false)
     const [hasMore, setHasMore] = useState<boolean>(true)
+    const [loading, setLoading] = useState<boolean>(false)
     const [hydrated, setHydrated] = useState<boolean>(false)
+    const [posts, setPosts] = useState<extendedSavedPost[]>([])
+    const { ref, inView } = useInView({ threshold: 0 });
 
     const getMorePosts = async () => {
         setLoading(true)
@@ -32,12 +30,10 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
         const newPosts: extendedSavedPost[] = await getUsersPosts(user_id, from, to)
         console.log("newPosts", newPosts)
 
-
-        // If there are no more posts, set hasMore to false
         if (newPosts.length === 0 || newPosts.length < limit) {
-            if (offset === 0) {
-                setPosts([...posts, ...newPosts])
-            }
+            // Below code prevents hasMore from being set 
+            // to false when component is first mounted
+            if (offset === 0) setPosts([...posts, ...newPosts])
             setHasMore(false)
             setLoading(false)
             return
@@ -47,54 +43,43 @@ export default function PinsContainer({ user_id }: PinsContainerProps) {
         setLoading(false)
     }
 
-
-    // Call getMorePosts when the component mounts
+    // Call on first mount
     useEffect(() => {
         setHydrated(true)
-        getMorePosts()
     }, [])
+
+    useEffect(() => {
+        if (!hydrated || loading || !hasMore) return
+        if (inView) getMorePosts()
+    }, [inView])
+
     if (!hydrated) return null
 
     return (
         <>
-            <ResponsiveMasonry
-                columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
+            <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
                 <Masonry>
-                    {
-                        posts.map((post) => (
-                            <>
-                                <Link href={`/posts/${post.postId}`} className="relative inset-0 w-full h-full">
-                                    <div key={post.id} className="group z-[-10] relative w-full h-full">
-                                        <Image
-                                            alt="Post"
-                                            src={post.posts.media_url}
-                                            loading="lazy"
-                                            width={0}
-                                            height={0}
-                                            sizes="100vw"
-                                            className="object-cover"
-                                            style={{ width: '100%', height: 'auto' }}
+                    {posts.map((post) => (
+                        <div className="group relative" key={post.id}>
+                            <Link href={`/posts/${post.postId}`} className="group relative">
+                                <Image
+                                    loading="lazy"
+                                    className="object-cover"
+                                    alt={post.posts.media_alt_text}
+                                    src={post.posts.media_url}
+                                    width={post.posts.media_width}
+                                    height={post.posts.media_height}
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                            </Link>
+                            <p id="pin-username-label" >@{post.posts.users.username}</p>
+                            <p id="pin-save-label">Save</p>
+                        </div>
 
-                                        />
-
-                                        <p id="pin-save-label">Save</p>
-                                        {post.posts.users.id === user_id && <p id="pin-username-label" >{post.posts.users.username}</p>}
-                                    </div>
-                                </Link>
-                            </>
-                        ))
-                    }
-
+                    ))}
                 </Masonry>
             </ResponsiveMasonry >
-
-
-            <button
-                onClick={getMorePosts}
-                disabled={loading || !hasMore}>
-                {loading ? "Loading..." : "Load more"}
-            </button>
-
+            <div ref={ref}>{loading ? "Calling getMorePosts" : "Not loading"}</div>
         </>
     )
 }   
