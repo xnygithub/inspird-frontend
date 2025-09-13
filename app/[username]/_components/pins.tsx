@@ -11,7 +11,6 @@ import Link from 'next/link'
 
 interface extendedSavedPost extends SavedPost {
     posts: Post & { users: Users }
-
 }
 
 export default function PinsContainer({ user_id }: { user_id: number }) {
@@ -28,7 +27,6 @@ export default function PinsContainer({ user_id }: { user_id: number }) {
         const from = offset
         const to = offset + limit - 1
         const newPosts: extendedSavedPost[] = await getUsersPosts(user_id, from, to)
-        console.log("newPosts", newPosts)
 
         if (newPosts.length === 0 || newPosts.length < limit) {
             // Below code prevents hasMore from being set 
@@ -75,7 +73,6 @@ export default function PinsContainer({ user_id }: { user_id: number }) {
                             <p id="pin-username-label" >@{post.posts.users.username}</p>
                             <p id="pin-save-label">Save</p>
                         </div>
-
                     ))}
                 </Masonry>
             </ResponsiveMasonry >

@@ -1,4 +1,4 @@
-import './username.css'
+import './profile.css'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getUserProfileByUsername } from '@/app/[username]/actions'
@@ -25,7 +25,10 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <h2>{user.display_name}</h2>
                 </div>
                 {user.is_me && <Settings trigger={<Button>Settings</Button>} />}
-                <div id="profile-stats"> <p>{user.post_count} posts</p></div>
+                <div id="profile-stats">
+                    <p>{user.post_count} posts</p>
+                    <p>{user.folder_count} folders</p>
+                </div>
             </div >
             <Tabs id="profile-tabs-container" defaultValue="pins">
                 <TabsList >
@@ -36,7 +39,7 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <PinsContainer user_id={user.id} />
                 </TabsContent>
                 <TabsContent id="tabs-content" value="folders" forceMount>
-                    <FoldersContainer user_id={user.id} />
+                    <FoldersContainer username={username} user_id={user.id} />
                 </TabsContent>
             </Tabs>
         </>

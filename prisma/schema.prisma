@@ -21,6 +21,7 @@ model Users {
   has_onboarded Boolean     @default(false)
   posts         Post[]
   saved_items   SavedPost[]
+  Folder        Folder[]
 
   @@index([username])
   @@index([auth_sub])
@@ -44,23 +45,91 @@ model Post {
   media_width        Int
   users              Users            @relation(fields: [user_id], references: [id])
   saved_items        SavedPost[]
+  FolderPost         FolderPost[]
 
   @@index([user_id])
   @@map("posts")
 }
 
 model SavedPost {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  postId    Int
-  userId    Int
-  posts     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  users     Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  postId     Int
+  userId     Int
+  posts      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users      Users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  FolderPost FolderPost[]
 
   @@unique([userId, postId], map: "uq_user_saved_post")
+  // for composite FK from FolderPost to assert same user
+  @@unique([id, userId], map: "uq_savedpost_id_user")
   @@index([postId])
   @@index([userId])
   @@map("saved_items")
+}
+
+model Folder {
+  id            Int             @id @default(autoincrement())
+  userId        Int
+  name          String          @db.VarChar(50)
+  thumbnail     String?         @db.VarChar(255)
+  description   String?         @db.VarChar(255)
+  is_private    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  users         Users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  FolderPost    FolderPost[]
+  FolderSection FolderSection[]
+
+  @@unique([userId, name], map: "uq_user_folder")
+  @@unique([id, userId], map: "uq_folder_id_user")
+  @@index([userId])
+  @@map("folders")
+}
+
+model FolderSection {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(50)
+  createdAt  DateTime     @default(now())
+  folderId   Int
+  folders    Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  FolderPost FolderPost[]
+
+  @@unique([folderId, name], map: "uq_folder_section")
+  // optional hard-guard for “section belongs to folder” via composite use below:
+  @@unique([id, folderId], map: "uq_section_id_folder")
+  @@index([name])
+  @@index([folderId])
+  @@map("folder_sections")
+}
+
+model FolderPost {
+  id Int @id @default(autoincrement())
+
+  // to bind folder owner and saved owner
+  userId Int
+
+  folderId    Int
+  sectionId   Int?
+  savedPostId Int
+  createdAt   DateTime @default(now())
+
+  // Folder must belong to same user
+  folders Folder @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
+
+  // SavedPost must belong to same user
+  saved SavedPost @relation(fields: [savedPostId, userId], references: [id, userId], onDelete: Cascade)
+
+  // (Optionally) ensure section belongs to the same folder (uses @@unique([id, folderId]) on FolderSection)
+  section FolderSection? @relation(fields: [sectionId, folderId], references: [id, folderId], onDelete: Cascade)
+  Post    Post?          @relation(fields: [postId], references: [id])
+  postId  Int?
+
+  // Allow many sections per folder for the same saved item, but only once per section
+  @@unique([folderId, sectionId, savedPostId], map: "uq_folder_section_saved")
+  @@index([folderId])
+  @@index([userId])
+  @@index([savedPostId])
+  @@map("folder_posts")
 }
 
 enum MediaType {

@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { UploadImage } from "@/components/navbar/upload";
+import { CreateFolder } from "@/components/navbar/create-folder";
 
 export const Navbar = async () => {
     const supabase = await createClient()
@@ -17,6 +18,7 @@ export const Navbar = async () => {
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
                         <UploadImage />
+                        <CreateFolder />
                         <ModeToggle />
                         <Link href={`/${data.user?.user_metadata.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">
