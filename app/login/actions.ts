@@ -19,16 +19,6 @@ export async function login(formData: FormData) {
     const { data, error } = await supabase.auth.signInWithPassword(creds)
     if (error) redirect('/error')
 
-    // const r = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me`, {
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${data.session?.access_token}`
-    //     }
-    // })
-    // if (!r.ok) redirect('/error')
-    // const rData = await r.json()
-
     const { data: responseData, error: resposneError } = await supabase
         .from("users")
         .select("*")

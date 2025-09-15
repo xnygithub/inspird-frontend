@@ -6,10 +6,13 @@ import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { UploadImage } from "@/components/navbar/upload";
 import { CreateFolder } from "@/components/navbar/create-folder";
+import SubscribeButton from "@/components/subscribe-button";
 
 export const Navbar = async () => {
     const supabase = await createClient()
     const { data } = await supabase.auth.getUser()
+    if (!data.user) return null;
+
     return (
         <div id="navbar">
             {data.user !== null ? (
@@ -17,6 +20,7 @@ export const Navbar = async () => {
                     <p>INSPIRD</p>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
+                        <SubscribeButton user={data.user} />
                         <UploadImage />
                         <CreateFolder />
                         <ModeToggle />
