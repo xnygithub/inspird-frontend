@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Profile } from "@/app/generated/prisma/client";
 import { signOut } from "@/app/login/actions";
-import { Settings } from "@/components/layout/settings";
+import { Settings } from "@/components/settings/settings";
 
 
 export const Dropdown = ({ user }: { user: Profile }) => {

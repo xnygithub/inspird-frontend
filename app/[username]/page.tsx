@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { getUserProfileByUsername } from '@/app/[username]/actions'
 import PinsContainer from '@/app/[username]/_components/pins'
 import FoldersContainer from '@/app/[username]/_components/folders'
-import { Settings } from '@/components/layout/settings'
+import { Settings } from '@/components/settings/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
