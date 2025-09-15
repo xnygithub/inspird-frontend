@@ -9,79 +9,79 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Users {
-  id                        Int                         @id @default(autoincrement())
-  username                  String                      @unique @db.VarChar(20)
-  createdAt                 DateTime                    @default(now())
-  auth_sub                  String                      @unique @db.VarChar(50)
-  email                     String                      @unique @db.VarChar(50)
-  display_name              String                      @db.VarChar(50)
-  avatar_url                String                      @default("https://avatars.githubusercontent.com/u/123456789?v=4") @db.VarChar(255)
-  private                   Boolean                     @default(false)
-  has_onboarded             Boolean                     @default(false)
-  stripe_customer_id        String?                     @db.VarChar(255)
-  subscription_id           String?                     @db.VarChar(255)
-  subscription_status       String?                     @db.VarChar(255)
-  Folder                    Folder[]
-  posts                     Post[]
-  saved_items               SavedPost[]
-  user_subscription_history user_subscription_history[]
+// If getting permissions issue using supabase client, check this link
+//https://www.reddit.com/r/Supabase/comments/nd5pz3/permissions_issue_using_supabase_client/
+model Profile {
+  id                      String                    @id @db.Uuid
+  username                String                    @unique @db.VarChar(25)
+  createdAt               DateTime                  @default(now())
+  email                   String                    @unique @db.VarChar(50)
+  displayName             String                    @db.VarChar(50)
+  avatarUrl               String                    @default("") @db.VarChar(255)
+  profilePrivate          Boolean                   @default(false)
+  hasOnboarded            Boolean                   @default(false)
+  stripeCustomerId        String?                   @db.VarChar(255)
+  subscriptionId          String?                   @db.VarChar(255)
+  subscriptionStatus      String?                   @db.VarChar(255)
+  Folder                  Folder[]
+  posts                   Post[]
+  savedItems              SavedItems[]
+  userSubscriptionHistory userSubscriptionHistory[]
 
   @@index([username])
-  @@index([auth_sub])
-  @@map("users")
+  @@map("profiles")
 }
 
 model Post {
-  id                 Int              @id @default(autoincrement())
-  createdAt          DateTime         @default(now())
-  user_id            Int
-  is_ai_generated    Boolean          @default(false)
-  is_nsfw            Boolean          @default(false)
-  is_private         Boolean          @default(false)
-  media_alt_text     String           @db.VarChar(255)
-  media_aspect_ratio Float
-  media_height       Int
-  media_size         Int
-  media_type         MediaType        @default(image)
-  media_url          String           @db.VarChar(255)
-  media_width        Int
-  processing_status  ProcessingStatus @default(not_started)
-  FolderPost         FolderPost[]
-  users              Users            @relation(fields: [user_id], references: [id])
-  saved_items        SavedPost[]
+  id               String           @id @default(uuid()) @db.Uuid
+  createdAt        DateTime         @default(now())
+  userId           String           @db.Uuid
+  isAiGenerated    Boolean          @default(false)
+  isNsfw           Boolean          @default(false)
+  isPrivate        Boolean          @default(false)
+  mediaAltText     String           @db.VarChar(255)
+  mediaAspectRatio Float
+  mediaHeight      Int
+  mediaSize        Int
+  mediaType        MediaType        @default(image)
+  mediaUrl         String           @db.VarChar(255)
+  mediaWidth       Int
+  processingStatus ProcessingStatus @default(not_started)
+  FolderPost       FolderPost[]
+  users            Profile          @relation(fields: [userId], references: [id])
+  savedItems       SavedItems[]
 
-  @@index([user_id])
+  @@index([userId])
   @@map("posts")
 }
 
-model SavedPost {
-  id         Int          @id @default(autoincrement())
+model SavedItems {
+  id         String       @id @default(uuid()) @db.Uuid
   createdAt  DateTime     @default(now())
-  postId     Int
-  userId     Int
+  postId     String       @db.Uuid
+  userId     String       @db.Uuid
   FolderPost FolderPost[]
   posts      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
-  users      Users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users      Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, postId], map: "uq_user_saved_post")
-  @@unique([id, userId], map: "uq_savedpost_id_user")
+  @@unique([userId, postId], map: "uq_user_saved_items")
+  @@unique([userId, id], map: "uq_savedpost_id_user")
   @@index([postId])
   @@index([userId])
   @@map("saved_items")
 }
 
 model Folder {
-  id            Int             @id @default(autoincrement())
-  userId        Int
+  id            String          @id @default(uuid()) @db.Uuid
+  userId        String          @db.Uuid
   name          String          @db.VarChar(50)
   thumbnail     String?         @db.VarChar(255)
   description   String?         @db.VarChar(255)
-  is_private    Boolean         @default(false)
+  isPrivate     Boolean         @default(false)
   createdAt     DateTime        @default(now())
   FolderPost    FolderPost[]
   FolderSection FolderSection[]
-  users         Users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users         Profile         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name], map: "uq_user_folder")
   @@unique([id, userId], map: "uq_folder_id_user")
@@ -90,48 +90,48 @@ model Folder {
 }
 
 model FolderSection {
-  id         Int          @id @default(autoincrement())
+  id         String       @id @default(uuid()) @db.Uuid
+  folderId   String       @db.Uuid
   name       String       @db.VarChar(50)
   createdAt  DateTime     @default(now())
-  folderId   Int
   FolderPost FolderPost[]
   folders    Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
   @@unique([folderId, name], map: "uq_folder_section")
-  @@unique([id, folderId], map: "uq_section_id_folder")
+  @@unique([folderId, id], map: "uq_section_id_folder")
   @@index([name])
   @@index([folderId])
   @@map("folder_sections")
 }
 
 model FolderPost {
-  id          Int            @id @default(autoincrement())
-  userId      Int
-  folderId    Int
-  sectionId   Int?
-  postId      Int?
-  savedPostId Int
-  createdAt   DateTime       @default(now())
-  folders     Folder         @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
-  Post        Post?          @relation(fields: [postId], references: [id])
-  saved       SavedPost      @relation(fields: [savedPostId, userId], references: [id, userId], onDelete: Cascade)
-  section     FolderSection? @relation(fields: [sectionId, folderId], references: [id, folderId], onDelete: Cascade)
+  id           String         @id @default(uuid()) @db.Uuid
+  userId       String         @db.Uuid
+  folderId     String         @db.Uuid
+  sectionId    String?        @db.Uuid
+  postId       String?        @db.Uuid
+  savedItemsId String         @db.Uuid
+  createdAt    DateTime       @default(now())
+  folders      Folder         @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
+  Post         Post?          @relation(fields: [postId], references: [id])
+  saved        SavedItems     @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
+  section      FolderSection? @relation(fields: [folderId, sectionId], references: [folderId, id], onDelete: Cascade)
 
-  @@unique([folderId, sectionId, savedPostId], map: "uq_folder_section_saved")
+  @@unique([folderId, sectionId, savedItemsId], map: "uq_folder_section_saved")
   @@index([folderId])
   @@index([userId])
-  @@index([savedPostId])
+  @@index([savedItemsId])
   @@map("folder_posts")
 }
 
-model user_subscription_history {
-  id              Int      @id @default(autoincrement())
-  userId          Int
-  subscriptionId  String   @db.VarChar(255)
-  stripe_price_id String   @db.VarChar(255)
-  start_date      DateTime
-  end_date        DateTime
-  users           Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model userSubscriptionHistory {
+  id             Int      @id @default(autoincrement())
+  userId         String   @db.Uuid
+  subscriptionId String   @db.VarChar(255)
+  stripePriceId  String   @db.VarChar(255)
+  startDate      DateTime
+  endDate        DateTime
+  users          Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

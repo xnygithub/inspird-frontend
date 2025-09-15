@@ -6,7 +6,7 @@ export async function getUserProfileByUsername(username: string) {
     // TODO: Filter out private posts from the count
     const currentUser = await supabase.auth.getUser();
     const { data, error } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*")
         .eq("username", username)
         .single();
@@ -27,19 +27,19 @@ export async function getUserProfileByUsername(username: string) {
 
     if (foldersError) throw new Error(foldersError.message);
 
-    data.post_count = savedItemsCount;
-    data.folder_count = foldersCount;
-    data.is_me = data.auth_sub === currentUser.data.user?.id;
+    data.postCount = savedItemsCount;
+    data.folderCount = foldersCount;
+    data.isMe = data.id === currentUser.data.user?.id;
     return data;
 }
 
-export async function getUsersPosts(userId: number, from: number, to: number) {
+export async function getUsersPosts(userId: string, from: number, to: number) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("saved_items")
-        .select(`*, posts!inner(*, users(username, avatar_url))`)
+        .select(`*, posts!inner(*, users:profiles(username, avatarUrl))`)
         .eq("userId", userId)
-        .eq("posts.processing_status", "not_started")
+        .eq("posts.processingStatus", "not_started")
         .order("createdAt", { ascending: false })
         .range(from, to);
 
@@ -47,7 +47,7 @@ export async function getUsersPosts(userId: number, from: number, to: number) {
     return data;
 }
 
-export async function getUsersFolders(userId: number, from: number, to: number) {
+export async function getUsersFolders(userId: string, from: number, to: number) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("folders")

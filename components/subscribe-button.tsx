@@ -12,14 +12,12 @@ type Props = {
 export default function SubscribeButton({ user }: Props) {
     const router = useRouter();
     const [isLoading, startTransition] = useTransition();
-    console.log("user", user);
 
     const handleSubscribe = async () => {
         startTransition(async () => {
             const url = await subscribe({
-                authSub: user.id,
                 email: user.email!,
-                userId: user.user_metadata.id
+                userId: user.id
             });
             if (url) {
                 router.push(url);

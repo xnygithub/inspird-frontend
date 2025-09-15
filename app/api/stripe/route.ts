@@ -13,10 +13,10 @@ async function updateUserSubscriptionStatus(
 ) {
     const supabase = await createClient();
     const { error } = await supabase
-        .from("users")
+        .from("profiles")
         .update({
-            subscription_status: subscriptionStatus,
-            subscription_id: subscriptionId
+            subscriptionStatus: subscriptionStatus,
+            subscriptionId: subscriptionId
         })
         .eq("id", userId);
     if (error) {
@@ -28,19 +28,19 @@ async function updateUserSubscriptionStatus(
 
 async function handleCheckoutSessionCompleted(event: Stripe.Event) {
 
-    const authSub = (event.data.object as Stripe.Checkout.Session).metadata?.authSub;
+    const userId = (event.data.object as Stripe.Checkout.Session).metadata?.userId;
     const stripeCustomerId = (event.data.object as Stripe.Checkout.Session).customer;
 
-    if (!stripeCustomerId || !authSub) {
-        console.error("Missing stripeCustomerId or authSub");
-        return new NextResponse("Missing stripeCustomerId or authSub", { status: 400 });
+    if (!stripeCustomerId || !userId) {
+        console.error("Missing stripeCustomerId or userId");
+        return new NextResponse("Missing stripeCustomerId or userId", { status: 400 });
     }
 
     const supabase = await createClient();
     const { error } = await supabase
-        .from("users")
-        .update({ stripe_customer_id: stripeCustomerId })
-        .eq("auth_sub", authSub);
+        .from("profiles")
+        .update({ stripeCustomerId: stripeCustomerId })
+        .eq("id", userId);
 
     if (error) return new NextResponse("Error storing stripe customer id", { status: 500 });
 }
@@ -54,13 +54,13 @@ async function updateUserSubscriptionHistory(
 ) {
     const supabase = await createClient();
     const { error } = await supabase
-        .from("user_subscription_history")
+        .from("userSubscriptionHistory")
         .insert({
             userId: userId,
             subscriptionId: subscriptionId,
-            stripe_price_id: stripePriceId,
-            start_date: new Date(startDate * 1000).toISOString(),
-            end_date: new Date(endDate * 1000).toISOString(),
+            stripePriceId: stripePriceId,
+            startDate: new Date(startDate * 1000).toISOString(),
+            endDate: new Date(endDate * 1000).toISOString(),
         });
     if (error) {
         return new NextResponse("Error updating user subscription history", { status: 500 });

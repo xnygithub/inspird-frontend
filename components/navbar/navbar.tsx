@@ -13,6 +13,12 @@ export const Navbar = async () => {
     const { data } = await supabase.auth.getUser()
     if (!data.user) return null;
 
+    const { data: user } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+
     return (
         <div id="navbar">
             {data.user !== null ? (
@@ -20,16 +26,16 @@ export const Navbar = async () => {
                     <p>INSPIRD</p>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
-                        <SubscribeButton user={data.user} />
+                        {user.subscriptionStatus !== "active" && <SubscribeButton user={user} />}
                         <UploadImage />
                         <CreateFolder />
                         <ModeToggle />
-                        <Link href={`/${data.user?.user_metadata.username}`} className="relative">
+                        <Link href={`/${user.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">
-                                <Image src={data.user?.user_metadata.avatarURL} alt="Avatar" fill className="object-cover" />
+                                <Image src={user.avatarUrl} alt="Avatar" fill className="object-cover" />
                             </div>
                         </Link>
-                        <Dropdown user={data.user} />
+                        <Dropdown user={user} />
                     </div>
                 </>
             ) : (

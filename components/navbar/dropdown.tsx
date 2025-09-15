@@ -9,12 +9,12 @@ import {
     DropdownMenuContent,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { User } from "@supabase/supabase-js";
+import { Profile } from "@/app/generated/prisma/client";
 import { signOut } from "@/app/login/actions";
 import { Settings } from "@/components/layout/settings";
 
 
-export const Dropdown = ({ user }: { user: User }) => {
+export const Dropdown = ({ user }: { user: Profile }) => {
     const [settingsOpen, setSettingsOpen] = useState(false)
 
     return (
@@ -24,7 +24,7 @@ export const Dropdown = ({ user }: { user: User }) => {
                 <DropdownMenuContent sideOffset={15}>
                     <DropdownMenuLabel >Account</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                        <Link href={`/${user?.user_metadata.username}`}>
+                        <Link href={`/${user.username}`}>
                             Profile
                         </Link>
                     </DropdownMenuItem>

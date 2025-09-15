@@ -16,28 +16,11 @@ export async function login(formData: FormData) {
         password: formData.get('password') as string,
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword(creds)
+    const { error } = await supabase.auth.signInWithPassword(creds)
     if (error) redirect('/error')
 
-    const { data: responseData, error: resposneError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("auth_sub", data.user?.id)
-        .single();
-
-    const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-            id: responseData.id,
-            username: responseData.username,
-            displayName: responseData.displayName,
-            avatarURL: responseData.avatar,
-        }
-    })
-
-    if (updateError) redirect('/error')
-
     revalidatePath('/', 'layout')
-    redirect(`/${responseData.username}`)
+    redirect(`/`)
 }
 
 export async function signup(formData: FormData) {
@@ -54,7 +37,7 @@ export async function signup(formData: FormData) {
 
     if (error) redirect('/error')
     revalidatePath('/', 'layout')
-    redirect('/')
+    redirect('/onboard')
 }
 
 export async function signOut() {

@@ -7,27 +7,37 @@ import FoldersContainer from '@/app/[username]/_components/folders'
 import { Settings } from '@/components/layout/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
+import { Profile } from '@/app/generated/prisma/client'
 
+interface UserProfile extends Profile {
+    postCount: number;
+    folderCount: number;
+    isMe: boolean;
+}
 export default async function UsernamePage({ params }: { params: { username: string } }) {
     const { username } = await params
-    const user = await getUserProfileByUsername(username)
-
-    if (!user || (user.private && !user.is_me)) return notFound()
+    const user: UserProfile = await getUserProfileByUsername(username)
+    if (!user || (user.profilePrivate && !user.isMe)) return notFound()
 
     return (
         <>
             <div id="profile-container">
                 <div id="profile-avatar">
-                    <Image src={user.avatar_url} fill alt="User Avatar" className="object-cover" />
+                    <Image
+                        src={user.avatarUrl}
+                        fill
+                        alt="User Avatar"
+                        className="object-cover"
+                    />
                 </div>
                 <div id="profile-info">
                     <h1>{user.username}</h1>
-                    <h2>{user.display_name}</h2>
+                    <h2>{user.displayName}</h2>
                 </div>
-                {user.is_me && <Settings trigger={<Button>Settings</Button>} />}
+                {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
                 <div id="profile-stats">
-                    <p>{user.post_count} posts</p>
-                    <p>{user.folder_count} folders</p>
+                    <p>{user.postCount} posts</p>
+                    <p>{user.folderCount} folders</p>
                 </div>
             </div >
             <Tabs id="profile-tabs-container" defaultValue="pins">
@@ -36,10 +46,10 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <TabsTrigger value="folders">Folders</TabsTrigger>
                 </TabsList>
                 <TabsContent id="tabs-content" value="pins" forceMount >
-                    <PinsContainer user_id={user.id} />
+                    <PinsContainer user={user} />
                 </TabsContent>
                 <TabsContent id="tabs-content" value="folders" forceMount>
-                    <FoldersContainer username={username} user_id={user.id} />
+                    <FoldersContainer user={user} />
                 </TabsContent>
             </Tabs>
         </>

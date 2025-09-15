@@ -3,16 +3,15 @@
 import React, { useEffect, useState } from "react"
 import { getUsersFolders } from "@/app/[username]/actions"
 import { useInView } from "react-intersection-observer"
-import { Folder } from "@/app/generated/prisma"
+import { Folder, Profile } from "@/app/generated/prisma"
 import Link from "next/link"
 
 
 interface FoldersContainerProps {
-    username: string
-    user_id: number
+    user: Profile
 }
 
-export default function FoldersContainer({ username, user_id }: FoldersContainerProps) {
+export default function FoldersContainer({ user }: FoldersContainerProps) {
     const limit = 10
     const [offset, setOffset] = useState<number>(0)
     const [hasMore, setHasMore] = useState<boolean>(true)
@@ -25,7 +24,7 @@ export default function FoldersContainer({ username, user_id }: FoldersContainer
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newFolders: Folder[] = await getUsersFolders(user_id, from, to)
+        const newFolders: Folder[] = await getUsersFolders(user.id, from, to)
 
         if (newFolders.length === 0 || newFolders.length < limit) {
             // Below code prevents hasMore from being set 
@@ -52,11 +51,13 @@ export default function FoldersContainer({ username, user_id }: FoldersContainer
 
     if (!hydrated) return null
 
+    if (folders.length === 0) return <div className="mt-10 text-center">No folders found</div>
+
     return (
         <>
             <div id="folder-container" >
                 {folders.map((folder) => (
-                    <Link href={`/${username}/${folder.name}`} key={folder.id}>
+                    <Link href={`/${user.username}/${folder.name}`} key={folder.id}>
                         {!folder.thumbnail && <div id="folder-thumbnail"></div>}
                         <h2>{folder.name}</h2>
                     </Link>

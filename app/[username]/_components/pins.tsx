@@ -1,7 +1,7 @@
 "use client"
 
 import Image from 'next/image'
-import { Post, Users, SavedPost } from '@/app/generated/prisma'
+import { Post, Profile, SavedItems } from '@/app/generated/prisma'
 import { getUsersPosts } from '@/app/[username]/actions'
 import { useState, useEffect } from 'react'
 import React from "react"
@@ -9,11 +9,11 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useInView } from "react-intersection-observer";
 import Link from 'next/link'
 
-interface extendedSavedPost extends SavedPost {
-    posts: Post & { users: Users }
+interface extendedSavedPost extends SavedItems {
+    posts: Post & { users: Profile }
 }
 
-export default function PinsContainer({ user_id }: { user_id: number }) {
+export default function PinsContainer({ user }: { user: Profile }) {
     const limit = 10
     const [offset, setOffset] = useState<number>(0)
     const [hasMore, setHasMore] = useState<boolean>(true)
@@ -26,7 +26,7 @@ export default function PinsContainer({ user_id }: { user_id: number }) {
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newPosts: extendedSavedPost[] = await getUsersPosts(user_id, from, to)
+        const newPosts: extendedSavedPost[] = await getUsersPosts(user.id, from, to)
 
         if (newPosts.length === 0 || newPosts.length < limit) {
             // Below code prevents hasMore from being set 
@@ -53,20 +53,22 @@ export default function PinsContainer({ user_id }: { user_id: number }) {
 
     if (!hydrated) return null
 
+    if (posts.length === 0) return <div className="mt-10 text-center">No posts found</div>
+
     return (
         <>
             <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
                 <Masonry>
                     {posts.map((post) => (
                         <div className="group relative" key={post.id}>
-                            <Link href={`/posts/${post.postId}`} className="group relative">
+                            <Link href={`/posts/${post.posts.id}`} className="group relative">
                                 <Image
                                     loading="lazy"
                                     className="object-cover"
-                                    alt={post.posts.media_alt_text}
-                                    src={post.posts.media_url}
-                                    width={post.posts.media_width}
-                                    height={post.posts.media_height}
+                                    alt={post.posts.mediaAltText}
+                                    src={post.posts.mediaUrl}
+                                    width={post.posts.mediaWidth}
+                                    height={post.posts.mediaHeight}
                                     style={{ width: '100%', height: 'auto' }}
                                 />
                             </Link>
