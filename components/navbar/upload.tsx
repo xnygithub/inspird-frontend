@@ -1,16 +1,16 @@
 "use client";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { getS3UploadUrl } from "@/app/actions/s3";
 import { getImageSize } from "@/lib/utils";
 import { MediaType } from "@/app/generated/prisma";
 import { createClient } from "@/utils/supabase/client";
 
-
-export const UploadImage = () => {
-
-
+interface UploadImageProps {
+    setUploadOpen: (open: boolean) => void;
+    uploadOpen: boolean;
+}
+export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => {
     const [status, setStatus] = useState("Ready");
     async function handleFile(ev: React.ChangeEvent<HTMLInputElement>) {
         const supabase = await createClient();
@@ -72,10 +72,7 @@ export const UploadImage = () => {
     }
 
     return (
-        <Dialog >
-            <DialogTrigger asChild>
-                <Button>Upload</Button>
-            </DialogTrigger>
+        <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
             <DialogContent className="bg-black text-white">
                 <DialogTitle>Upload Image</DialogTitle>
                 <p>{status}</p>

@@ -4,8 +4,7 @@ import { Dropdown } from "@/components/navbar/dropdown";
 import { createClient } from "@/utils/supabase/server";
 import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
-import { UploadImage } from "@/components/navbar/upload";
-import { CreateFolder } from "@/components/navbar/create-folder";
+import { Create } from "@/components/navbar/create";
 import SubscribeButton from "@/components/subscribe-button";
 
 export const Navbar = async () => {
@@ -27,8 +26,7 @@ export const Navbar = async () => {
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
                         {user.subscriptionStatus !== "active" && <SubscribeButton user={user} />}
-                        <UploadImage />
-                        <CreateFolder />
+                        <Create />
                         <ModeToggle />
                         <Link href={`/${user.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">

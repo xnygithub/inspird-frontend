@@ -1,14 +1,14 @@
 "use client";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { createFolder } from "@/app/[username]/[folder]/actions";
 
-export const CreateFolder = () => {
+interface CreateFolderProps {
+    setCreateOpen: (open: boolean) => void;
+    createOpen: boolean;
+}
+export const CreateFolder = ({ setCreateOpen, createOpen }: CreateFolderProps) => {
     return (
-        <Dialog >
-            <DialogTrigger asChild>
-                <Button>Create Folder</Button>
-            </DialogTrigger>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogContent className="bg-black text-white">
                 <DialogTitle>Create Folder</DialogTitle>
                 <form action={createFolder}>
