@@ -16,6 +16,7 @@ interface SettingsProps {
 export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
     const isMobile = useMediaQuery('(max-width: 768px)')
     const [user, setUser] = useState<Profile | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     const fetchUser = async () => {
         const supabase = createClient()
@@ -26,13 +27,15 @@ export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
             .eq("id", user.user?.id)
             .single()
         setUser(userData)
+        setIsLoading(false)
     }
 
     useEffect(() => {
         fetchUser()
     }, [])
 
-    if (!user) return null
+    if (isLoading) return <div>Loading...</div>
+    if (!user) return <div>Error occured getting while fetching settings</div>
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             {trigger &&
@@ -41,6 +44,7 @@ export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
                 </DialogTrigger>
             }
             <DialogContent
+                aria-describedby="Settings"
                 className={`transition-none ${isMobile ? "min-w-full h-screen" : " min-w-[750px] h-[600px]"}`}>
                 <DialogHeader>
                     <DialogTitle>Settings</DialogTitle>
