@@ -1,4 +1,4 @@
-"use server"
+import "server-only";
 import { createClient } from "@/utils/supabase/server";
 
 export async function getUserProfileByUsername(username: string) {
@@ -30,32 +30,5 @@ export async function getUserProfileByUsername(username: string) {
     data.postCount = savedItemsCount;
     data.folderCount = foldersCount;
     data.isMe = data.id === currentUser.data.user?.id;
-    return data;
-}
-
-export async function getUsersPosts(userId: string, from: number, to: number) {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-        .from("saved_items")
-        .select(`*, posts!inner(*, users:profiles(username, avatarUrl))`)
-        .eq("userId", userId)
-        .eq("posts.processingStatus", "not_started")
-        .order("createdAt", { ascending: false })
-        .range(from, to);
-
-    if (error) throw new Error(error.message);
-    return data;
-}
-
-export async function getUsersFolders(userId: string, from: number, to: number) {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-        .from("folders")
-        .select("*")
-        .eq("userId", userId)
-        .order("createdAt", { ascending: false })
-        .range(from, to);
-
-    if (error) throw new Error(error.message);
     return data;
 }

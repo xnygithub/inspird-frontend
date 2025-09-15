@@ -1,19 +1,20 @@
 import './profile.css'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getUserProfileByUsername } from '@/app/[username]/actions'
 import PinsContainer from '@/app/[username]/_components/pins'
 import FoldersContainer from '@/app/[username]/_components/folders'
 import { Settings } from '@/components/settings/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
-
+import { getUserProfileByUsername } from '@/lib/server/profile'
 interface UserProfile extends Profile {
     postCount: number;
     folderCount: number;
     isMe: boolean;
 }
+
+
 export default async function UsernamePage({ params }: { params: { username: string } }) {
     const { username } = await params
     const user: UserProfile = await getUserProfileByUsername(username)

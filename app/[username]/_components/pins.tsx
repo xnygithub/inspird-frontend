@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { Post, Profile, SavedItems } from '@/app/generated/prisma'
-import { getUsersPosts } from '@/app/[username]/actions'
+import { getUsersPosts } from '@/lib/client/posts'
 import { useState, useEffect } from 'react'
 import React from "react"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
@@ -78,7 +78,7 @@ export default function PinsContainer({ user }: { user: Profile }) {
                     ))}
                 </Masonry>
             </ResponsiveMasonry >
-            <div ref={ref}>{loading ? "Calling getMorePosts" : "Not loading"}</div>
+            <div ref={ref}>{inView ? "Calling getMorePosts" : "Not loading"}</div>
         </>
     )
 }   

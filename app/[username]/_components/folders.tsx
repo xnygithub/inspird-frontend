@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { getUsersFolders } from "@/app/[username]/actions"
+import { getUsersFolders } from "@/lib/client/folders"
 import { useInView } from "react-intersection-observer"
 import { Folder, Profile } from "@/app/generated/prisma"
 import Link from "next/link"
