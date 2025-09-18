@@ -6,169 +6,37 @@ import { Button } from "@/components/ui/button";
 import { Upload, Toolbar } from "@/app/canvas/_components/toolbar";
 import { Menu, Delete } from "@/app/canvas/_components/menu";
 import URLImage from "@/app/canvas/_components/image";
-import { ImgItem } from "@/app/canvas/_types/image";
-
-const MAX_ZOOM = 1.5;
-const MIN_ZOOM = 0.1;
-const DOC_KEY = "canvas:doc:v1";
+import { useHydrated } from "@/app/canvas/hooks/hydrated";
+import { useWindowSize } from "@/app/canvas/hooks/window";
+import { useKeyHold } from "./hooks/draggable";
+import { useLocalDoc } from "./hooks/storage";
+import { useStageZoom } from "./hooks/zoom";
+import { useContextMenu } from "./hooks/menu";
 
 
 export default function CanvasPage() {
-    const [hydrated, setHydrated] = useState(false);
 
-    const [images, setImages] = useState<ImgItem[]>([]);
-    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const [showMenu, setShowMenu] = useState(false);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [windowWidth, setWindowWidth] = useState(0);
-    const [windowHeight, setWindowHeight] = useState(0);
-    const [stageDraggable, setStageDraggable] = useState(false);
-    const stageRef = useRef<Konva.Stage | null>(null);
-    const layerRef = useRef<Konva.Layer | null>(null);
+    // Hooks
+    const hydrated = useHydrated();
+    const onWheel = useStageZoom(stageRef);
+    const stageDraggable = useKeyHold("Shift");
+    const { width: windowWidth, height: windowHeight } = useWindowSize();
+    const { images, setImages, save, load, patchImage, removeImage } = useLocalDoc();
+    const { position, visible, selectedId, setVisible, setSelectedId, onContextMenu } = useContextMenu();
 
-    useEffect(() => setHydrated(true), []);
+    // Refs
+    const stageRef = useRef<Konva.Stage>(null);
+    const layerRef = useRef<Konva.Layer>(null);
 
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Shift') setStageDraggable(true);
-        };
-        const handleKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'Shift') setStageDraggable(false);
-        };
-
-        document.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("keyup", handleKeyUp);
-
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("keyup", handleKeyUp);
-        };
-    }, []);
-
-    // Close context menu when clicking anywhere else
-    useEffect(() => {
-        const handleWindowClick = () => setShowMenu(false);
-        window.addEventListener("click", handleWindowClick);
-        return () => window.removeEventListener("click", handleWindowClick);
-    }, []);
-
-    const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
-        e.evt.preventDefault();
-        const target: Konva.Node = e.target;
-        if (!target || target === target.getStage()) return;
-
-        const stage = target.getStage();
-        if (!stage) return;
-        const containerRect = stage.container().getBoundingClientRect();
-        const pointer = stage.getPointerPosition();
-        if (!pointer) return;
-
-        setMenuPosition({
-            x: containerRect.left + pointer.x + 4,
-            y: containerRect.top + pointer.y + 4,
-        });
-
-        setSelectedId(target.id());
-        setShowMenu(true);
-        e.cancelBubble = true;
-    };
-
-    const handleDelete = () => {
+    const onDelete = () => {
         if (!selectedId) return;
-        setImages((prev) => prev.filter((it) => it.id !== selectedId));
-        setShowMenu(false);
+        removeImage(selectedId);
+        setVisible(false);
         setSelectedId(null);
     };
 
-    const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
-
-        e.evt.preventDefault();
-
-        const stage = stageRef.current;
-        if (!stage) return;
-        const oldScale = stage.scaleX();
-        const pointer = stage.getPointerPosition();
-        if (!pointer) return;
-
-        const mousePointTo = {
-            x: (pointer.x - stage.x()) / oldScale,
-            y: (pointer.y - stage.y()) / oldScale,
-        };
-
-        // how to scale? Zoom in? Or zoom out?
-        let direction = e.evt.deltaY > 0 ? -1 : 1;
-
-        // when we zoom on trackpad, e.evt.ctrlKey is true
-        // in that case lets revert direction
-        if (e.evt.ctrlKey) {
-            direction = -direction;
-        }
-
-        const scaleBy = 1.2;
-        const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-        if (newScale > MAX_ZOOM || newScale < MIN_ZOOM) return;
-
-        stage.scale({ x: newScale, y: newScale });
-
-        const newPos = {
-            x: pointer.x - mousePointTo.x * newScale,
-            y: pointer.y - mousePointTo.y * newScale,
-        };
-        stage.position(newPos);
-    };
-
-    useEffect(() => {
-        const raw = localStorage.getItem(DOC_KEY);
-        if (raw) {
-            try {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed.images)) setImages(parsed.images);
-            } catch {
-                // ignore bad data
-            }
-        }
-    }, []);
-
-    const saveDoc = () => {
-        localStorage.setItem(DOC_KEY, JSON.stringify({ images }));
-        alert("Saved");
-    };
-
-    const loadDoc = () => {
-        const raw = localStorage.getItem(DOC_KEY);
-        if (!raw) return alert("Nothing saved yet");
-        try {
-            const parsed = JSON.parse(raw);
-            setImages(parsed.images || []);
-            alert("Loaded");
-        } catch {
-            alert("Failed to parse saved data");
-        }
-    };
-
-    const patchImage = (id: string, patch: Partial<ImgItem>) => {
-        setImages((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-    };
-
-    useEffect(() => {
-        // Safe: runs only in the browser
-        setWindowWidth(window.innerWidth);
-        setWindowHeight(window.innerHeight - 75);
-
-        const handleResize = () => {
-            setWindowWidth(window.innerWidth);
-            setWindowHeight(window.innerHeight - 75);
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-
     if (!hydrated) return null;
-
-
 
     return (
         <div className="bg-gray-500/20">
@@ -178,8 +46,8 @@ export default function CanvasPage() {
                     ref={stageRef}
                     width={windowWidth}
                     height={windowHeight}
-                    onWheel={handleWheel}
-                    onContextMenu={handleContextMenu}
+                    onWheel={onWheel}
+                    onContextMenu={onContextMenu}
                 >
                     <Layer ref={layerRef}>
                         {images.map((item) => (
@@ -192,16 +60,16 @@ export default function CanvasPage() {
                         ))}
                     </Layer>
                 </Stage>
-                {showMenu && (
-                    <Menu menuPosition={menuPosition}>
-                        <Delete handleDelete={handleDelete} />
+                {visible && (
+                    <Menu menuPosition={position}>
+                        <Delete handleDelete={onDelete} />
                     </Menu>
                 )}
             </div>
             <Toolbar>
                 <Upload setImages={setImages} />
-                <Button onClick={saveDoc}>Save</Button>
-                <Button onClick={loadDoc}>Load</Button>
+                <Button onClick={save}>Save</Button>
+                <Button onClick={load}>Load</Button>
             </Toolbar>
         </div >
     );

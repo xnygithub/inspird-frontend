@@ -1,7 +1,7 @@
 import { Image as KonvaImage } from "react-konva";
 import useImage from "use-image";
 import { ImgItem } from '@/app/canvas/_types/image';
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
     item: ImgItem;
@@ -17,12 +17,26 @@ export default function URLImage({ item, onChange, onSelect }: Props) {
     const aspectRatio = item.width ? item.height ? item.width / item.height : 1 : 1;
     const START_HEIGHT = START_WIDTH / aspectRatio;
 
+    const [isDraggable, setIsDraggable] = useState(false);
+
+    useEffect(() => {
+        // Only draggable when Shift is NOT held
+        const down = (e: KeyboardEvent) => e.key === "Shift" && setIsDraggable(false);
+        const up = (e: KeyboardEvent) => e.key === "Shift" && setIsDraggable(true);
+        document.addEventListener("keydown", down);
+        document.addEventListener("keyup", up);
+        return () => {
+            document.removeEventListener("keydown", down);
+            document.removeEventListener("keyup", up);
+        };
+    }, []);
+
     return (
         <KonvaImage
             ref={nodeRef}
             id={item.id}
             image={img}
-            draggable
+            draggable={isDraggable}
             x={item.x}
             y={item.y}
             width={START_WIDTH}
