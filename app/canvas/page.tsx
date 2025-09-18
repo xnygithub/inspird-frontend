@@ -28,19 +28,6 @@ export default function CanvasPage() {
 
     useEffect(() => setHydrated(true), []);
 
-    useEffect(() => {
-        // Safe: runs only in the browser
-        setWindowWidth(window.innerWidth);
-        setWindowHeight(window.innerHeight - 75);
-
-        const handleResize = () => {
-            setWindowWidth(window.innerWidth);
-            setWindowHeight(window.innerHeight - 75);
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -165,11 +152,17 @@ export default function CanvasPage() {
     };
 
     useEffect(() => {
+        // Safe: runs only in the browser
+        setWindowWidth(window.innerWidth);
+        setWindowHeight(window.innerHeight - 75);
+
         const handleResize = () => {
             setWindowWidth(window.innerWidth);
             setWindowHeight(window.innerHeight - 75);
         };
+
         window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
 
