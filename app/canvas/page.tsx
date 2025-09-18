@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer } from "react-konva";
+import Konva from "konva";
 import { Button } from "@/components/ui/button";
 import { Upload, Toolbar } from "@/app/canvas/_components/toolbar";
 import { Menu, Delete } from "@/app/canvas/_components/menu";
@@ -19,9 +20,11 @@ export default function CanvasPage() {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [showMenu, setShowMenu] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight - 75);
 
-    const stageRef = useRef<any>(null);
-    const layerRef = useRef<any>(null);
+    const stageRef = useRef<Konva.Stage | null>(null);
+    const layerRef = useRef<Konva.Layer | null>(null);
 
     useEffect(() => setHydrated(true), []);
 
@@ -32,14 +35,16 @@ export default function CanvasPage() {
         return () => window.removeEventListener("click", handleWindowClick);
     }, []);
 
-    const handleContextMenu = (e: any) => {
+    const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
         e.evt.preventDefault();
-        const target = e.target;
+        const target: Konva.Node = e.target;
         if (!target || target === target.getStage()) return;
 
         const stage = target.getStage();
+        if (!stage) return;
         const containerRect = stage.container().getBoundingClientRect();
         const pointer = stage.getPointerPosition();
+        if (!pointer) return;
 
         setMenuPosition({
             x: containerRect.left + pointer.x + 4,
@@ -58,13 +63,15 @@ export default function CanvasPage() {
         setSelectedId(null);
     };
 
-    const handleWheel = (e) => {
+    const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
 
         e.evt.preventDefault();
 
         const stage = stageRef.current;
+        if (!stage) return;
         const oldScale = stage.scaleX();
         const pointer = stage.getPointerPosition();
+        if (!pointer) return;
 
         const mousePointTo = {
             x: (pointer.x - stage.x()) / oldScale,
@@ -126,10 +133,18 @@ export default function CanvasPage() {
         setImages((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
     };
 
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+            setWindowHeight(window.innerHeight - 75);
+        };
+        window.addEventListener("resize", handleResize);
+    }, []);
+
 
     if (!hydrated) return null;
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight - 75;
+
+
 
     return (
         <div className="bg-gray-500/20">
