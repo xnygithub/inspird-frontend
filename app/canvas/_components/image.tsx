@@ -17,7 +17,7 @@ export default function URLImage({ item, onChange, onSelect }: Props) {
     const aspectRatio = item.width ? item.height ? item.width / item.height : 1 : 1;
     const START_HEIGHT = START_WIDTH / aspectRatio;
 
-    const [isDraggable, setIsDraggable] = useState(false);
+    const [isDraggable, setIsDraggable] = useState(true);
 
     useEffect(() => {
         // Only draggable when Shift is NOT held
