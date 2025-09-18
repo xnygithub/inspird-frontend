@@ -20,13 +20,44 @@ export default function CanvasPage() {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [showMenu, setShowMenu] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight - 75);
-
+    const [windowWidth, setWindowWidth] = useState(0);
+    const [windowHeight, setWindowHeight] = useState(0);
+    const [stageDraggable, setStageDraggable] = useState(false);
     const stageRef = useRef<Konva.Stage | null>(null);
     const layerRef = useRef<Konva.Layer | null>(null);
 
     useEffect(() => setHydrated(true), []);
+
+    useEffect(() => {
+        // Safe: runs only in the browser
+        setWindowWidth(window.innerWidth);
+        setWindowHeight(window.innerHeight - 75);
+
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+            setWindowHeight(window.innerHeight - 75);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Shift') setStageDraggable(true);
+        };
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'Shift') setStageDraggable(false);
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keyup", handleKeyUp);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("keyup", handleKeyUp);
+        };
+    }, []);
 
     // Close context menu when clicking anywhere else
     useEffect(() => {
@@ -150,7 +181,7 @@ export default function CanvasPage() {
         <div className="bg-gray-500/20">
             <div>
                 <Stage
-                    draggable
+                    draggable={stageDraggable}
                     ref={stageRef}
                     width={windowWidth}
                     height={windowHeight}
