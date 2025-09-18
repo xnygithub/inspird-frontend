@@ -18,7 +18,6 @@ export default function CanvasPage() {
 
     // Hooks
     const hydrated = useHydrated();
-    const onWheel = useStageZoom(stageRef);
     const stageDraggable = useKeyHold("Shift");
     const { width: windowWidth, height: windowHeight } = useWindowSize();
     const { images, setImages, save, load, patchImage, removeImage } = useLocalDoc();
@@ -27,6 +26,7 @@ export default function CanvasPage() {
     // Refs
     const stageRef = useRef<Konva.Stage>(null);
     const layerRef = useRef<Konva.Layer>(null);
+    const onWheel = useStageZoom(stageRef);
 
 
     const onDelete = () => {
