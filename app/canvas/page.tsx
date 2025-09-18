@@ -7,8 +7,9 @@ import { Menu, Delete } from "@/app/canvas/_components/menu";
 import URLImage from "@/app/canvas/_components/image";
 import { ImgItem } from "@/app/canvas/_types/image";
 
-const MAX_ZOOM = 1.2;
+const MAX_ZOOM = 1.5;
 const MIN_ZOOM = 0.1;
+const DOC_KEY = "canvas:doc:v1";
 
 
 export default function CanvasPage() {
@@ -92,17 +93,43 @@ export default function CanvasPage() {
         stage.position(newPos);
     };
 
+    useEffect(() => {
+        const raw = localStorage.getItem(DOC_KEY);
+        if (raw) {
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.images)) setImages(parsed.images);
+            } catch {
+                // ignore bad data
+            }
+        }
+    }, []);
+
+    const saveDoc = () => {
+        localStorage.setItem(DOC_KEY, JSON.stringify({ images }));
+        alert("Saved");
+    };
+
+    const loadDoc = () => {
+        const raw = localStorage.getItem(DOC_KEY);
+        if (!raw) return alert("Nothing saved yet");
+        try {
+            const parsed = JSON.parse(raw);
+            setImages(parsed.images || []);
+            alert("Loaded");
+        } catch {
+            alert("Failed to parse saved data");
+        }
+    };
+
+    const patchImage = (id: string, patch: Partial<ImgItem>) => {
+        setImages((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+    };
+
 
     if (!hydrated) return null;
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight - 75;
-
-    const handleSerialize = () => {
-        // In a real app, prefer saving app state, not stage JSON
-        const json = JSON.stringify({ shapes: [images] });
-        console.log('Serialized state:', json);
-        alert('State serialized! Check the console for the JSON string.');
-    };
 
     return (
         <div className="bg-gray-500/20">
@@ -117,7 +144,12 @@ export default function CanvasPage() {
                 >
                     <Layer ref={layerRef}>
                         {images.map((item) => (
-                            <URLImage item={item} key={item.id} />
+                            <URLImage
+                                item={item}
+                                key={item.id}
+                                onSelect={() => setSelectedId(item.id)}
+                                onChange={(patch) => patchImage(item.id, patch)}
+                            />
                         ))}
                     </Layer>
                 </Stage>
@@ -129,7 +161,8 @@ export default function CanvasPage() {
             </div>
             <Toolbar>
                 <Upload setImages={setImages} />
-                <Button onClick={handleSerialize}>Save</Button>
+                <Button onClick={saveDoc}>Save</Button>
+                <Button onClick={loadDoc}>Load</Button>
             </Toolbar>
         </div >
     );

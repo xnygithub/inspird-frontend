@@ -5,12 +5,14 @@
     translate: -50% -50%;
     background-color: #f0f0f0;
     z-index: 1000;
-    color: #000;
+    color: #ffffff;
     display: flex;
     gap: 0.5rem;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid #000;
 
 }
 
