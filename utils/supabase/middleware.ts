@@ -37,6 +37,22 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    if (user) {
+        const path = request.nextUrl.pathname;
+        const hasOnboarded = user.user_metadata.hasOnboarded;
+        if (path.startsWith('/onboard') && hasOnboarded) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+
+        if (!path.startsWith('/onboard') && !hasOnboarded) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/onboard'
+            return NextResponse.redirect(url)
+        }
+    }
+
     if (
         !user &&
         !request.nextUrl.pathname.startsWith('/login') &&

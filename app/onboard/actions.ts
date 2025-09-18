@@ -25,6 +25,12 @@ export async function createUser(formData: FormData) {
 
     if (error) redirect('/error')
 
+    await supabase.auth.updateUser({
+        data: {
+            hasOnboarded: true,
+        },
+    })
+
     revalidatePath('/', 'layout')
     redirect(`/${username}`)
 }
