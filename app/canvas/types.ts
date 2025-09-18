@@ -1,6 +1,6 @@
 export type ImgItem = {
     id: string;
-    src: string;  // data URL (portable)
+    src: string;
     x: number;
     y: number;
     scaleX: number;

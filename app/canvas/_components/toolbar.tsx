@@ -1,7 +1,7 @@
 import "./../canvas.css";
 import React from 'react'
 import { Button } from '@/components/ui/button';
-import { ImgItem } from '@/app/canvas/_types/image';
+import { ImgItem } from '@/app/canvas/types';
 
 export function Toolbar({ children }: { children: React.ReactNode }) {
     return (

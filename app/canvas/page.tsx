@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Stage, Layer } from "react-konva";
 import Konva from "konva";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export default function CanvasPage() {
     // Refs
     const stageRef = useRef<Konva.Stage>(null);
     const layerRef = useRef<Konva.Layer>(null);
-    const onWheel = useStageZoom(stageRef);
+    const onWheel = useStageZoom(stageRef as React.RefObject<Konva.Stage>);
 
 
     const onDelete = () => {

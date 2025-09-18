@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ImgItem } from "@/app/canvas/_types/image";
+import type { ImgItem } from "@/app/canvas/types";
 
 const DOC_KEY = "canvas:doc:v1";
 

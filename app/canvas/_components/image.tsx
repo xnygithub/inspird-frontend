@@ -1,6 +1,7 @@
 import { Image as KonvaImage } from "react-konva";
+import type Konva from "konva";
 import useImage from "use-image";
-import { ImgItem } from '@/app/canvas/_types/image';
+import { ImgItem } from '@/app/canvas/types';
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 
 export default function URLImage({ item, onChange, onSelect }: Props) {
     const [img] = useImage(item.src, "anonymous");
-    const nodeRef = useRef<any>(null);
+    const nodeRef = useRef<Konva.Image>(null);
 
     const START_WIDTH = 300;
     const aspectRatio = item.width ? item.height ? item.width / item.height : 1 : 1;
@@ -51,11 +52,11 @@ export default function URLImage({ item, onChange, onSelect }: Props) {
             onTransformEnd={() => {
                 const n = nodeRef.current;
                 onChange({
-                    x: n.x(),
-                    y: n.y(),
-                    scaleX: n.scaleX(),
-                    scaleY: n.scaleY(),
-                    rotation: n.rotation(),
+                    x: n?.x(),
+                    y: n?.y(),
+                    scaleX: n?.scaleX(),
+                    scaleY: n?.scaleY(),
+                    rotation: n?.rotation(),
                 });
             }}
         />
