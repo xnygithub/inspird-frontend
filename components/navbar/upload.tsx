@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { getS3UploadUrl } from "@/app/actions/s3";
 import { getImageSize } from "@/lib/utils";
-import { MediaType } from "@/app/generated/prisma";
+import { MediaType, Post, ProcessingStatus, SavedItems } from "@/app/generated/prisma";
 import { createClient } from "@/utils/supabase/client";
 
 interface UploadImageProps {
@@ -45,27 +45,35 @@ export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => 
 
         setStatus("Done!");
 
-        const new_post = {
-            user_id: user?.user?.user_metadata?.id as number,
-            media_url: "https://pinit-images-bucket.s3.eu-west-1.amazonaws.com/" + key,
-            media_type: "image" as MediaType,
-            media_width: imageData.width,
-            media_height: imageData.height,
-            media_size: imageData.size,
-            media_aspect_ratio: imageData.aspectRatio,
-            media_alt_text: "",
+        const newPost: Post = {
+            id: crypto.randomUUID(),
+            createdAt: new Date(),
+            isAiGenerated: false,
+            isNsfw: false,
+            isPrivate: false,
+            userId: user?.user?.id as string,
+            mediaUrl: "https://pinit-images-bucket.s3.eu-west-1.amazonaws.com/" + key,
+            mediaType: "image" as MediaType,
+            mediaWidth: imageData.width,
+            mediaHeight: imageData.height,
+            mediaSize: imageData.size,
+            mediaAspectRatio: imageData.aspectRatio,
+            mediaAltText: "",
+            processingStatus: "not_started" as ProcessingStatus,
         };
 
-        const { data, error } = await supabase.from("posts").insert(new_post).select("id").single();
+        const { data, error } = await supabase.from("posts").insert(newPost).select("id").single();
         if (error) {
             console.error(error);
             setStatus("Upload failed");
             return;
         }
 
-        const new_saved_post = {
+        const new_saved_post: SavedItems = {
+            id: crypto.randomUUID(),
+            createdAt: new Date(),
             postId: data.id,
-            userId: user?.user?.user_metadata?.id as number,
+            userId: user?.user?.id as string,
         }
         await supabase.from("saved_items").insert(new_saved_post).select("id").single();
 
