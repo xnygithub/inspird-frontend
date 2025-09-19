@@ -98,7 +98,6 @@ export default function CanvasPage() {
                             ref={trRef}
                             flipEnabled={false}
                             boundBoxFunc={(oldBox, newBox) => {
-                                console.log(oldBox, newBox);
                                 if (newBox.width < 200) {
                                     return oldBox;
                                 }

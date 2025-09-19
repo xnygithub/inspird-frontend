@@ -24,10 +24,7 @@ export default function CanvasContainer({ user }: CanvasContainerProps) {
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        console.log("from", from)
-        console.log("to", to)
         const newCanvasDocs: CanvasDoc[] = await getUsersCanvasDocs(user.id, from, to)
-        console.log("newCanvasDocs", newCanvasDocs)
 
         if (newCanvasDocs.length === 0 || newCanvasDocs.length < limit) {
             // Below code prevents hasMore from being set 
@@ -53,8 +50,6 @@ export default function CanvasContainer({ user }: CanvasContainerProps) {
     }, [inView])
 
     if (!hydrated) return null
-    console.log("canvasDocs", canvasDocs)
-    console.log("inView", inView)
 
     if (canvasDocs.length === 0 && !loading && !hasMore) {
         return <div className="mt-10 text-center">No canvas docs found</div>

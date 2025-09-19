@@ -17,8 +17,6 @@ export async function createCanvas(formData: FormData) {
         .insert({ id: crypto.randomUUID(), title: canvasTitle, userId: id, data: initialData })
         .select("*")
         .single();
-    console.log("data", data)
-    console.log("error", error)
 
     if (error) return null
 
