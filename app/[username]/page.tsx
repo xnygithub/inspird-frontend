@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
 import { getUserProfileByUsername } from '@/lib/server/profile'
+import CanvasContainer from './_components/canvas'
 interface UserProfile extends Profile {
     postCount: number;
     folderCount: number;
@@ -45,12 +46,16 @@ export default async function UsernamePage({ params }: { params: { username: str
                 <TabsList >
                     <TabsTrigger value="pins">Pins</TabsTrigger>
                     <TabsTrigger value="folders">Folders</TabsTrigger>
+                    <TabsTrigger value="canvas">Canvas</TabsTrigger>
                 </TabsList>
                 <TabsContent id="tabs-content" value="pins" forceMount >
                     <PinsContainer user={user} />
                 </TabsContent>
                 <TabsContent id="tabs-content" value="folders" forceMount>
                     <FoldersContainer user={user} />
+                </TabsContent>
+                <TabsContent id="tabs-content" value="canvas" forceMount>
+                    <CanvasContainer user={user} />
                 </TabsContent>
             </Tabs>
         </>

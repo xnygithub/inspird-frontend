@@ -9,10 +9,12 @@ import { CreateFolder } from "./create-folder"
 import { UploadImage } from "./upload"
 import { Button } from "../ui/button"
 import { useState } from "react"
+import { CreateCanvas } from "./create-canvas"
 
 export const Create = () => {
     const [createOpen, setCreateOpen] = useState(false)
     const [uploadOpen, setUploadOpen] = useState(false)
+    const [createCanvasOpen, setCreateCanvasOpen] = useState(false)
     return (
         <>
             <DropdownMenu>
@@ -26,10 +28,14 @@ export const Create = () => {
                     <DropdownMenuItem>
                         <Button onClick={() => setUploadOpen(true)}>Upload Image</Button>
                     </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <Button onClick={() => setCreateCanvasOpen(true)}>Create Canvas</Button>
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             {createOpen && <CreateFolder setCreateOpen={setCreateOpen} createOpen={createOpen} />}
             {uploadOpen && <UploadImage setUploadOpen={setUploadOpen} uploadOpen={uploadOpen} />}
+            {createCanvasOpen && <CreateCanvas setCreateOpen={setCreateCanvasOpen} createOpen={createCanvasOpen} />}
         </>
     )
 }
