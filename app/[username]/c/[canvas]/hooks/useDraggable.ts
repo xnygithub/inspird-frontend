@@ -1,5 +1,5 @@
+"use client";
 import { useEffect, useState } from "react";
-
 
 export function useKeyHold(key: string) {
     const [held, setHeld] = useState(false);

@@ -51,6 +51,12 @@
     grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
     gap: 1rem;
   }
+  
+  #canvas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+    gap: 1rem;
+  }
 
   #folder-thumbnail {
     background-color: gray;

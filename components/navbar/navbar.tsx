@@ -22,7 +22,9 @@ export const Navbar = async () => {
         <div id="navbar">
             {data.user !== null ? (
                 <>
-                    <p>INSPIRD</p>
+                    <Link href="/">
+                        <p>INSPIRD</p>
+                    </Link>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
                         {user.subscriptionStatus !== "active" && <SubscribeButton user={user} />}

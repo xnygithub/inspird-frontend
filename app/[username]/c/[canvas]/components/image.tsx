@@ -1,8 +1,9 @@
-import { Image as KonvaImage } from "react-konva";
+"use client";
 import type Konva from "konva";
 import useImage from "use-image";
-import { ImgItem } from '@/app/canvas/types';
+import { Image as KonvaImage } from "react-konva";
 import { useEffect, useRef, useState } from "react";
+import { ImgItem } from '@/app/[username]/c/[canvas]/types';
 
 type Props = {
     item: ImgItem;
@@ -11,10 +12,8 @@ type Props = {
 };
 
 export default function URLImage({ item, onChange, onSelect }: Props) {
-    const [img] = useImage(item.src, "anonymous");
     const nodeRef = useRef<Konva.Image>(null);
-
-
+    const [img] = useImage(item.src, "anonymous");
     const [isDraggable, setIsDraggable] = useState(true);
 
     useEffect(() => {
@@ -42,16 +41,15 @@ export default function URLImage({ item, onChange, onSelect }: Props) {
             scaleX={item.scaleX ?? 1}
             scaleY={item.scaleY ?? 1}
             rotation={item.rotation ?? 0}
-            onMouseDown={() => { onSelect(nodeRef.current as Konva.Image) }}
+            onMouseDown={(e) => { onSelect(e.target as Konva.Image) }}
             onDragEnd={(e) => { onChange({ x: e.target.x(), y: e.target.y() }) }}
-            onTransformEnd={() => {
-                const n = nodeRef.current;
+            onTransformEnd={(e) => {
                 onChange({
-                    x: n?.x(),
-                    y: n?.y(),
-                    scaleX: n?.scaleX(),
-                    scaleY: n?.scaleY(),
-                    rotation: n?.rotation(),
+                    x: e.target.x(),
+                    y: e.target.y(),
+                    scaleX: e.target.scaleX(),
+                    scaleY: e.target.scaleY(),
+                    rotation: e.target.rotation(),
                 });
             }}
         />

@@ -60,6 +60,7 @@ export default function CanvasContainer({ user }: CanvasContainerProps) {
             <div id="canvas-container" >
                 {canvasDocs.map((canvasDoc) => (
                     <Link href={`/${user.username}/c/${canvasDoc.title}`} key={canvasDoc.id}>
+                        <div className="bg-gray-200/30 w-full h-full"></div>
                         <h2>{canvasDoc.title}</h2>
                     </Link>
                 ))}
