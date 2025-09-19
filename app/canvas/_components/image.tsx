@@ -7,16 +7,13 @@ import { useEffect, useRef, useState } from "react";
 type Props = {
     item: ImgItem;
     onChange: (patch: Partial<ImgItem>) => void;
-    onSelect?: () => void;
+    onSelect: (ref: Konva.Image) => void;
 };
 
 export default function URLImage({ item, onChange, onSelect }: Props) {
     const [img] = useImage(item.src, "anonymous");
     const nodeRef = useRef<Konva.Image>(null);
 
-    const START_WIDTH = 300;
-    const aspectRatio = item.width ? item.height ? item.width / item.height : 1 : 1;
-    const START_HEIGHT = START_WIDTH / aspectRatio;
 
     const [isDraggable, setIsDraggable] = useState(true);
 
@@ -40,15 +37,13 @@ export default function URLImage({ item, onChange, onSelect }: Props) {
             draggable={isDraggable}
             x={item.x}
             y={item.y}
-            width={START_WIDTH}
-            height={START_HEIGHT}
+            width={item.width}
+            height={item.height}
             scaleX={item.scaleX ?? 1}
             scaleY={item.scaleY ?? 1}
             rotation={item.rotation ?? 0}
-            onMouseDown={onSelect}
-            onDragEnd={(e) => {
-                onChange({ x: e.target.x(), y: e.target.y() });
-            }}
+            onMouseDown={() => { onSelect(nodeRef.current as Konva.Image) }}
+            onDragEnd={(e) => { onChange({ x: e.target.x(), y: e.target.y() }) }}
             onTransformEnd={() => {
                 const n = nodeRef.current;
                 onChange({
