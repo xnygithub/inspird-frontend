@@ -9,7 +9,6 @@ export function useStageZoom(stageRef: React.RefObject<Konva.Stage>) {
     return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
         e.evt.preventDefault();
 
-
         const stage = stageRef.current;
         if (!stage) return;
         const oldScale = stage.scaleX();

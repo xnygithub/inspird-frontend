@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import URLImage from "@/app/[username]/c/[canvas]/components/image";
 import { useHydrated } from "@/app/[username]/c/[canvas]/hooks/useHydrated";
 import { useWindowSize } from "@/app/[username]/c/[canvas]/hooks/useWindowSize";
-import { useKeyHold } from "@/app/[username]/c/[canvas]/hooks/useDraggable";
 import { useStageZoom } from "@/app/[username]/c/[canvas]/hooks/useZoom";
 import { useContextMenu } from "@/app/[username]/c/[canvas]/hooks/useMenu";
 import Library from "@/app/[username]/c/[canvas]/components/import";
@@ -16,7 +15,6 @@ import { useUpdate } from "../hooks/useUpdate";
 import { ImgItem } from "../types";
 import { GetUsersPostsResult } from "@/lib/client/posts";
 import { updateCanvas } from "../actions";
-import { useSetInitalStage } from "../hooks/useInit";
 import { transformerConfig } from "../config";
 import CtxMenu from "../components/ctx-menu";
 import { CanvasDoc } from "@/app/generated/prisma";
@@ -33,7 +31,6 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
 
     // Hooks
     const hydrated = useHydrated();
-    const stageDraggable = useKeyHold("Shift");
     const { width: windowWidth, height: windowHeight } = useWindowSize();
     const { images, setImages, patchImage, removeImage, addImage } = useUpdate(canvas.data);
     const { position, visible, selectedId, setVisible, setSelectedId, onContextMenu } = useContextMenu();
@@ -43,9 +40,19 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
     const stageRef = useRef<Konva.Stage>(null);
     const layerRef = useRef<Konva.Layer>(null);
     const trRef = useRef<Konva.Transformer>(null);
-    const onWheel = useStageZoom(stageRef as React.RefObject<Konva.Stage>);
+    // @ts-expect-error - stageRef is not always defined
+    const onWheel = useStageZoom(stageRef);
 
-    useSetInitalStage({ stageRef: stageRef as React.RefObject<Konva.Stage>, data: canvas.data, hydrated });
+    useEffect(() => {
+        // Load initial stage state from canvas data saved in database
+        if (!hydrated) return;
+        if (!stageRef.current) return;
+        stageRef.current.scale({ x: canvas.data.stage.zoom, y: canvas.data.stage.zoom });
+        stageRef.current.position({ x: canvas.data.stage.x, y: canvas.data.stage.y });
+        stageRef.current.batchDraw();
+
+        // TODO: Do we need to add stageRef and data to the dependency array?
+    }, [hydrated, stageRef, canvas.data]);
 
     // Dialogs  
     const addPost = (post: GetUsersPostsResult["posts"][]) => {
@@ -79,6 +86,12 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
         }
     };
 
+    const resetCamera = () => {
+        if (!stageRef.current) return;
+        stageRef.current.position({ x: 0, y: 0 });
+        stageRef.current.scale({ x: 1, y: 1 });
+    }
+
     useEffect(() => {
         if (!trRef.current) return;
         // Attach transformer to selected image, or detach when none selected
@@ -90,9 +103,31 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
         trRef.current.getLayer()?.batchDraw();
     }, [selectedId])
 
+    // Stop stage dragging on global mouseup to ensure it ends even if pointer leaves canvas
+    useEffect(() => {
+        const handleMouseUp = (e: MouseEvent) => {
+            if (e.button !== 1) return;
+            const stage = stageRef.current;
+            if (!stage) return;
+            stage.stopDrag();
+            stage.draggable(false);
+        };
+        document.addEventListener("mouseup", handleMouseUp);
+        return () => {
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, []);
+
     const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
         const stage = e.target.getStage();
         if (!stage) return;
+        // Start panning on middle mouse
+        if (e.evt && e.evt.button === 1) {
+            e.evt.preventDefault();
+            stage.draggable(true);
+            stage.startDrag();
+            return;
+        }
         const clickedOnEmpty = e.target === stage;
         if (clickedOnEmpty) {
             setSelectedId(null);
@@ -110,9 +145,9 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
         <div id="stage-container">
             <Stage
                 ref={stageRef}
+                draggable={false}
                 width={windowWidth}
                 height={windowHeight}
-                draggable={stageDraggable}
                 onWheel={onWheel}
                 onContextMenu={onContextMenu}
                 onMouseDown={handleStageMouseDown}
@@ -123,7 +158,7 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
                             item={item}
                             key={item.id}
                             onChange={(patch) => patchImage(item.id, patch)}
-                            onSelect={(ref) => { setSelectedId(item.id); onRefClick(ref) }} />
+                            onSelect={(ref) => { ref.moveToTop(); setSelectedId(item.id); onRefClick(ref) }} />
                     ))}
                     <Transformer ref={trRef} {...transformerConfig} />
                 </Layer>
@@ -134,10 +169,15 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
                 </CtxMenu>
             )}
             <div id="stage-toolbar" >
+                <Button onClick={resetCamera}>Reset Camera</Button>
                 <Button onClick={handleSaveCanvas} >Save</Button>
                 <Button onClick={() => setIsLibraryOpen(true)}> Add</Button>
             </div>
-            <Library open={isLibraryOpen} onOpenChange={setIsLibraryOpen} addPost={addPost} />
+            <Library
+                addPost={addPost}
+                open={isLibraryOpen}
+                onOpenChange={setIsLibraryOpen}
+            />
         </div >
     );
 }
