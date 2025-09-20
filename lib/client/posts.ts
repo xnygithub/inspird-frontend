@@ -1,9 +1,9 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { Post, SavedItems } from "@/app/generated/prisma";
+import { Post, Profile, SavedItems } from "@/app/generated/prisma";
 
 export interface GetUsersPostsResult extends SavedItems {
-    posts: Post;
+    posts: Post & { users: Profile };
 }
 export async function getUsersPosts(userId: string, from: number, to: number) {
     const supabase = await createClient();

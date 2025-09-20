@@ -1,17 +1,14 @@
 "use client"
 
 import Image from 'next/image'
-import { Post, Profile, SavedItems } from '@/app/generated/prisma'
-import { getUsersPosts } from '@/lib/client/posts'
+import { Profile } from '@/app/generated/prisma'
+import { getUsersPosts, GetUsersPostsResult } from '@/lib/client/posts'
 import { useState, useEffect } from 'react'
 import React from "react"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useInView } from "react-intersection-observer";
 import Link from 'next/link'
 
-interface extendedSavedPost extends SavedItems {
-    posts: Post & { users: Profile }
-}
 
 export default function PinsContainer({ user }: { user: Profile }) {
     const limit = 10
@@ -19,14 +16,15 @@ export default function PinsContainer({ user }: { user: Profile }) {
     const [hasMore, setHasMore] = useState<boolean>(true)
     const [loading, setLoading] = useState<boolean>(false)
     const [hydrated, setHydrated] = useState<boolean>(false)
-    const [posts, setPosts] = useState<extendedSavedPost[]>([])
+    const [posts, setPosts] = useState<GetUsersPostsResult[]>([])
     const { ref, inView } = useInView({ threshold: 0 });
 
     const getMorePosts = async () => {
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newPosts: extendedSavedPost[] = await getUsersPosts(user.id, from, to)
+        const newPosts: GetUsersPostsResult[] = await getUsersPosts(user.id, from, to)
+        console.log("New posts", newPosts)
 
         if (newPosts.length === 0 || newPosts.length < limit) {
             // Below code prevents hasMore from being set 
@@ -34,6 +32,7 @@ export default function PinsContainer({ user }: { user: Profile }) {
             if (offset === 0) setPosts([...posts, ...newPosts])
             setHasMore(false)
             setLoading(false)
+            console.log("No more posts")
             return
         }
         setOffset(offset + limit)
@@ -53,7 +52,9 @@ export default function PinsContainer({ user }: { user: Profile }) {
 
     if (!hydrated) return null
 
-    if (posts.length === 0) return <div className="mt-10 text-center">No posts found</div>
+    if (posts.length === 0 && !loading && !hasMore) {
+        return <div className="mt-10 text-center">No posts found</div>
+    }
 
     return (
         <>
@@ -78,7 +79,7 @@ export default function PinsContainer({ user }: { user: Profile }) {
                     ))}
                 </Masonry>
             </ResponsiveMasonry >
-            <div ref={ref}>{inView ? "Calling getMorePosts" : "Not loading"}</div>
+            <div ref={ref}></div>
         </>
     )
 }   

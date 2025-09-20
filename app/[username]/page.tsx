@@ -1,14 +1,14 @@
 import './profile.css'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import PinsContainer from '@/app/[username]/_components/pins'
-import FoldersContainer from '@/app/[username]/_components/folders'
+import PinsContainer from '@/app/[username]/components/pins'
+import FoldersContainer from '@/app/[username]/components/folders'
 import { Settings } from '@/components/settings/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
 import { getUserProfileByUsername } from '@/lib/server/profile'
-import CanvasContainer from './_components/canvas'
+import CanvasContainer from './components/canvas'
 interface UserProfile extends Profile {
     postCount: number;
     folderCount: number;
