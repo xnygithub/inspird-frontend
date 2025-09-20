@@ -1,5 +1,5 @@
 "use client"
-
+// TODO: Understand how callback, renders, state-changes really work here
 import React from "react"
 import Link from 'next/link'
 import Image from 'next/image'
