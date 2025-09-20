@@ -1,0 +1,32 @@
+#folder-name {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+#folder-description {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+
+#section-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+#section-list {
+    flex: 1 1 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+#create-section-button {
+   flex: 0 0 auto;
+}

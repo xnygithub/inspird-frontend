@@ -11,15 +11,15 @@ interface SectionsProps {
 export const Sections = ({ folder }: SectionsProps) => {
     console.log(folder)
     return (
-        <div className="flex gap-5 w-full overflow-x-auto scrollbar-hide">
-            <div className="space-x-5 overflow-hidden">
+        <div id="section-container">
+            <div id="section-list">
                 {folder.folder_sections.map((section: FolderSection) => (
                     <span key={section.id}>{section.name}</span>
                 ))}
             </div>
             <Dialog>
                 <DialogTrigger asChild>
-                    <Button>Create section</Button>
+                    <Button id="create-section-button">Create section</Button>
                 </DialogTrigger>
                 <DialogContent >
                     <DialogHeader>

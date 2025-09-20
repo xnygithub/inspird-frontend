@@ -1,10 +1,10 @@
 "use client"
-import { Post, SavedItems } from '@/app/generated/prisma'
-import '@/app/[username]/[folder]/folder.css'
-import { createClient } from '@/utils/supabase/client'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import '@/app/[username]/[folder]/folder.css'
+import { createClient } from '@/utils/supabase/client'
 import { useInView } from 'react-intersection-observer'
+import { Post, SavedItems } from '@/app/generated/prisma'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 
 
