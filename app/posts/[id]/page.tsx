@@ -1,28 +1,41 @@
 import './post.css'
-import SidebarProvider from "@/app/posts/[id]/_components/sidebar"
-import { createClient } from "@/utils/supabase/client"
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import { Post } from '@/app/generated/prisma'
+import { createClient } from "@/utils/supabase/client"
+import SidebarProvider from "@/app/posts/[id]/components/sidebar"
+import Similar from "@/app/posts/[id]/components/similar"
+
+async function getPost(id: string) {
+    const supabase = await createClient()
+    const { data } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single() as { data: Post }
+    if (!data) return notFound()
+    return data
+}
 
 export default async function PostPage({ params }: { params: { id: string } }) {
     const { id } = await params
-    const supabase = createClient()
-    const { data } = await supabase.from('posts').select('*').eq('id', id).single()
+    const data = await getPost(id)
     if (!data) return notFound()
     return (
         <SidebarProvider>
             <div id="post-container" >
                 <div id="selected-post-container" >
                     <Image
-                        alt="Post"
-                        src={data.media_url}
-                        width={data.media_width}
-                        height={data.media_height}
-                        className="z-[-10] object-cover"
+                        className="object-cover"
+                        alt={data.mediaAltText}
+                        src={data.mediaUrl}
+                        width={data.mediaWidth}
+                        height={data.mediaHeight}
+                        style={{ width: '100%', height: 'auto' }}
                     />
                 </div>
                 <div id="similar-posts-container">
-                    <p className="text-white">{data.media_url}</p>
+                    <Similar data={data} />
                 </div>
             </div>
         </SidebarProvider>

@@ -13,13 +13,7 @@ export default function SidebarProvider({ children }: SidebarProviderProps) {
     const OFFSET = 75
     const WIDTH = 400
     const [open, setOpen] = useState<boolean>(false);
-
-
-
     const isMobile = useMediaQuery('(max-width: 768px)')
-
-
-
     return (
         <div className="relative w-full overflow-hidden">
             <Button
