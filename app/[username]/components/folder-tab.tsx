@@ -51,7 +51,9 @@ export default function FoldersContainer({ user }: FoldersContainerProps) {
 
     if (!hydrated) return null
 
-    if (folders.length === 0) return <div className="mt-10 text-center">No folders found</div>
+    if (folders.length === 0 && !loading && !hasMore) {
+        return <div className="mt-10 text-center">No folders found</div>
+    }
 
     return (
         <>

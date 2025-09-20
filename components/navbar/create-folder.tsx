@@ -1,6 +1,6 @@
 "use client";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { createFolder } from "@/app/[username]/[folder]/actions";
+import { createFolder } from "@/app/actions/folders";
 
 interface CreateFolderProps {
     setCreateOpen: (open: boolean) => void;

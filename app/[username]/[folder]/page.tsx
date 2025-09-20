@@ -1,10 +1,10 @@
 import './folder.css'
-import { NavigationBar } from "@/app/[username]/[folder]/_components/navigation-bar"
-import { FolderDetails } from "@/app/[username]/[folder]/_components/folder-details"
-import { Sections } from "@/app/[username]/[folder]/_components/sections"
+import { NavigationBar } from "@/app/[username]/[folder]/components/navbar"
+import { FolderDetails } from "@/app/[username]/[folder]/components/details"
+import { Sections } from "@/app/[username]/[folder]/components/sections"
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
-import FolderPosts from './_components/folder-posts'
+import FolderPosts from './components/posts'
 
 interface UserFolderPageProps {
     params: {
@@ -16,7 +16,7 @@ interface UserFolderPageProps {
 async function getFolder(folder_name: string, username: string) {
     const supabase = await createClient();
     const { data: targetUser, error: userError } = await supabase
-        .from("users")
+        .from("profiles")
         .select("id")
         .eq("username", username)
         .single();

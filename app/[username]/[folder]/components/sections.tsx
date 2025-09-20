@@ -2,13 +2,14 @@
 import { Folder, FolderSection } from "@/app/generated/prisma";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { createSection } from "../actions";
+import { createSection } from "@/app/actions/folders";
 
 interface SectionsProps {
     folder: Folder & { folder_sections: FolderSection[] };
 }
 
 export const Sections = ({ folder }: SectionsProps) => {
+    console.log(folder)
     return (
         <div className="flex gap-5 w-full overflow-x-auto scrollbar-hide">
             <div className="space-x-5 overflow-hidden">

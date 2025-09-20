@@ -1,5 +1,5 @@
 "use client"
-import { FolderPost, Post, SavedPost } from '@/app/generated/prisma'
+import { Post, SavedItems } from '@/app/generated/prisma'
 import '@/app/[username]/[folder]/folder.css'
 import { createClient } from '@/utils/supabase/client'
 import Image from 'next/image'
@@ -24,7 +24,7 @@ async function getFolderPosts(folderId: number, userId: number, from: number, to
         .range(from, to);
 
     if (error) throw error;
-    return data || [];
+    return data as FolderPosts[] || [];
 }
 
 interface FolderPosts {
@@ -33,7 +33,7 @@ interface FolderPosts {
     sectionId: number
     userId: number
     posts: Post
-    saved_items: SavedPost
+    saved_items: SavedItems
     createdAt: string
 }
 
@@ -89,10 +89,10 @@ export default function FolderPosts({ folderId, userId }: { folderId: number, us
                         <Image
                             loading="lazy"
                             className="object-cover"
-                            alt={post.posts.media_alt_text}
-                            src={post.posts.media_url}
-                            width={post.posts.media_width}
-                            height={post.posts.media_height}
+                            alt={post.posts.mediaAltText}
+                            src={post.posts.mediaUrl}
+                            width={post.posts.mediaWidth}
+                            height={post.posts.mediaHeight}
                             style={{ width: '100%', height: 'auto' }}
                         />
                     </div>
