@@ -1,44 +1,46 @@
 "use client"
 
+import React from "react"
+import Link from 'next/link'
 import Image from 'next/image'
+import { useInView } from "react-intersection-observer";
+import { useState, useEffect, useRef, useCallback } from 'react'
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+
 import { Profile } from '@/app/generated/prisma'
 import { getUsersPosts, GetUsersPostsResult } from '@/lib/client/posts'
-import { useState, useEffect } from 'react'
-import React from "react"
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
-import { useInView } from "react-intersection-observer";
-import Link from 'next/link'
 
+const LIMIT = 10
 
 export default function PinsContainer({ user }: { user: Profile }) {
-    const limit = 10
-    const [offset, setOffset] = useState<number>(0)
+    const offsetRef = useRef<number>(0)
+    const isRefInViewRef = useRef<boolean>(false)
     const [hasMore, setHasMore] = useState<boolean>(true)
     const [loading, setLoading] = useState<boolean>(false)
     const [hydrated, setHydrated] = useState<boolean>(false)
     const [posts, setPosts] = useState<GetUsersPostsResult[]>([])
     const { ref, inView } = useInView({ threshold: 0 });
 
-    const getMorePosts = async () => {
+    const getMorePosts = useCallback(async () => {
         setLoading(true)
-        const from = offset
-        const to = offset + limit - 1
-        const newPosts: GetUsersPostsResult[] = await getUsersPosts(user.id, from, to)
-        console.log("New posts", newPosts)
+        const from = offsetRef.current
+        const to = offsetRef.current + LIMIT - 1
+        const newPosts = await getUsersPosts(user.id, from, to)
 
-        if (newPosts.length === 0 || newPosts.length < limit) {
+        if (newPosts.length === 0 || newPosts.length < LIMIT) {
             // Below code prevents hasMore from being set 
             // to false when component is first mounted
-            if (offset === 0) setPosts([...posts, ...newPosts])
+            if (offsetRef.current === 0) {
+                setPosts(prevPosts => [...prevPosts, ...newPosts])
+            }
             setHasMore(false)
             setLoading(false)
-            console.log("No more posts")
             return
         }
-        setOffset(offset + limit)
-        setPosts([...posts, ...newPosts])
+        offsetRef.current += LIMIT
+        setPosts(prevPosts => [...prevPosts, ...newPosts])
         setLoading(false)
-    }
+    }, [user.id])
 
     // Call on first mount
     useEffect(() => {
@@ -47,8 +49,12 @@ export default function PinsContainer({ user }: { user: Profile }) {
 
     useEffect(() => {
         if (!hydrated || loading || !hasMore) return
-        if (inView) getMorePosts()
-    }, [inView])
+        if (inView && !isRefInViewRef.current) {
+            isRefInViewRef.current = true
+            getMorePosts()
+        }
+        if (!inView) isRefInViewRef.current = false
+    }, [inView, hydrated, loading, hasMore, getMorePosts])
 
     if (!hydrated) return null
 
