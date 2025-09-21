@@ -26,12 +26,12 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             <div id="post-container" >
                 <div id="selected-post-container" >
                     <Image
-                        className="object-cover"
+                        className="object-contain"
                         alt={data.mediaAltText}
                         src={data.mediaUrl}
                         width={data.mediaWidth}
                         height={data.mediaHeight}
-                        style={{ width: '100%', height: 'auto' }}
+                        style={{ width: '100%', height: 'auto', maxHeight: '700px' }}
                     />
                 </div>
                 <div id="similar-posts-container">
