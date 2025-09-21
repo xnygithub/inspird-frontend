@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
 import { getUserProfileByUsername } from '@/lib/server/profile'
 import CanvasContainer from './components/canvas-tab'
-interface UserProfile extends Profile {
+
+export interface UserProfile extends Profile {
     postCount: number;
     folderCount: number;
     isMe: boolean;

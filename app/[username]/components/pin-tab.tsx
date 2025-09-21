@@ -6,13 +6,16 @@ import Image from 'next/image'
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
-
-import { Profile } from '@/app/generated/prisma'
+import { PostWrapper } from '@/components/posts/wrappers'
 import { getUsersPosts, GetUsersPostsResult } from '@/lib/client/posts'
+import { UserProfile } from '@/app/[username]/page'
 
 const LIMIT = 10
-
-export default function PinsContainer({ user }: { user: Profile }) {
+const config = {
+    showUsername: true,
+    showSave: true
+}
+export default function PinsContainer({ user }: { user: UserProfile }) {
     const offsetRef = useRef<number>(0)
     const isRefInViewRef = useRef<boolean>(false)
     const [hasMore, setHasMore] = useState<boolean>(true)
@@ -66,22 +69,20 @@ export default function PinsContainer({ user }: { user: Profile }) {
         <>
             <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
                 <Masonry>
-                    {posts.map((post) => (
-                        <div className="group relative" key={post.id}>
-                            <Link href={`/posts/${post.posts.id}`} className="group relative">
+                    {posts.map((item) => (
+                        <PostWrapper post={item.posts} key={item.posts.id} config={config}>
+                            <Link href={`/posts/${item.posts.id}`} className="">
                                 <Image
                                     loading="lazy"
                                     className="object-cover"
-                                    alt={post.posts.mediaAltText}
-                                    src={post.posts.mediaUrl}
-                                    width={post.posts.mediaWidth}
-                                    height={post.posts.mediaHeight}
+                                    alt={item.posts.mediaAltText}
+                                    src={item.posts.mediaUrl}
+                                    width={item.posts.mediaWidth}
+                                    height={item.posts.mediaHeight}
                                     style={{ width: '100%', height: 'auto' }}
                                 />
                             </Link>
-                            <p id="pin-username-label" >@{post.posts.users.username}</p>
-                            <p id="pin-save-label">Save</p>
-                        </div>
+                        </PostWrapper>
                     ))}
                 </Masonry>
             </ResponsiveMasonry >
