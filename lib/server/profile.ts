@@ -27,8 +27,17 @@ export async function getUserProfileByUsername(username: string) {
 
     if (foldersError) throw new Error(foldersError.message);
 
+    const { count: canvasDocsCount, error: canvasDocsError } = await supabase
+        .from("canvas_doc")
+        .select('*', { count: 'exact', head: true })
+        .eq("userId", data.id)
+
+    if (canvasDocsError) throw new Error(canvasDocsError.message);
+
+
     data.postCount = savedItemsCount;
     data.folderCount = foldersCount;
+    data.canvasDocCount = canvasDocsCount;
     data.isMe = data.id === currentUser.data.user?.id;
     return data;
 }

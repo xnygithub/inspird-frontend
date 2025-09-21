@@ -13,6 +13,7 @@ import CanvasContainer from './components/canvas-tab'
 export interface UserProfile extends Profile {
     postCount: number;
     folderCount: number;
+    canvasDocCount: number;
     isMe: boolean;
 }
 
@@ -38,16 +39,12 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <h2>{user.displayName}</h2>
                 </div>
                 {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
-                <div id="profile-stats">
-                    <p>{user.postCount} posts</p>
-                    <p>{user.folderCount} folders</p>
-                </div>
             </div >
             <Tabs id="profile-tabs-container" defaultValue="pins">
                 <TabsList >
-                    <TabsTrigger value="pins">Pins</TabsTrigger>
-                    <TabsTrigger value="folders">Folders</TabsTrigger>
-                    <TabsTrigger value="canvas">Canvas</TabsTrigger>
+                    <TabsTrigger value="pins"> {user.postCount} Pins </TabsTrigger>
+                    <TabsTrigger value="folders"> {user.folderCount} Folders </TabsTrigger>
+                    <TabsTrigger value="canvas"> {user.canvasDocCount} Canvas </TabsTrigger>
                 </TabsList>
                 <TabsContent id="tabs-content" value="pins" forceMount >
                     <PinsContainer user={user} />
