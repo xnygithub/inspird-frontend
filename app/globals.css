@@ -59,6 +59,22 @@
   @apply bg-navbar text-navbar-foreground;
 }
 
+#mobile-navbar {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  bottom: 0;
+  height: 75px;
+  width: 100%;
+  padding: 0 2rem;
+  @media (min-width: 768px) {
+    display: none;
+  }
+  border-top: 1px solid var(--border);
+  @apply bg-navbar text-navbar-foreground;
+}
+
 #search-container {
   position: absolute;
   left: 50%;
