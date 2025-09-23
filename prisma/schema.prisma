@@ -9,11 +9,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// If getting permissions issue using supabase client, check this link
-//https://www.reddit.com/r/Supabase/comments/nd5pz3/permissions_issue_using_supabase_client/
-
-// TODO: Fix prisma defaults as they dont apply when using supabase client
-
 model Profile {
   id                      String                    @id @db.Uuid
   username                String                    @unique @db.VarChar(25)
@@ -26,11 +21,11 @@ model Profile {
   stripeCustomerId        String?                   @db.VarChar(255)
   subscriptionId          String?                   @db.VarChar(255)
   subscriptionStatus      String?                   @db.VarChar(255)
+  CanvasDoc               CanvasDoc[]
   Folder                  Folder[]
   posts                   Post[]
   savedItems              SavedItems[]
   userSubscriptionHistory userSubscriptionHistory[]
-  CanvasDoc               CanvasDoc[]
 
   @@index([username])
   @@map("profiles")
@@ -43,7 +38,7 @@ model CanvasDoc {
   data      Json     @default("{}") @db.Json
   isPrivate Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt()
+  updatedAt DateTime @default(now()) @updatedAt
   user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -51,22 +46,23 @@ model CanvasDoc {
 }
 
 model Post {
-  id               String           @id @default(uuid()) @db.Uuid
-  createdAt        DateTime         @default(now())
-  userId           String           @db.Uuid
-  isAiGenerated    Boolean          @default(false)
-  isNsfw           Boolean          @default(false)
-  isPrivate        Boolean          @default(false)
-  mediaAltText     String           @db.VarChar(255)
+  createdAt        DateTime               @default(now())
+  userId           String                 @db.Uuid
+  isAiGenerated    Boolean                @default(false)
+  isNsfw           Boolean                @default(false)
+  isPrivate        Boolean                @default(false)
+  mediaAltText     String                 @db.VarChar(255)
   mediaAspectRatio Float
   mediaHeight      Int
   mediaSize        Int
-  mediaType        MediaType        @default(image)
-  mediaUrl         String           @db.VarChar(255)
+  mediaType        MediaType              @default(image)
+  mediaUrl         String                 @db.VarChar(255)
   mediaWidth       Int
-  processingStatus ProcessingStatus @default(not_started)
+  processingStatus ProcessingStatus       @default(not_started)
+  id               String                 @id @default(uuid()) @db.Uuid
+  embedding        Unsupported("vector")?
   FolderPost       FolderPost[]
-  users            Profile          @relation(fields: [userId], references: [id])
+  users            Profile                @relation(fields: [userId], references: [id])
   savedItems       SavedItems[]
 
   @@index([userId])
@@ -74,10 +70,10 @@ model Post {
 }
 
 model SavedItems {
-  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt  DateTime     @default(now())
   postId     String       @db.Uuid
   userId     String       @db.Uuid
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FolderPost FolderPost[]
   posts      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
   users      Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -90,13 +86,13 @@ model SavedItems {
 }
 
 model Folder {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId      String       @db.Uuid
   name        String       @db.VarChar(50)
   thumbnail   String?      @db.VarChar(255)
   description String?      @db.VarChar(255)
   isPrivate   Boolean      @default(false)
   createdAt   DateTime     @default(now())
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FolderPost  FolderPost[]
   users       Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -107,12 +103,12 @@ model Folder {
 }
 
 model FolderPost {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String     @db.Uuid
   folderId     String     @db.Uuid
-  postId       String?    @db.Uuid
-  savedItemsId String     @db.Uuid
   createdAt    DateTime   @default(now())
+  savedItemsId String     @db.Uuid
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId       String?    @db.Uuid
   folders      Folder     @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
   Post         Post?      @relation(fields: [postId], references: [id])
   saved        SavedItems @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
