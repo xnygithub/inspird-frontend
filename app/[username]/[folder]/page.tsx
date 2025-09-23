@@ -1,7 +1,6 @@
 import './folder.css'
 import { NavigationBar } from "@/app/[username]/[folder]/components/navbar"
 import { FolderDetails } from "@/app/[username]/[folder]/components/details"
-import { Sections } from "@/app/[username]/[folder]/components/sections"
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import FolderPosts from './components/posts'
@@ -24,7 +23,7 @@ async function getFolder(folder_name: string, username: string) {
 
     const { data: folder, error } = await supabase
         .from("folders")
-        .select("* , folder_sections(*)")
+        .select("*")
         .eq("name", folder_name)
         .eq("userId", targetUser.id)
         .single();
@@ -34,8 +33,6 @@ async function getFolder(folder_name: string, username: string) {
         .from('folder_posts')
         .select('id', { count: 'exact', head: true })
         .eq("folderId", folder.id)
-
-
 
     folder.folderPostCount = fError ? 0 : count;
     return folder;
@@ -48,8 +45,6 @@ export default async function UserFolderPage({ params }: UserFolderPageProps) {
     return <>
         <NavigationBar />
         <FolderDetails folder={folder} />
-        <Sections folder={folder} />
         <FolderPosts folderId={folder.id} userId={folder.userId} />
-        {/* <pre>{JSON.stringify(folder, null, 2)}</pre> */}
     </>
 }   

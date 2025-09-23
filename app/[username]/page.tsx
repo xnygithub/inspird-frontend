@@ -38,7 +38,10 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <h1>{user.username}</h1>
                     <h2>{user.displayName}</h2>
                 </div>
-                {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
+                <div className="space-x-4">
+                    {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
+                    {user.isMe && <Settings trigger={<Button>Edit Profile</Button>} />}
+                </div>
             </div >
             <Tabs id="profile-tabs-container" defaultValue="pins">
                 <TabsList >

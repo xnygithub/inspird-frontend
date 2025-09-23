@@ -95,8 +95,13 @@
 
 #pin-save-label {
   @apply group-hover:opacity-100 opacity-0 transition-opacity duration-300;
-  top: 0.2rem;
-  right: 0.2rem;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   position: absolute;
   background-color: rgb(0 0 0 / 50%);
   background-opacity: 0.5;
@@ -104,19 +109,19 @@
   color: white;
   padding: 0.2rem 0.4rem;
   border-radius: 0.2rem;
-  font-size: 0.8rem;
+  font-size: 1.5rem;
 }
 
 
 #pin-username-label {
   @apply group-hover:opacity-100 opacity-0 transition-opacity duration-300;
-  bottom: 0.2rem;
-  right: 0.2rem;
+  bottom: 0.5rem;
+  right: 0.5rem;
   position: absolute;
   background-color: rgb(0 0 0 / 50%);
   backdrop-filter: blur(10px);
   color: white;
-  font-size: 0.8rem;
+  font-size: 1.5rem;
 }
 
 

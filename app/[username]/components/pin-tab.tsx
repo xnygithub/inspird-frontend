@@ -6,15 +6,12 @@ import Image from 'next/image'
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
-import { PostWrapper } from '@/components/posts/wrappers'
+import { SavedPostWrapper } from '@/components/posts/wrappers'
 import { getUsersPosts, GetUsersPostsResult } from '@/lib/client/posts'
 import { UserProfile } from '@/app/[username]/page'
 
 const LIMIT = 10
-const config = {
-    showUsername: true,
-    showSave: true
-}
+
 export default function PinsContainer({ user }: { user: UserProfile }) {
     const offsetRef = useRef<number>(0)
     const isRefInViewRef = useRef<boolean>(false)
@@ -67,10 +64,10 @@ export default function PinsContainer({ user }: { user: UserProfile }) {
 
     return (
         <>
-            <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
+            <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6, 1750: 7, 2000: 8 }}>
                 <Masonry>
                     {posts.map((item) => (
-                        <PostWrapper post={item.posts} key={item.posts.id} config={config}>
+                        <SavedPostWrapper post={item} key={item.posts.id}>
                             <Link href={`/posts/${item.posts.id}`} className="">
                                 <Image
                                     loading="lazy"
@@ -82,7 +79,7 @@ export default function PinsContainer({ user }: { user: UserProfile }) {
                                     style={{ width: '100%', height: 'auto' }}
                                 />
                             </Link>
-                        </PostWrapper>
+                        </SavedPostWrapper>
                     ))}
                 </Masonry>
             </ResponsiveMasonry >

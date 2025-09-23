@@ -74,7 +74,7 @@ model Post {
 }
 
 model SavedItems {
-  id         String       @id @default(uuid()) @db.Uuid
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt  DateTime     @default(now())
   postId     String       @db.Uuid
   userId     String       @db.Uuid
@@ -90,16 +90,15 @@ model SavedItems {
 }
 
 model Folder {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId        String          @db.Uuid
-  name          String          @db.VarChar(50)
-  thumbnail     String?         @db.VarChar(255)
-  description   String?         @db.VarChar(255)
-  isPrivate     Boolean         @default(false)
-  createdAt     DateTime        @default(now())
-  FolderPost    FolderPost[]
-  FolderSection FolderSection[]
-  users         Profile         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String       @db.Uuid
+  name        String       @db.VarChar(50)
+  thumbnail   String?      @db.VarChar(255)
+  description String?      @db.VarChar(255)
+  isPrivate   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  FolderPost  FolderPost[]
+  users       Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name], map: "uq_user_folder")
   @@unique([id, userId], map: "uq_folder_id_user")
@@ -107,35 +106,18 @@ model Folder {
   @@map("folders")
 }
 
-model FolderSection {
-  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  folderId   String       @db.Uuid
-  name       String       @db.VarChar(50)
-  createdAt  DateTime     @default(now())
-  FolderPost FolderPost[]
-  folders    Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
-
-  @@unique([folderId, name], map: "uq_folder_section")
-  @@unique([folderId, id], map: "uq_section_id_folder")
-  @@index([name])
-  @@index([folderId])
-  @@map("folder_sections")
-}
-
 model FolderPost {
-  id           String         @id @default(uuid()) @db.Uuid
-  userId       String         @db.Uuid
-  folderId     String         @db.Uuid
-  sectionId    String?        @db.Uuid
-  postId       String?        @db.Uuid
-  savedItemsId String         @db.Uuid
-  createdAt    DateTime       @default(now())
-  folders      Folder         @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
-  Post         Post?          @relation(fields: [postId], references: [id])
-  saved        SavedItems     @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
-  section      FolderSection? @relation(fields: [folderId, sectionId], references: [folderId, id], onDelete: Cascade)
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String     @db.Uuid
+  folderId     String     @db.Uuid
+  postId       String?    @db.Uuid
+  savedItemsId String     @db.Uuid
+  createdAt    DateTime   @default(now())
+  folders      Folder     @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
+  Post         Post?      @relation(fields: [postId], references: [id])
+  saved        SavedItems @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
 
-  @@unique([folderId, sectionId, savedItemsId], map: "uq_folder_section_saved")
+  @@unique([folderId, savedItemsId], map: "uq_folder_saved")
   @@index([folderId])
   @@index([userId])
   @@index([savedItemsId])
