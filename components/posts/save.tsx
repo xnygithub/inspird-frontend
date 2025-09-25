@@ -6,20 +6,19 @@ import { createClient } from "@/utils/supabase/client"
 import { ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { getFolderList } from "@/lib/queries/folders";
-import Image from "next/image";
-import gray from "@/public/gray.png";
-import { Plus } from "lucide-react";
+import { getFolderListForPostId } from "@/lib/queries/folders";
 import { useInView } from "react-intersection-observer";
 import { savePostToFolder } from "./actions"
+import { deletePostFromFolder } from "@/lib/queries/folders";
+import { Item } from "./item"
 
 const supabase = createClient();
 const PAGE_SIZE = 10;
 
 export const SaveLabel = ({ postId }: { postId: string }) => {
     const [open, setOpen] = useState(false)
+    const [hasOpened, setHasOpened] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
-    const [hydrated, setHydrated] = useState(false)
     const { ref, inView } = useInView({ threshold: 0 });
 
     useEffect(() => {
@@ -28,17 +27,23 @@ export const SaveLabel = ({ postId }: { postId: string }) => {
         });
     }, []);
 
-    const { data, loadMore, isValidating } =
-        useOffsetInfiniteScrollQuery(
-            // TODO: Investigate "!" enforce type safety
-            () => (userId && open ? getFolderList(supabase, userId) : null)!,
-            { pageSize: PAGE_SIZE }
-        );
+    const { data, loadMore, isValidating } = useOffsetInfiniteScrollQuery(
+        () => (userId && hasOpened ? getFolderListForPostId(supabase, userId, postId) : null),
+        {
+            pageSize: PAGE_SIZE,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    )
 
     const handleSave = async (folderId: string) => {
         await savePostToFolder(folderId, postId)
     }
 
+    const handleDelete = async (folderId: string) => {
+        if (!userId) return
+        await deletePostFromFolder(supabase, userId, folderId, postId)
+    }
 
     useEffect(() => {
         if (inView && !isValidating && loadMore) {
@@ -46,39 +51,26 @@ export const SaveLabel = ({ postId }: { postId: string }) => {
         }
     }, [inView, loadMore, isValidating])
 
-    useEffect(() => setHydrated(true), [])
-    if (!hydrated) return null
-
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={(v) => {
+            setOpen(!open)
+            if (v) setHasOpened(true)
+        }}>
             <PopoverTrigger asChild>
                 <Button><ChevronDown /></Button>
             </PopoverTrigger>
             <PopoverContent id="popover-content">
-                {data && <>
-                    {data.map((folder) => {
-                        return (
-                            <div id="folder-item-container" key={folder.id}>
-                                <div id="folder-item">
-                                    <Image
-                                        width={50}
-                                        height={50}
-                                        src={folder.thumbnail || gray}
-                                        alt={"Folder Thumbnail"}
-                                    />
-                                    <div id="folder-item-name">
-                                        <p>{folder.name}</p>
-                                        <p>{folder.folder_posts[0].count} Items </p>
-                                        <p>{folder.isPrivate ? "(Private)" : "Public"}</p>
-                                    </div>
-                                </div>
-                                <Plus onClick={() => handleSave(folder.id)} />
-                            </div>
-                        )
-                    })}</>
-                }
+                {data && data.map((folder) => {
+                    return (
+                        <Item
+                            key={folder.id}
+                            folder={folder}
+                            handleSave={handleSave}
+                            handleDelete={handleDelete} />
+                    )
+                })}
                 {!isValidating && loadMore && <div ref={ref} />}
             </PopoverContent>
-        </Popover>
+        </Popover >
     )
 }
