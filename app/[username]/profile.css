@@ -44,9 +44,16 @@
   
 #folder-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
     gap: 1rem;
-}
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 640px) {
+    #folder-container {
+      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+      justify-content: center;
+    }
+  }
 
 #canvas-container {
     display: grid;

@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from "react"
 import { getUsersFolders } from "@/lib/client/folders"
 import { useInView } from "react-intersection-observer"
-import { Folder, Profile } from "@/app/generated/prisma"
-import Link from "next/link"
+import { Profile } from "@/app/generated/prisma"
+import FolderCard from "@/app/[username]/components/preview"
+import { FolderCardType } from "@/app/[username]/types"
+import { createClient } from "@/utils/supabase/client"
 
 
 interface FoldersContainerProps {
@@ -17,15 +19,15 @@ export default function FoldersContainer({ user }: FoldersContainerProps) {
     const [hasMore, setHasMore] = useState<boolean>(true)
     const [loading, setLoading] = useState<boolean>(false)
     const [hydrated, setHydrated] = useState<boolean>(false)
-    const [folders, setFolders] = useState<Folder[]>([])
+    const [folders, setFolders] = useState<FolderCardType[]>([])
     const { ref, inView } = useInView({ threshold: 0 });
 
     const getMoreFolders = async () => {
+        const client = await createClient()
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newFolders: Folder[] = await getUsersFolders(user.id, from, to)
-
+        const newFolders = await getUsersFolders(client, user.id, from, to)
         if (newFolders.length === 0 || newFolders.length < limit) {
             // Below code prevents hasMore from being set 
             // to false when component is first mounted
@@ -57,13 +59,8 @@ export default function FoldersContainer({ user }: FoldersContainerProps) {
 
     return (
         <>
-            <div id="folder-container" >
-                {folders.map((folder) => (
-                    <Link href={`/${user.username}/${folder.slug}`} key={folder.id}>
-                        {!folder.thumbnail && <div id="folder-thumbnail"></div>}
-                        <h2>{folder.name}</h2>
-                    </Link>
-                ))}
+            <div id="folder-container">
+                {folders.map((folder) => (<FolderCard key={folder.id} folder={folder} />))}
             </div>
             <div ref={ref}></div>
         </>

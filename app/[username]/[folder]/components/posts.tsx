@@ -4,102 +4,83 @@ import { useEffect, useState } from 'react'
 import '@/app/[username]/[folder]/folder.css'
 import { createClient } from '@/utils/supabase/client'
 import { useInView } from 'react-intersection-observer'
-import { Post, SavedItems } from '@/app/generated/prisma'
+import { Folder } from '@/app/generated/prisma'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import { getFolderPosts } from '@/lib/queries/folders'
+import { FolderPosts as FolderPostsType } from '@/app/[username]/[folder]/types'
+import { SavedPostWrapper } from '@/components/posts/wrappers'
+import Link from 'next/link'
 
 
-async function getFolderPosts(folderId: number, userId: number, from: number, to: number) {
-    const supabase = await createClient();
-    console.log('folderId', folderId)
-    const { data, error } = await supabase
-        .from('folder_posts')
-        .select(
-            `*,
-            posts (*),
-            saved_items (*)
-            `)
-        .eq('userId', userId)       // folder_posts.userId
-        .eq('folderId', folderId)   // folder_posts.folderId
-        .order('createdAt', { ascending: false })
-        .range(from, to);
-
-    if (error) throw error;
-    return data as FolderPosts[] || [];
-}
-
-interface FolderPosts {
-    id: number
-    folderId: number
-    sectionId: number
-    userId: number
-    posts: Post
-    saved_items: SavedItems
-    createdAt: string
-}
-
-export default function FolderPosts({ folderId, userId }: { folderId: number, userId: number }) {
+export default function FolderPosts({ folder }: { folder: Folder }) {
+    const supabase = createClient();
     const limit = 10
     const [offset, setOffset] = useState<number>(0)
     const [hasMore, setHasMore] = useState<boolean>(true)
     const [loading, setLoading] = useState<boolean>(false)
     const [hydrated, setHydrated] = useState<boolean>(false)
-    const [posts, setPosts] = useState<FolderPosts[]>([])
+    const [posts, setPosts] = useState<FolderPostsType[]>([])
     const { ref, inView } = useInView({ threshold: 0 });
 
     const getMorePosts = async () => {
         setLoading(true)
         const from = offset
         const to = offset + limit - 1
-        const newPosts: FolderPosts[] = await getFolderPosts(folderId, userId, from, to)
+        const { data, error } = await getFolderPosts(supabase, folder.userId, folder.id).range(from, to)
+        console.log("folder posts data", data)
+        if (error) throw error;
 
-        if (newPosts.length === 0 || newPosts.length < limit) {
+        if (data.length === 0 || data.length < limit) {
             // Below code prevents hasMore from being set 
             // to false when component is first mounted
-            if (offset === 0) setPosts([...posts, ...newPosts])
+            if (offset === 0) setPosts([...posts, ...data])
             setHasMore(false)
             setLoading(false)
             return
         }
         setOffset(offset + limit)
-        setPosts([...posts, ...newPosts])
+        setPosts([...posts, ...data])
         setLoading(false)
     }
 
     // Call on first mount
-    useEffect(() => {
-        setHydrated(true)
-    }, [])
+    useEffect(() => setHydrated(true), [])
 
     useEffect(() => {
         if (!hydrated || loading || !hasMore) return
         if (inView) getMorePosts()
-        console.log('inView', inView)
     }, [inView])
 
     if (!hydrated) return null
 
-
-    return <>
-        {/* <pre>{JSON.stringify(posts, null, 2)}</pre> */}
-        <ResponsiveMasonry
-            columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6, 1750: 7, 2000: 8 }}>
-            <Masonry>
-                {posts.map((post) => (
-                    <div key={post.id}>
-                        <Image
-                            loading="lazy"
-                            className="object-cover"
-                            alt={post.posts.mediaAltText}
-                            src={post.posts.mediaUrl}
-                            width={post.posts.mediaWidth}
-                            height={post.posts.mediaHeight}
-                            style={{ width: '100%', height: 'auto' }}
-                        />
-                    </div>
-                ))}
-            </Masonry>
-        </ResponsiveMasonry >
-        <div ref={ref}>{loading ? "Calling getMorePosts" : "Not loading"}</div>
-    </>
+    return (
+        <div id="folder-posts-container">
+            <ResponsiveMasonry
+                columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6, 1750: 7, 2000: 8 }}>
+                <Masonry>
+                    {posts.map((post) => (
+                        <SavedPostWrapper
+                            key={post.id}
+                            postId={post.posts.id}
+                            ownerUsername={post.posts.profiles.username}>
+                            <Link href={`/posts/${post.posts.id}`}>
+                                <Image
+                                    key={post.id}
+                                    loading="lazy"
+                                    className="object-cover"
+                                    alt={post.posts.mediaAltText}
+                                    src={post.posts.mediaUrl}
+                                    width={post.posts.mediaWidth}
+                                    height={post.posts.mediaHeight}
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                            </Link>
+                        </SavedPostWrapper>
+                    ))}
+                </Masonry>
+            </ResponsiveMasonry >
+            <div ref={ref}></div>
+        </div>
+    )
 }
 

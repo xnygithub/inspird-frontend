@@ -1,41 +1,21 @@
-"use client"
 import { BreadcrumbItem, BreadcrumbList, Breadcrumb, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
 
-export const NavigationBar = () => {
-    const pathname = usePathname()
-    const [hydrated, setHydrated] = useState(false)
-    useEffect(() => {
-        setHydrated(true)
-    }, [])
-
-    if (!hydrated) return null
-
-    // Get the username, folder name, 
-    // and folder section from the pathname
-    const array = pathname.split("/")
-    const username = array[1]
-    const folderName = array[2]
-    let folderSection = null
-    if (array.length === 3) {
-        folderSection = array[3]
-    }
-
+export const NavigationBar = (
+    { username, folder }: { username: string, folder: string }
+) => {
     return (
         <Breadcrumb>
             <BreadcrumbList >
                 <BreadcrumbItem >
-                    <BreadcrumbLink href={`/${username}`}>{username}</BreadcrumbLink>
+                    <BreadcrumbLink
+                        href={`/${username}`}>
+                        {username}
+                    </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem>{folderName}</BreadcrumbItem>
-                {folderSection && (
-                    <>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem >{folderSection}</BreadcrumbItem>
-                    </>
-                )}
+                <BreadcrumbItem>
+                    {folder}
+                </BreadcrumbItem>
             </BreadcrumbList>
         </Breadcrumb>
     )

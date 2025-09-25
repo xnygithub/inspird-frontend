@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client"
 import { ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { getFolderList } from "@/lib/client/folders";
+import { getFolderList } from "@/lib/queries/folders";
 import Image from "next/image";
 import gray from "@/public/gray.png";
 import { Plus } from "lucide-react";

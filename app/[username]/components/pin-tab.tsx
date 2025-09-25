@@ -67,8 +67,11 @@ export default function PinsContainer({ user }: { user: UserProfile }) {
             <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6, 1750: 7, 2000: 8 }}>
                 <Masonry>
                     {posts.map((item) => (
-                        <SavedPostWrapper post={item} key={item.posts.id}>
-                            <Link href={`/posts/${item.posts.id}`} className="">
+                        <SavedPostWrapper
+                            key={item.posts.id}
+                            postId={item.posts.id}
+                            ownerUsername={item.posts.users.username}>
+                            <Link href={`/posts/${item.posts.id}`} >
                                 <Image
                                     loading="lazy"
                                     className="object-cover"
@@ -77,6 +80,7 @@ export default function PinsContainer({ user }: { user: UserProfile }) {
                                     width={item.posts.mediaWidth}
                                     height={item.posts.mediaHeight}
                                     style={{ width: '100%', height: 'auto' }}
+
                                 />
                             </Link>
                         </SavedPostWrapper>

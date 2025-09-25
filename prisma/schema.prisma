@@ -93,6 +93,7 @@ model Folder {
   description String?      @db.VarChar(255)
   isPrivate   Boolean      @default(false)
   createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FolderPost  FolderPost[]
   users       Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -110,7 +111,7 @@ model FolderPost {
   createdAt    DateTime   @default(now())
   savedItemsId String     @db.Uuid
   id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  postId       String?    @db.Uuid
+  postId       String     @db.Uuid
   folders      Folder     @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
   Post         Post?      @relation(fields: [postId], references: [id])
   saved        SavedItems @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)

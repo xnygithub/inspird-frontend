@@ -3,48 +3,34 @@ import { NavigationBar } from "@/app/[username]/[folder]/components/navbar"
 import { FolderDetails } from "@/app/[username]/[folder]/components/details"
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
-import FolderPosts from './components/posts'
+import FolderPosts from '@/app/[username]/[folder]/components/posts'
+import { folderMediaCount, getFolder } from '@/lib/queries/folders'
+import { getUserId } from '@/lib/queries/profile'
 
-interface UserFolderPageProps {
-    params: {
-        username: string
-        folder: string
-    }
-}
 
-async function getFolder(folder_name: string, username: string) {
+export default async function UserFolderPage(
+    { params }: { params: { username: string, folder: string } }
+) {
     const supabase = await createClient();
-    const { data: targetUser, error: userError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", username)
-        .single();
+    const { folder: folderName, username } = await params
+
+    // Get user id
+    const { data: targetUser, error: userError } = await getUserId(supabase, username);
     if (userError) return notFound();
 
-    const { data: folder, error } = await supabase
-        .from("folders")
-        .select("*")
-        .eq("slug", folder_name)
-        .eq("userId", targetUser.id)
-        .single();
+    // Get folder
+    const { data: folder, error } = await getFolder(supabase, targetUser.id, folderName);
     if (error) return notFound();
+    if (folder.isPrivate && folder.userId !== targetUser.id) return notFound();
 
-    const { count, error: fError } = await supabase
-        .from('folder_posts')
-        .select('id', { count: 'exact', head: true })
-        .eq("folderId", folder.id)
+    // Get media counts
+    const { data: mediaCounts } = await folderMediaCount(supabase, targetUser.id, folderName);
+    folder.mediaCount = mediaCounts;
 
-    folder.folderPostCount = fError ? 0 : count;
-    return folder;
-}
-
-
-export default async function UserFolderPage({ params }: UserFolderPageProps) {
-    const { folder: folder_name, username } = await params
-    const folder = await getFolder(folder_name, username);
-    return <>
-        <NavigationBar />
-        <FolderDetails folder={folder} />
-        <FolderPosts folderId={folder.id} userId={folder.userId} />
-    </>
+    return (
+        <div id="folder-page">
+            <NavigationBar username={username} folder={folderName} />
+            <FolderDetails folder={folder} />
+            <FolderPosts folder={folder} />
+        </div>)
 }   
