@@ -30,6 +30,8 @@ export default async function UsernamePage({ params }: { params: { username: str
                     <Image
                         src={user.avatarUrl}
                         fill
+                        sizes="10vw"
+                        priority
                         alt="User Avatar"
                         className="object-cover"
                     />

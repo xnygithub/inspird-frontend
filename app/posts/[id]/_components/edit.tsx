@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/utils/supabase/client'
 import { redirect } from 'next/navigation'
-import { deletePost } from '@/lib/client/posts'
+import { deletePost } from '@/lib/queries/posts'
 
 export default function Edit({ postId }: { postId: string }) {
 

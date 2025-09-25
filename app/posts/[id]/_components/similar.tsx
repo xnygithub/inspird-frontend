@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { STANDARD_COLUMN_BREAKPOINTS, SIDEBAR_COLUMN_BREAKPOINTS } from '@/constants/masonry'
 import { useSidebar } from './sidebar.provider'
 import { SimilarPost } from '@/app/posts/[id]/types'
-import { getSimilarPosts } from '@/lib/client/posts'
+import { getSimilarPosts } from '@/lib/queries/posts'
 import { Button } from '@/components/ui/button'
 
 export default function Similar({ postId }: { postId: string }) {
