@@ -1,4 +1,3 @@
-"use client";
 import { createClient } from "@/utils/supabase/client";
 
 export async function getUsersCanvasDocs(userId: string, from: number, to: number) {

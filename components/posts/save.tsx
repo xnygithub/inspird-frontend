@@ -12,12 +12,11 @@ import gray from "@/public/gray.png";
 import { Plus } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { savePostToFolder } from "./actions"
-import { GetUsersPostsResult } from "@/lib/client/posts"
 
 const supabase = createClient();
 const PAGE_SIZE = 10;
 
-export const SaveLabel = ({ post }: { post: GetUsersPostsResult }) => {
+export const SaveLabel = ({ postId }: { postId: string }) => {
     const [open, setOpen] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
     const [hydrated, setHydrated] = useState(false)
@@ -37,7 +36,7 @@ export const SaveLabel = ({ post }: { post: GetUsersPostsResult }) => {
         );
 
     const handleSave = async (folderId: string) => {
-        await savePostToFolder(folderId, post.posts.id)
+        await savePostToFolder(folderId, postId)
     }
 
 

@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { getS3UploadUrl } from "@/app/actions/s3";
-import { getImageSize } from "@/lib/utils";
+import { getImageSize, fileToBase64 } from "@/lib/utils";
 import { MediaType, Post, ProcessingStatus, SavedItems } from "@/app/generated/prisma";
 import { createClient } from "@/utils/supabase/client";
 
@@ -10,6 +10,16 @@ interface UploadImageProps {
     setUploadOpen: (open: boolean) => void;
     uploadOpen: boolean;
 }
+
+interface PostWithEmbeddings extends Post {
+    embedding: number[];
+}
+
+
+// TODO: Move call to HF endpoint to the server side
+// TODO: HF endpoint has cold starts when scaled to zero, returns 500 whilst warming up
+// TODO: Consider setting min replica to 1 / disabling scale to zero
+
 export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => {
     const [status, setStatus] = useState("Ready");
     async function handleFile(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -22,6 +32,29 @@ export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => 
         setStatus("Preparing…");
 
         const imageData = await getImageSize(file);
+        const base64 = await fileToBase64(file);
+
+        const hfResponse = await fetch(process.env.NEXT_PUBLIC_HF_ENDPOINT!, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_HF_TOKEN!}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: {
+                    text: "image",
+                    image: base64,
+                },
+            }),
+        })
+
+        // If the HF endpoint returns an error, most likely to cold star
+        if (!hfResponse.ok) {
+            console.error(hfResponse);
+            setStatus("Upload failed");
+            return;
+        }
+        const { embeddings } = await hfResponse.json()
 
         // Ask the server action for a presigned POST
         const { url, fields, key } = await getS3UploadUrl({
@@ -45,7 +78,7 @@ export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => 
 
         setStatus("Done!");
 
-        const newPost: Post = {
+        const newPost: PostWithEmbeddings = {
             id: crypto.randomUUID(),
             createdAt: new Date(),
             isAiGenerated: false,
@@ -59,6 +92,7 @@ export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => 
             mediaSize: imageData.size,
             mediaAspectRatio: imageData.aspectRatio,
             mediaAltText: "",
+            embedding: embeddings,
             processingStatus: "not_started" as ProcessingStatus,
         };
 

@@ -14,7 +14,7 @@ export const SavedPostWrapper = ({ post, children }: SavedPostWrapperProps) => {
     // This should wrap posts when the user is viewing posts they have saved/created
     // Used in: A user viewing their own profile/folders
     return (
-        <div className="group relative">
+        <div className="group relative w-full">
             {children}
             <Link href={`/${post.posts.users.username}`}>
                 <Button id="pin-username-label">
@@ -23,7 +23,7 @@ export const SavedPostWrapper = ({ post, children }: SavedPostWrapperProps) => {
             </Link>
             <div id="pin-save-label">
                 <QuicksaveLabel disabled={true} postId={post.posts.id} />
-                <SaveLabelComponent post={post} />
+                <SaveLabelComponent postId={post.posts.id} />
             </div>
         </div>
     )

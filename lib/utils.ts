@@ -29,3 +29,19 @@ export function getImageSize(file: File): Promise<ImageSize> {
     };
   });
 }
+
+export async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      // result is an ArrayBuffer → convert to base64 string
+      const result = reader.result as string
+      // FileReader with readAsDataURL returns a data: URI
+      // so we strip the `data:image/png;base64,` prefix
+      const base64 = result.split(",")[1]
+      resolve(base64)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}

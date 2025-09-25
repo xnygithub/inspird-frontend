@@ -16,11 +16,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    transition: 0.5s ease-in-out;
 }
   
 #similar-posts-container {
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-bottom: 1rem;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -32,14 +34,11 @@
 }
 
 #sidebar-container {
-  top: 10px;
+  top: 0;
   right: 0;
-  border-radius: 15px;
-  height: calc(100vh - 100px);
+  position: fixed;
+  height: calc(100vh - 75px);
   transition: 0.5s ease-in-out;
-  @apply bg-[#d8d8d8] dark:bg-[#181818];
-}
-
-#sidebar-post-container {
-  transition:  0.5s ease-in-out;
+  border-left: 1px solid #1F1F1F ;
+  background-color: #0a0a0a;
 }

@@ -3,8 +3,11 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { Post } from '@/app/generated/prisma'
 import { createClient } from "@/utils/supabase/client"
-import SidebarProvider from "@/app/posts/[id]/components/sidebar"
-import Similar from "@/app/posts/[id]/components/similar"
+import SidebarProvider from "@/app/posts/[id]/_components/sidebar.provider"
+import ToggleSidebarButton from "@/app/posts/[id]/_components/toggle"
+import Similar from "@/app/posts/[id]/_components/similar"
+import { SaveLabel } from '@/components/posts/save'
+import Edit from "@/app/posts/[id]/_components/edit"
 
 async function getPost(id: string) {
     const supabase = await createClient()
@@ -23,21 +26,22 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     if (!data) return notFound()
     return (
         <SidebarProvider>
-            <div id="post-container" >
-                <div id="selected-post-container" >
-                    <Image
-                        className="object-contain"
-                        alt={data.mediaAltText}
-                        src={data.mediaUrl}
-                        width={data.mediaWidth}
-                        height={data.mediaHeight}
-                        style={{ width: '100%', height: 'auto', maxHeight: '700px' }}
-                    />
-                </div>
-                <div id="similar-posts-container">
-                    <Similar data={data} />
+            <div id="selected-post-container" >
+                <Image
+                    src={data.mediaUrl}
+                    alt={data.mediaAltText}
+                    width={data.mediaWidth}
+                    height={data.mediaHeight}
+                    className="object-contain"
+                    style={{ width: '100%', height: 'auto', maxHeight: '600px' }}
+                />
+                <div className="top-4 right-4 absolute flex space-x-2">
+                    <SaveLabel postId={data.id} />
+                    <Edit postId={data.id} />
+                    <ToggleSidebarButton />
                 </div>
             </div>
+            <Similar postId={data.id} />
         </SidebarProvider>
     )
 }   
