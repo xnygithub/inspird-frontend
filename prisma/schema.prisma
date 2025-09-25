@@ -88,6 +88,7 @@ model SavedItems {
 model Folder {
   userId      String       @db.Uuid
   name        String       @db.VarChar(50)
+  slug        String       @db.VarChar(50)
   thumbnail   String?      @db.VarChar(255)
   description String?      @db.VarChar(255)
   isPrivate   Boolean      @default(false)
@@ -96,9 +97,10 @@ model Folder {
   FolderPost  FolderPost[]
   users       Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, name], map: "uq_user_folder")
+  @@unique([userId, slug], map: "uq_user_folder")
   @@unique([id, userId], map: "uq_folder_id_user")
   @@index([userId])
+  @@index([slug])
   @@map("folders")
 }
 

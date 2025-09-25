@@ -24,7 +24,7 @@ async function getFolder(folder_name: string, username: string) {
     const { data: folder, error } = await supabase
         .from("folders")
         .select("*")
-        .eq("name", folder_name)
+        .eq("slug", folder_name)
         .eq("userId", targetUser.id)
         .single();
     if (error) return notFound();

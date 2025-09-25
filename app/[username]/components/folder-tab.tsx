@@ -59,7 +59,7 @@ export default function FoldersContainer({ user }: FoldersContainerProps) {
         <>
             <div id="folder-container" >
                 {folders.map((folder) => (
-                    <Link href={`/${user.username}/${folder.name}`} key={folder.id}>
+                    <Link href={`/${user.username}/${folder.slug}`} key={folder.id}>
                         {!folder.thumbnail && <div id="folder-thumbnail"></div>}
                         <h2>{folder.name}</h2>
                     </Link>
