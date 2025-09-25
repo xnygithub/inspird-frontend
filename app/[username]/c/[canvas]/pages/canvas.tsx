@@ -9,33 +9,30 @@ import { useHydrated } from "@/app/[username]/c/[canvas]/hooks/useHydrated";
 import { useWindowSize } from "@/app/[username]/c/[canvas]/hooks/useWindowSize";
 import { useStageZoom } from "@/app/[username]/c/[canvas]/hooks/useZoom";
 import { useContextMenu } from "@/app/[username]/c/[canvas]/hooks/useMenu";
-import Library from "@/app/[username]/c/[canvas]/components/import";
-import { CanvasData } from "../types";
-import { useUpdate } from "../hooks/useUpdate";
-import { ImgItem } from "../types";
-import { GetUsersPostsResult } from "@/lib/client/posts";
-import { updateCanvas } from "../actions";
-import { transformerConfig } from "../config";
-import CtxMenu from "../components/ctx-menu";
+import AddPostsDialog from "@/app/[username]/c/[canvas]/components/import";
+import { CanvasData } from "@/app/[username]/c/[canvas]/types";
+import { useUpdate } from "@/app/[username]/c/[canvas]/hooks/useUpdate";
+import { ImgItem } from "@/app/[username]/c/[canvas]/types";
+import { updateCanvas } from "@/app/[username]/c/[canvas]/actions";
+import { transformerConfig } from "@/app/[username]/c/[canvas]/config";
+import CtxMenu from "@/app/[username]/c/[canvas]/components/ctx-menu";
 import { CanvasDoc } from "@/app/generated/prisma";
+import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
 
 interface CanvasPageProps {
     canvas: CanvasDoc & { data: CanvasData };
 }
 
-
+// TODO: Investigate min/max resizing for images
 export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
 
-    // States
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
-    // Hooks
     const hydrated = useHydrated();
     const { width: windowWidth, height: windowHeight } = useWindowSize();
     const { images, setImages, patchImage, removeImage, addImage } = useUpdate(canvas.data);
     const { position, visible, selectedId, setVisible, setSelectedId, onContextMenu } = useContextMenu();
 
-    // Refs
     const imgRef = useRef<Konva.Image>(null);
     const stageRef = useRef<Konva.Stage>(null);
     const layerRef = useRef<Konva.Layer>(null);
@@ -55,7 +52,7 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
     }, [hydrated, stageRef, canvas.data]);
 
     // Dialogs  
-    const addPost = (post: GetUsersPostsResult["posts"][]) => {
+    const addPost = (post: AddPostProps["post"][]) => {
         setImages([...images, ...post.map((p) => addImage(p))]);
     };
 
@@ -173,7 +170,8 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
                 <Button onClick={handleSaveCanvas} >Save</Button>
                 <Button onClick={() => setIsLibraryOpen(true)}> Add</Button>
             </div>
-            <Library
+            <AddPostsDialog
+                userId={canvas.userId}
                 addPost={addPost}
                 open={isLibraryOpen}
                 onOpenChange={setIsLibraryOpen}

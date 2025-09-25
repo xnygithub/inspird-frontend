@@ -1,3 +1,5 @@
+import { Post, SavedItems } from "@/app/generated/prisma";
+
 export type ImgItem = {
     id: string;
     src: string;
@@ -19,4 +21,8 @@ export interface CanvasData {
         y: number;
     };
     images: ImgItem[];
+}
+
+export interface AddPostProps extends SavedItems {
+    post: Post;
 }

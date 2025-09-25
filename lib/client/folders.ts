@@ -9,11 +9,7 @@ export const getUsersFolders = async (
 ) => {
     const { data, error } = await client
         .from("folders")
-        .select(
-            `*,
-            owner:profiles ( username ),
-            folder_posts!left (id, createdAt, posts ( mediaUrl ))`
-        )
+        .select(`*, owner:profiles ( username ), folder_posts!left (id, createdAt, posts ( mediaUrl ))`)
         .eq("userId", userId)
         .order("createdAt", { ascending: false })
         .order("createdAt", { foreignTable: "folder_posts", ascending: true })

@@ -1,50 +1,58 @@
 
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { getUsersPosts, GetUsersPostsResult } from "@/lib/client/posts";
+import { getUsersPosts } from "@/lib/queries/posts";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
+import { useInView } from "react-intersection-observer";
+import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
+
+const PAGE_SIZE = 10;
+const supabase = createClient();
+
+interface LibraryProps {
+    userId: string;
+    addPost: (posts: AddPostProps["post"][]) => void;
+}
+export default function UsersPostsLibrary({ userId, addPost }: LibraryProps) {
+    const [selectedPosts, setSelectedPosts] = useState<AddPostProps["post"][]>([]);
+    const { ref, inView } = useInView({ threshold: 0 });
+
+    const { data, loadMore, isValidating } =
+        useOffsetInfiniteScrollQuery(
+            () => getUsersPosts(supabase, userId),
+            { pageSize: PAGE_SIZE }
+        );
+
+    useEffect(() => {
+        if (inView && loadMore) loadMore()
+    }, [inView, loadMore])
 
 
-export default function Library({ addPost }: { addPost: (posts: GetUsersPostsResult["posts"][]) => void }) {
-    const [posts, setPosts] = useState<GetUsersPostsResult[]>([]);
-    const [selectedPosts, setSelectedPosts] = useState<GetUsersPostsResult["posts"][]>([]);
-
-    const handleFetchPosts = async () => {
-        const supabase = await createClient();
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) {
-            throw new Error("User not found")
-        }
-        const userId = user.user.id
-        const posts = await getUsersPosts(userId, 0, 10);
-        setPosts(posts);
+    if (data?.length === 0 && !isValidating && !loadMore) {
+        return <div className="mt-10 text-center">No posts found</div>
     }
 
-    const handleSelectPost = (post: GetUsersPostsResult["posts"]) => {
+    const handleSelectPost = (post: AddPostProps["post"]) => {
+        console.log(post)
         if (selectedPosts.includes(post)) {
-            setSelectedPosts(selectedPosts.filter((p) => p.id !== post.id));
+            setSelectedPosts(selectedPosts.filter((p) => p !== post));
         } else {
             setSelectedPosts([...selectedPosts, post]);
         }
     }
 
-    useEffect(() => {
-        handleFetchPosts();
-    }, []);
-
-    const handleClearSelectedPosts = () => {
-        setSelectedPosts([]);
-    }
+    const handleClearSelectedPosts = () => setSelectedPosts([]);
 
     return (
         <div className="flex flex-col h-full">
             <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
                 <Masonry>
-                    {posts.map((post) => (
+                    {data && data.map((post) => (
                         <div
                             className="group relative w-full"
                             key={post.posts.id}
@@ -65,6 +73,7 @@ export default function Library({ addPost }: { addPost: (posts: GetUsersPostsRes
 
                 </Masonry>
             </ResponsiveMasonry>
+            {!isValidating && loadMore && <div ref={ref}></div>}
             <div className="flex justify-center mt-auto">
                 <Button onClick={() => { addPost(selectedPosts); handleClearSelectedPosts() }}>
                     Add Post
