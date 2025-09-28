@@ -9,11 +9,13 @@ export const getUsersFolders = async (
 ) => {
     const { data, error } = await client
         .from("folders")
-        .select(`*, owner:profiles ( username ), folder_posts!left (id, createdAt, posts ( mediaUrl ))`)
+        .select(`*, 
+            owner:profiles (username), 
+            folder_posts (count)`)
         .eq("userId", userId)
         .order("createdAt", { ascending: false })
-        .order("createdAt", { foreignTable: "folder_posts", ascending: true })
-        .limit(1, { foreignTable: "folder_posts" })
+        // .order("createdAt", { foreignTable: "folder_posts", ascending: true })
+        // .limit(1, { foreignTable: "folder_posts" })
         .range(from, to);
 
     if (error) throw error;
@@ -34,6 +36,7 @@ export const getUsersFolders = async (
         createdAt: f.createdAt,
         updatedAt: f.updatedAt,
         owner: f.owner,
+        folder_posts: f.folder_posts,
     }));
 };
 

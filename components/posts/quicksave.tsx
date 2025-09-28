@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { quicksavePost } from "./actions"
 
 interface QuicksaveLabelProps {
@@ -17,11 +16,11 @@ export const QuicksaveLabel = ({ postId, disabled }: QuicksaveLabelProps) => {
     }
 
     return (
-        < Button
+        <button
             disabled={isSaved || disabled}
             onClick={handleQuicksave} >
             {isSaved ? "Saved" : "Save"}
-        </Button >
+        </button >
     )
 
 }

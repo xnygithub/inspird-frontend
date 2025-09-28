@@ -1,46 +1,46 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const deletePostFromFolder =
-    (client: SupabaseClient, userId: string, folderId: string, postId: string) => {
-        return client
-            .from("folder_posts")
-            .delete()
-            .eq("userId", userId)
-            .eq("folderId", folderId)
-            .eq("postId", postId);
+export const deleteFolder =
+    (client: SupabaseClient, folderId: string) => {
+        return client.from("folders").delete().eq("id", folderId);
     }
 
-export const savePostToFolder = (client: SupabaseClient, userId: string, folderId: string, postId: string) => {
-    return client.from("folder_posts").insert({ userId, folderId, postId });
-}
+export const deletePostFromFolder =
+    (client: SupabaseClient, folderId: string, postId: string) => {
+        return client.from("folder_posts").delete().eq("folderId", folderId).eq("postId", postId);
+    }
 
-export const getFolder = (client: SupabaseClient, userId: string, slug: string) => {
-    return client.from("folders").select("*").eq("userId", userId).eq("slug", slug).single();
-}
+export const quickSavePost =
+    (client: SupabaseClient, postId: string) => {
+        return client.from("saved_items").upsert({ postId: postId }, { onConflict: "userId,postId" }).select("id").single();
+    }
 
-export const folderMediaCount = (client: SupabaseClient, userId: string, slug: string) => {
-    return client.rpc('folder_media_counts', {
-        p_user: userId,
-        p_slug: slug,
-    });
-}
+export const savePostToFolder =
+    (client: SupabaseClient, savedItemsId: string, folderId: string, postId: string) => {
+        return client.from("folder_posts").insert({ savedItemsId, folderId, postId });
+    }
+
+export const getFolder =
+    (client: SupabaseClient, userId: string, slug: string) => {
+        return client.from("folders").select("*").eq("userId", userId).eq("slug", slug).single();
+    }
+
+export const getFoldersSummary =
+    (client: SupabaseClient, userId: string) => client.rpc("folders_summary", { user_id: userId });
+
+
+export const folderMediaCount =
+    (client: SupabaseClient, userId: string, slug: string) => {
+        return client.rpc('folder_media_counts', { p_user: userId, p_slug: slug });
+    }
 
 export const getFolderPosts =
-    (client: SupabaseClient, userId: string, folderId: string) => {
+    (client: SupabaseClient, folderId: string) => {
         return client
             .from('folder_posts')
             .select('*, posts (*, profiles (username))')
-            .eq('userId', userId)
             .eq('folderId', folderId)
     }
-
-export const getFolderList = (client: SupabaseClient, userId: string) => {
-    return client
-        .from("folders")
-        .select("*, folder_posts(count)")
-        .eq("userId", userId)
-        .order("createdAt", { ascending: false });
-}
 
 export const getFolderListForPostId = (
     client: SupabaseClient,
@@ -59,3 +59,16 @@ export const getFolderListForPostId = (
         .eq("is_saved.postId", postId)
         .order("createdAt", { ascending: false });
 };
+
+export interface FolderDropdown {
+    "id": string,
+    "name": string,
+    "isPrivate": boolean,
+    "postCount": number,
+    "thumbnail": string,
+    "containsPost": boolean
+}
+
+export const folderDropdown = (client: SupabaseClient, postId: string) => {
+    return client.rpc('folder_dropdown', { post_id: postId });
+}

@@ -1,7 +1,12 @@
 import { z } from "zod";
-export const folderSchema = z.object({
+export const editFolderSchema = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
     isPrivate: z.boolean(),
 });
-export type FolderInput = z.infer<typeof folderSchema>;
+export type EditFolderInput = z.infer<typeof editFolderSchema>;
+
+export const createFolderSchema = z.object({
+    name: z.string().min(1),
+});
+export type CreateFolderInput = z.infer<typeof createFolderSchema>;

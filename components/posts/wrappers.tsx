@@ -1,7 +1,6 @@
 import React from 'react'
 import { SaveLabel as SaveLabelComponent } from '@/components/posts/save'
 import { QuicksaveLabel } from '@/components/posts/quicksave'
-import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 interface WrapperProps {
@@ -17,9 +16,9 @@ export const SavedPostWrapper = ({ postId, ownerUsername, children }: WrapperPro
         <div className="group relative w-full">
             {children}
             <Link href={`/${ownerUsername}`}>
-                <Button id="pin-username-label">
+                <button id="pin-username-label">
                     {ownerUsername}
-                </Button>
+                </button>
             </Link>
             <div id="pin-save-label">
                 <QuicksaveLabel disabled={true} postId={postId} />

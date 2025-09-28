@@ -3,22 +3,19 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import { getUsersCanvasDocs } from "@/lib/queries/canvas"
 import { useInView } from "react-intersection-observer"
-import { Profile } from "@/app/generated/prisma"
 import { createClient } from "@/utils/supabase/client";
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-
-
+import DeleteButton from "@/components/canvas/delete-button"
 
 const supabase = createClient();
-export default function CanvasContainer({ user }: { user: Profile }) {
-    const PAGE_SIZE = 10
+export default function CanvasContainer({ userId }: { userId: string }) {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
 
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getUsersCanvasDocs(supabase, user.id),
-            { pageSize: PAGE_SIZE }
+            () => getUsersCanvasDocs(supabase, userId),
+            { pageSize: 10 }
         );
 
     useEffect(() => setHydrated(true), [])
@@ -37,10 +34,13 @@ export default function CanvasContainer({ user }: { user: Profile }) {
         <>
             <div id="canvas-container" >
                 {data && data.map((canvasDoc) => (
-                    <Link href={`/${user.username}/c/${canvasDoc.title}`} key={canvasDoc.id}>
-                        <div className="bg-gray-200/30 w-full h-full"></div>
-                        <h2>{canvasDoc.title}</h2>
-                    </Link>
+                    <div key={canvasDoc.id}>
+                        <Link href={`/${canvasDoc.owner.username}/c/${canvasDoc.title}`}>
+                            <div className="bg-gray-200/30 w-full h-full"></div>
+                            <h2>{canvasDoc.title}</h2>
+                        </Link>
+                        <DeleteButton canvasId={canvasDoc.id} />
+                    </div>
                 ))}
             </div>
             {!isValidating && loadMore && <div ref={ref}></div>}

@@ -1,35 +1,19 @@
 "use server"
 import { createClient } from "@/utils/supabase/server";
+import { slugify } from "@/utils/slufigy";
+import { createFolderSchema, type CreateFolderInput } from "@/lib/zod/folder.schema";
 
-export async function createFolder(formData: FormData) {
+export async function createFolder(input: CreateFolderInput) {
+
+    const parsed = createFolderSchema.safeParse(input);
+    if (!parsed.success) throw new Error("Invalid input");
     const supabase = await createClient();
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) return { error: "Unauthorized" }
 
-    const folderName = formData.get("folderName") as string;
-    const { data, error } = await supabase
+    const { name } = parsed.data;
+    const { error } = await supabase
         .from("folders")
-        .insert({ name: folderName, userId: user.data.user.id })
-        .select("*")
-        .single();
+        .insert({ name: name, slug: slugify(name) })
 
-    if (error) return { error: "Failed to create folder" }
-
-    return data;
-}
-
-export async function createSection(folderId: string, formData: FormData) {
-    const supabase = await createClient();
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) return { error: "Unauthorized" }
-
-    const sectionName = formData.get("sectionName") as string;
-    const { data, error } = await supabase
-        .from("folder_sections")
-        .insert({ name: sectionName, folderId: folderId })
-        .select("*")
-        .single();
-
-    if (error) return { error: "Failed to create section" }
-    return data;
+    if (error) throw new Error(error.message)
+    return { newSlug: slugify(name) };
 }

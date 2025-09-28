@@ -10,6 +10,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { useInView } from "react-intersection-observer";
 import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
+import { PIN_MASONRY } from "@/constants/masonry";
 
 const PAGE_SIZE = 10;
 const supabase = createClient();
@@ -38,7 +39,6 @@ export default function UsersPostsLibrary({ userId, addPost }: LibraryProps) {
     }
 
     const handleSelectPost = (post: AddPostProps["post"]) => {
-        console.log(post)
         if (selectedPosts.includes(post)) {
             setSelectedPosts(selectedPosts.filter((p) => p !== post));
         } else {
@@ -50,7 +50,7 @@ export default function UsersPostsLibrary({ userId, addPost }: LibraryProps) {
 
     return (
         <div className="flex flex-col h-full">
-            <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6 }}>
+            <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
                 <Masonry>
                     {data && data.map((post) => (
                         <div

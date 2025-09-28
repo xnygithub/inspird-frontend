@@ -4,24 +4,23 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect } from 'react'
-import { UserProfile } from '@/app/[username]/page'
 import { getUsersPosts } from '@/lib/queries/posts';
 import { createClient } from "@/utils/supabase/client";
 import { SavedPostWrapper } from '@/components/posts/wrappers'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
+import { PIN_MASONRY } from "@/constants/masonry";
 
-const PAGE_SIZE = 10
 const supabase = createClient();
 
-export default function PinsContainer({ user }: { user: UserProfile }) {
+export default function PinsContainer({ userId }: { userId: string }) {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
 
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getUsersPosts(supabase, user.id),
-            { pageSize: PAGE_SIZE }
+            () => getUsersPosts(supabase, userId),
+            { pageSize: 10 }
         );
 
     useEffect(() => { setHydrated(true) }, [])
@@ -38,7 +37,7 @@ export default function PinsContainer({ user }: { user: UserProfile }) {
 
     return (
         <>
-            <ResponsiveMasonry columnsCountBreakPoints={{ 250: 2, 500: 2, 750: 3, 1000: 4, 1250: 5, 1500: 6, 1750: 7, 2000: 8 }}>
+            <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
                 <Masonry>
                     {data && data.map((item) => (
                         <SavedPostWrapper

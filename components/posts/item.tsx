@@ -3,15 +3,16 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
 import gray from '@/public/gray.png'
+import { FolderDropdown as FolderDropdownType } from '@/lib/queries/folders'
 
 interface itemProps {
-    folder: any
+    folder: FolderDropdownType
     handleSave: (id: string) => void
     handleDelete: (id: string) => void
 }
 
 export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
-    const [isSaved, setIsSaved] = useState(folder.is_saved[0].count !== 0)
+    const [isSaved, setIsSaved] = useState(folder.containsPost)
 
     const handleSaveClick = () => {
         if (isSaved) {
@@ -29,12 +30,13 @@ export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
                 <Image
                     width={50}
                     height={50}
+                    className='object-cover aspect-square'
                     src={folder.thumbnail || gray}
                     alt={"Folder Thumbnail"}
                 />
                 <div id="folder-item-name">
                     <p>{folder.name}</p>
-                    <p>{folder.total_posts[0].count} Items </p>
+                    <p>{folder.postCount} Items </p>
                     <p>{folder.isPrivate ? "(Private)" : "Public"}</p>
                 </div>
             </div>

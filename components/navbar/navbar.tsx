@@ -4,43 +4,37 @@ import { Dropdown } from "@/components/navbar/dropdown";
 import { createClient } from "@/utils/supabase/server";
 import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
-import { Create } from "@/components/navbar/create";
+import { Create } from "@/components/create/dropdown";
 import SubscribeButton from "@/components/subscribe-button";
 
 export const Navbar = async () => {
     const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    if (!data.user) return null;
+    const { data, error } = await supabase
+        .from("profiles").select("*").single();
 
-    const { data: user } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
+    if (error) return null;
 
     return (
         <div id="navbar">
-            {data.user !== null ? (
+            {data ? (
                 <>
-                    <Link href="/">
-                        <p>INSPIRD</p>
-                    </Link>
+                    <Link href="/">INSPIRD</Link>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
-                        {user.subscriptionStatus !== "active" && <SubscribeButton user={user} />}
+                        {data.subscriptionStatus !== "active" && <SubscribeButton user={data} />}
                         <Create />
                         <ModeToggle />
-                        <Link href={`/${user.username}`} className="relative">
+                        <Link href={`/${data.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">
-                                <Image src={user.avatarUrl} alt="Avatar" fill className="object-cover" />
+                                <Image src={data.avatarUrl} alt="Avatar" fill className="object-cover" />
                             </div>
                         </Link>
-                        <Dropdown user={user} />
+                        <Dropdown username={data.username} />
                     </div>
                 </>
             ) : (
                 <>
-                    <Link href="/login"> <button>Login</button></Link>
+                    <Link href="/login"><button>Login</button></Link>
                     <Link href="/login"><button>Signup</button></Link>
                 </>
             )}

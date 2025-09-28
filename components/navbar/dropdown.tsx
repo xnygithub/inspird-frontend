@@ -9,28 +9,25 @@ import {
     DropdownMenuContent,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { Profile } from "@/app/generated/prisma/client";
 import { signOut } from "@/app/login/actions";
 import { Settings } from "@/components/settings/settings";
 
 
-export const Dropdown = ({ user }: { user: Profile }) => {
-    const [settingsOpen, setSettingsOpen] = useState(false)
+export const Dropdown = ({ username }: { username: string }) => {
+    const [open, setOpen] = useState(false)
 
     return (
         <>
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger>▼</DropdownMenuTrigger>
                 <DropdownMenuContent sideOffset={15}>
-                    <DropdownMenuLabel >Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>Account</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                        <Link href={`/${user.username}`}>
-                            Profile
-                        </Link>
+                        <Link href={`/${username}`}>Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuLabel >Settings</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                    <DropdownMenuLabel>Settings</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setOpen(true)}>
                         Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -38,8 +35,8 @@ export const Dropdown = ({ user }: { user: Profile }) => {
                         Logout
                     </DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu >
-            <Settings open={settingsOpen} setOpen={setSettingsOpen} />
-        </ >
+            </DropdownMenu>
+            <Settings open={open} setOpen={setOpen} />
+        </>
     );
 };  

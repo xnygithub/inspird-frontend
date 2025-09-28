@@ -3,10 +3,10 @@ import { subscribe } from "../actions/actions";
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { User } from "@supabase/supabase-js";
+import { Profile } from "@/app/generated/prisma";
 
 type Props = {
-    user: User;
+    user: Profile;
 };
 
 export default function SubscribeButton({ user }: Props) {

@@ -41,3 +41,34 @@ export async function getUserProfileByUsername(username: string) {
     data.isMe = data.id === currentUser.data.user?.id;
     return data;
 }
+
+export async function getUserProfile(username: string) {
+    const supabase = await createClient();
+    const currentUser = await supabase.auth.getUser();
+
+    const { data, error } = await supabase
+        .from("profiles")
+        .select(`
+        id, username, email, displayName, avatarUrl, profilePrivate, createdAt,
+        saved_items:saved_items(count),
+        folders:folders(count),
+        canvas_doc:canvas_doc(count)
+      `)
+        .eq("username", username)
+        .single();
+
+    if (error || !data) return null;
+
+    // The aggregates come back as 1-element arrays: [{ count: number }]
+    const savedItemsCount = data.saved_items?.[0]?.count ?? 0;
+    const foldersCount = data.folders?.[0]?.count ?? 0;
+    const canvasDocsCount = data.canvas_doc?.[0]?.count ?? 0;
+
+    return {
+        ...data,
+        savedItemsCount,
+        foldersCount,
+        canvasDocCount: canvasDocsCount,
+        isMe: data.id === currentUser.data.user?.id,
+    };
+}

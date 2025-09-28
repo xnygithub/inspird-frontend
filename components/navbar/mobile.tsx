@@ -4,20 +4,22 @@ import { createClient } from "@/utils/supabase/server";
 
 export const MobileNavbar = async () => {
     const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    if (!data.user) return null;
-
-    const { data: user } = await supabase
+    const { data } = await supabase
         .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
+        .select("username, avatarUrl")
         .single();
+
+    if (!data) return null;
 
     return (
         <div id="mobile-navbar">
-            <Link href={`/${user.username}`} className="relative">
+            <Link href={`/${data.username}`} className="relative">
                 <div className="relative w-12 h-12 overflow-hidden">
-                    <Image src={user.avatarUrl} alt="Avatar" fill className="object-cover" />
+                    <Image
+                        fill
+                        alt="Avatar"
+                        src={data.avatarUrl}
+                        className="object-cover" />
                 </div>
             </Link>
         </div>

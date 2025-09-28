@@ -2,10 +2,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useMediaQuery } from 'usehooks-ts'
 import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-import { Profile } from "@/app/generated/prisma";
-import SettingsDesktop from "@/components/settings/settings-desktop";
-import SettingsMobile from "@/components/settings/settings-mobile";
+import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
+import { getUserSettings } from "@/lib/queries/profile";
 
 interface SettingsProps {
     open?: boolean;
@@ -13,29 +11,17 @@ interface SettingsProps {
     trigger?: React.ReactNode;
 }
 
+const supabase = createClient()
 export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
     const isMobile = useMediaQuery('(max-width: 768px)')
-    const [user, setUser] = useState<Profile | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
 
-    const fetchUser = async () => {
-        const supabase = createClient()
-        const { data: user } = await supabase.auth.getUser()
-        const { data: userData } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.user?.id)
-            .single()
-        setUser(userData)
-        setIsLoading(false)
-    }
+    const { isValidating, data } = useQuery(
+        getUserSettings(supabase, "8c5aeb07-61d3-4022-941e-aac964e58a43"),
+        { revalidateOnFocus: false, revalidateOnReconnect: false }
+    );
 
-    useEffect(() => {
-        fetchUser()
-    }, [])
-
-    if (isLoading) return <div>Loading...</div>
-    if (!user) return <div>Error occured getting while fetching settings</div>
+    if (isValidating) return <div>Loading...</div>
+    if (!data) return <div>Error occured getting while fetching settings</div>
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             {trigger &&
@@ -49,7 +35,10 @@ export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
                 <DialogHeader>
                     <DialogTitle>Settings</DialogTitle>
                 </DialogHeader>
-                {isMobile ? <SettingsMobile user={user} /> : <SettingsDesktop user={user} />}
+                <>
+                    <pre>{JSON.stringify(data, null, 2)}</pre>
+                    <p>{isMobile ? "Mobile" : "Desktop"}</p>
+                </>
             </DialogContent>
         </Dialog >
     )

@@ -12,27 +12,34 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { folderSchema, type FolderInput } from "@/lib/zod/folder.schema";
+import { editFolderSchema, type EditFolderInput } from "@/lib/zod/folder.schema";
 import { useParams } from "next/navigation";
+import { deleteFolder } from "@/lib/queries/folders";
+import { createClient } from "@/utils/supabase/client";
+import { redirect } from "next/navigation";
 
+const supabase = createClient();
 
 export const EditFolder = ({ folder }: { folder: Folder }) => {
     const params = useParams<{ username: string; foldername: string }>();
-    const { register, handleSubmit, formState: { errors } }
-        = useForm({
-            resolver: zodResolver(folderSchema),
-            defaultValues: {
-                name: folder.name ?? "",
-                description: folder.description ?? "",
-                isPrivate: !!folder.isPrivate,
-            },
-        })
-    const onSubmit = async (data: FolderInput) => {
-        await editFolder(folder.id, params.username, data);
+    const { register, handleSubmit, formState } = useForm({
+        resolver: zodResolver(editFolderSchema),
+        defaultValues: {
+            name: folder.name,
+            description: folder.description ?? "",
+            isPrivate: !!folder.isPrivate,
+        },
+    })
+
+    const onSubmit = async (data: EditFolderInput) => {
+        const { newSlug } = await editFolder(folder.id, data);
+        if (newSlug) redirect(`/${params.username}/${newSlug}`);
     }
 
-
-    const onDelete = () => console.log("Delete folder")
+    const onDelete = async () => {
+        const { error } = await deleteFolder(supabase, folder.id);
+        if (!error) redirect(`/${params.username}`);
+    }
 
     return (
         <Dialog>
@@ -43,15 +50,15 @@ export const EditFolder = ({ folder }: { folder: Folder }) => {
                 <DialogHeader>
                     <DialogTitle>Edit Folder</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)} style={style}>
                     <input {...register("name")} placeholder="Folder name.." />
-                    <p>{errors.name?.message}</p>
+                    <p>{formState.errors.name?.message}</p>
 
                     <input {...register("description")} placeholder="Folder description.." />
-                    <p>{errors.description?.message}</p>
+                    <p>{formState.errors.description?.message}</p>
 
                     <input type="checkbox" {...register("isPrivate")} />
-                    <p>{errors.isPrivate?.message}</p>
+                    <p>{formState.errors.isPrivate?.message}</p>
 
                     <input type="submit" />
                 </form>
@@ -59,4 +66,10 @@ export const EditFolder = ({ folder }: { folder: Folder }) => {
             </DialogContent>
         </Dialog>
     )
+}
+
+const style: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
 }

@@ -11,6 +11,17 @@ export const STANDARD_COLUMN_BREAKPOINTS = {
     2050: 11
 }
 
+export const PIN_MASONRY = {
+    250: 2,
+    500: 2,
+    750: 3,
+    1000: 4,
+    1250: 5,
+    1500: 6,
+    1750: 7,
+    2000: 8
+}
+
 export const SIDEBAR_COLUMN_BREAKPOINTS = {
     250: 2,
     500: 3,

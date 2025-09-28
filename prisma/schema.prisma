@@ -32,13 +32,14 @@ model Profile {
 }
 
 model CanvasDoc {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @default(dbgenerated("auth.uid()")) @db.Uuid
   title     String   @db.VarChar(255)
-  data      Json     @default("{}") @db.Json
+  data      Json     @default("{ \"schemaVersion\": 1, \"stage\": { \"zoom\": 1, \"x\": 0, \"y\": 0 }, \"images\": [] }") @db.Json
   isPrivate Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  slug      String   @db.VarChar(255)
   user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -47,7 +48,7 @@ model CanvasDoc {
 
 model Post {
   createdAt        DateTime               @default(now())
-  userId           String                 @db.Uuid
+  userId           String                 @default(dbgenerated("auth.uid()")) @db.Uuid
   isAiGenerated    Boolean                @default(false)
   isNsfw           Boolean                @default(false)
   isPrivate        Boolean                @default(false)
@@ -72,7 +73,7 @@ model Post {
 model SavedItems {
   createdAt  DateTime     @default(now())
   postId     String       @db.Uuid
-  userId     String       @db.Uuid
+  userId     String       @default(dbgenerated("auth.uid()")) @db.Uuid
   id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FolderPost FolderPost[]
   posts      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -86,15 +87,15 @@ model SavedItems {
 }
 
 model Folder {
-  userId      String       @db.Uuid
+  userId      String       @default(dbgenerated("auth.uid()")) @db.Uuid
   name        String       @db.VarChar(50)
-  slug        String       @db.VarChar(50)
   thumbnail   String?      @db.VarChar(255)
   description String?      @db.VarChar(255)
   isPrivate   Boolean      @default(false)
   createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String       @db.VarChar(50)
+  updatedAt   DateTime     @default(now()) @updatedAt
   FolderPost  FolderPost[]
   users       Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -106,14 +107,14 @@ model Folder {
 }
 
 model FolderPost {
-  userId       String     @db.Uuid
+  userId       String     @default(dbgenerated("auth.uid()")) @db.Uuid
   folderId     String     @db.Uuid
   createdAt    DateTime   @default(now())
   savedItemsId String     @db.Uuid
   id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   postId       String     @db.Uuid
   folders      Folder     @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
-  Post         Post?      @relation(fields: [postId], references: [id])
+  Post         Post       @relation(fields: [postId], references: [id])
   saved        SavedItems @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
 
   @@unique([folderId, savedItemsId], map: "uq_folder_saved")
@@ -125,7 +126,7 @@ model FolderPost {
 
 model userSubscriptionHistory {
   id             Int      @id @default(autoincrement())
-  userId         String   @db.Uuid
+  userId         String   @default(dbgenerated("auth.uid()")) @db.Uuid
   subscriptionId String   @db.VarChar(255)
   stripePriceId  String   @db.VarChar(255)
   startDate      DateTime

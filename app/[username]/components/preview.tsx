@@ -1,41 +1,39 @@
 import Image from "next/image";
 import defaultImage from "@/public/gray.png";
 import Link from "next/link";
-import { FolderCardType } from "../types";
+import { FolderCardType } from "@/app/[username]/types";
+import { timeAgo } from "@/utils/timeAgo";
 
 
-
-const ImageWrapper = ({ image }: { image?: string }) => (
-    <div className="absolute inset-0">
-        <Image
-            src={image || defaultImage}
-            alt="Image"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 256px"
-            priority={false}
-        />
-    </div>
-);
-
-interface FolderCardProps {
-    folder: FolderCardType
-}
-export default function FolderCard({ folder }: FolderCardProps) {
-    console.log(folder)
-
+export default function FolderCard({ folder }: { folder: FolderCardType }) {
     return (
-        <div className="flex flex-col gap-2">
-            <Link href={`/${folder.owner.username}/${folder.slug}`}>
-                <div className="relative rounded-md w-full aspect-square overflow-hidden">
-                    {folder.thumbnail ?
-                        <ImageWrapper image={folder.thumbnail} />
-                        :
-                        <ImageWrapper image={undefined} />
-                    }
+        <Link href={`/${folder.ownerUsername}/${folder.slug}`}>
+            <div className="flex flex-col gap-1">
+                <div className="relative w-full aspect-square">
+                    <div className="absolute inset-0">
+                        <Image
+                            src={(folder.thumbnails && folder.thumbnails[0]) || defaultImage}
+                            alt="Image"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 256px"
+                            priority={false}
+                        />
+                    </div>
                 </div>
-            </Link>
-            <p>{folder.name}</p>
-        </div>
+
+                <div className="flex flex-col">
+                    <p className="font-semibold text-[14px]">{folder.name}</p>
+                    <div className="flex flex-row justify-between">
+                        <p className="font-semibold text-[12px] text-gray-500">
+                            {folder.postCount} {folder.postCount === 1 ? "Post" : "Posts"}
+                        </p>
+                        <p className="font-semibold text-[12px] text-gray-500">
+                            {timeAgo(folder.lastUpdated)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </Link>
     );
 }

@@ -7,38 +7,36 @@ import { Settings } from '@/components/settings/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
-import { getUserProfileByUsername } from '@/lib/server/profile'
+import { getUserProfile } from '@/lib/queries/profile'
 import CanvasContainer from './components/canvas-tab'
+import { createClient } from '@/utils/supabase/server'
 
 export interface UserProfile extends Profile {
-    postCount: number;
-    folderCount: number;
-    canvasDocCount: number;
     isMe: boolean;
+    savedItemsCount: { count: number }[];
+    foldersCount: { count: number }[];
+    canvasDocCount: { count: number }[];
 }
 
+function getCount(count: { count: number }[]) {
+    return count[0].count
+}
 
 export default async function UsernamePage({ params }: { params: { username: string } }) {
     const { username } = await params
-    const user: UserProfile = await getUserProfileByUsername(username)
-    if (!user || (user.profilePrivate && !user.isMe)) return notFound()
+    const supabase = await createClient()
+    const user = await getUserProfile(supabase, username)
+    if (!user || user.profilePrivate && !user.isMe) return notFound()
 
     return (
         <>
             <div id="profile-container">
                 <div id="profile-avatar">
-                    <Image
-                        src={user.avatarUrl}
-                        fill
-                        sizes="10vw"
-                        priority
-                        alt="User Avatar"
-                        className="object-cover"
-                    />
+                    <Image fill alt="User Avatar" src={user.avatarUrl} className="object-cover" />
                 </div>
                 <div id="profile-info">
-                    <h1>{user.username}</h1>
-                    <h2>{user.displayName}</h2>
+                    <h2 className="font-bold text-[24px]">{user.displayName}</h2>
+                    <h1 className="font-normal text-[16px]">@{user.username}</h1>
                 </div>
                 <div className="space-x-4">
                     {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
@@ -46,19 +44,25 @@ export default async function UsernamePage({ params }: { params: { username: str
                 </div>
             </div >
             <Tabs id="profile-tabs-container" defaultValue="pins">
-                <TabsList >
-                    <TabsTrigger value="pins"> {user.postCount} Pins </TabsTrigger>
-                    <TabsTrigger value="folders"> {user.folderCount} Folders </TabsTrigger>
-                    <TabsTrigger value="canvas"> {user.canvasDocCount} Canvas </TabsTrigger>
+                <TabsList>
+                    <TabsTrigger value="pins">
+                        {getCount(user.savedItemsCount)} Pins
+                    </TabsTrigger>
+                    <TabsTrigger value="folders">
+                        {getCount(user.foldersCount)} Folders
+                    </TabsTrigger>
+                    <TabsTrigger value="canvas">
+                        {getCount(user.canvasDocCount)} Canvas
+                    </TabsTrigger>
                 </TabsList>
-                <TabsContent id="tabs-content" value="pins" forceMount >
-                    <PinsContainer user={user} />
+                <TabsContent id="tabs-content" value="pins" forceMount>
+                    <PinsContainer userId={user.id} />
                 </TabsContent>
                 <TabsContent id="tabs-content" value="folders" forceMount>
-                    <FoldersContainer user={user} />
+                    <FoldersContainer userId={user.id} />
                 </TabsContent>
                 <TabsContent id="tabs-content" value="canvas" forceMount>
-                    <CanvasContainer user={user} />
+                    <CanvasContainer userId={user.id} />
                 </TabsContent>
             </Tabs>
         </>
