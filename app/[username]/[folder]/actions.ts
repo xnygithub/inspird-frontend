@@ -11,12 +11,7 @@ export async function editFolder(id: string, data: EditFolderInput) {
     const supabase = await createClient()
     const { error } = await supabase
         .from("folders")
-        .update({
-            name,
-            slug: slugify(name),
-            description,
-            isPrivate
-        })
+        .update({ name, slug: slugify(name), description, isPrivate })
         .eq("id", id);
 
     if (error) throw new Error("Failed to update folder");

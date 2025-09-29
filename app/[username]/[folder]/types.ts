@@ -1,11 +1,20 @@
-import { Folder, MediaType, Post, SavedItems } from "@/app/generated/prisma";
+import { MediaType, Post, SavedItems } from "@/app/generated/prisma";
 
-export interface FolderDetails extends Folder {
-    mediaCount: {
-        media_type: MediaType;
-        count: number;
-    }[];
-}
+export type FolderWithCounts = {
+    id: string;
+    owner: {
+        username: string;
+        userId: string;
+    };
+    name: string;
+    slug: string;
+    description: string | null;
+    isPrivate: boolean;
+    createdAt: string;
+    lastUpdated: string;
+    mediaCounts: Record<MediaType, number>;
+};
+
 
 export interface FolderPosts {
     id: string

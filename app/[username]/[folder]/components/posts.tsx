@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import '@/app/[username]/[folder]/folder.css'
-import { Folder } from '@/app/generated/prisma'
 import { getFolderPosts } from '@/lib/queries/folders'
 import { createClient } from '@/utils/supabase/client'
 import { useInView } from 'react-intersection-observer'
@@ -11,10 +10,11 @@ import { SavedPostWrapper } from '@/components/posts/wrappers'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { PIN_MASONRY } from '@/constants/masonry'
+import { FolderWithCounts } from '@/app/[username]/[folder]/types'
 
 const supabase = createClient();
 
-export default function FolderPosts({ folder }: { folder: Folder }) {
+export default function FolderPosts(folder: FolderWithCounts) {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
 

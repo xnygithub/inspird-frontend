@@ -1,7 +1,6 @@
 "use client"
 import "@/app/[username]/[folder]/folder.css";
 import { editFolder } from "../actions";
-import { Folder } from "@/app/generated/prisma";
 import { Info } from "lucide-react";
 import {
     Dialog,
@@ -17,16 +16,17 @@ import { useParams } from "next/navigation";
 import { deleteFolder } from "@/lib/queries/folders";
 import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
+import { FolderWithCounts } from "@/app/[username]/[folder]/types"
 
 const supabase = createClient();
 
-export const EditFolder = ({ folder }: { folder: Folder }) => {
+export const EditFolder = ({ folder }: { folder: FolderWithCounts }) => {
     const params = useParams<{ username: string; foldername: string }>();
     const { register, handleSubmit, formState } = useForm({
         resolver: zodResolver(editFolderSchema),
         defaultValues: {
             name: folder.name,
-            description: folder.description ?? "",
+            description: folder.description || "",
             isPrivate: !!folder.isPrivate,
         },
     })
@@ -44,7 +44,7 @@ export const EditFolder = ({ folder }: { folder: Folder }) => {
     return (
         <Dialog>
             <DialogTrigger>
-                <Info />
+                <Info size={18} />
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

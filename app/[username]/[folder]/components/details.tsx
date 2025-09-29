@@ -1,28 +1,50 @@
-"use client"
 import "@/app/[username]/[folder]/folder.css";
-import { FolderDetails as FolderDetailsType } from "@/app/[username]/[folder]/types";
+import { FolderWithCounts } from "@/app/[username]/[folder]/types";
 import { EditFolder } from "@/app/[username]/[folder]/components/edit";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 
-export const FolderDetails = ({ folder }: { folder: FolderDetailsType }) => {
-    const totalCount = folder.mediaCount.reduce(
-        (acc: number, item: { count: number }) => acc + item.count, 0);
-    const byType = Object.fromEntries(folder.mediaCount.map(r => [r.media_type, r.count]));
+export const FolderDetails = (folder: FolderWithCounts) => {
+    const totalCount = Object
+        .values(folder.mediaCounts)
+        .reduce((acc: number, item: number) => acc + item, 0);
 
     return (
         <>
+            <Breadcrumb>
+                <BreadcrumbList >
+                    <BreadcrumbItem >
+                        <BreadcrumbLink
+                            href={`/${folder.owner.username}`}>
+                            {folder.owner.username}
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        {folder.slug}
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
             <div className="flex flex-row space-x-2">
                 <h1 id="folder-name">{folder.name}</h1>
                 <EditFolder folder={folder} />
             </div>
             {folder.description && <p id="folder-description">{folder.description}</p>}
-            <div className="flex flex-row space-x-2">
+            <div className="flex flex-row space-x-2 font-semibold text-[14px] text-gray-500">
                 <p>{totalCount} Posts</p>
-                <p>{byType.image} images</p>
-                <p>{byType.video} videos</p>
-                <p>{byType.gif} gifs</p>
+                <p>{folder.mediaCounts.image} images</p>
+                <p>{folder.mediaCounts.video} videos</p>
+                <p>{folder.mediaCounts.gif} gifs</p>
             </div>
-            <p>Created {new Date(folder.createdAt).toLocaleDateString()}</p>
-            <p>Updated {new Date(folder.updatedAt).toLocaleDateString()}</p>
+            <div className="flex flex-row space-x-2 font-semibold text-[14px] text-gray-500">
+                <p>Created {new Date(folder.createdAt).toLocaleDateString()}</p>
+                <p>Updated {new Date(folder.lastUpdated).toLocaleDateString()}</p>
+            </div>
         </>
     )
 }
