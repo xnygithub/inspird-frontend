@@ -6,7 +6,6 @@ import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Create } from "@/components/create/dropdown";
 import SubscribeButton from "@/components/subscribe-button";
-import { User } from "@supabase/supabase-js";
 
 export const Navbar = async () => {
     const supabase = await createClient()
