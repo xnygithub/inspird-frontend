@@ -6,28 +6,36 @@ import { ModeToggle } from "@/components/navbar/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Create } from "@/components/create/dropdown";
 import SubscribeButton from "@/components/subscribe-button";
+import { User } from "@supabase/supabase-js";
 
 export const Navbar = async () => {
     const supabase = await createClient()
-    const { data, error } = await supabase
-        .from("profiles").select("*").single();
+    const { data } = await supabase.auth.getUser()
 
-    if (error) return null;
+
+    let res = null
+    if (data.user !== null) {
+        const { data } = await supabase
+            .from("profiles")
+            .select("*")
+            .single();
+        res = data
+    }
 
     return (
         <div id="navbar">
-            {data ? (
+            {data.user !== null ? (
                 <>
                     <Link href="/">INSPIRD</Link>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
-                        {data.subscriptionStatus !== "active" && <SubscribeButton user={data} />}
+                        {res.subscriptionStatus !== "active" && <SubscribeButton user={res} />}
                         <Create />
                         <ModeToggle />
-                        <Link href={`/${data.username}`} className="relative">
+                        <Link href={`/${res.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">
                                 <Image
-                                    src={data.avatarUrl}
+                                    src={res.avatarUrl}
                                     alt="Avatar"
                                     fill
                                     sizes="32px"
@@ -36,14 +44,14 @@ export const Navbar = async () => {
                                 />
                             </div>
                         </Link>
-                        <Dropdown username={data.username} />
+                        <Dropdown username={res.username} />
                     </div>
                 </>
             ) : (
-                <>
+                <div className="flex flex-row justify-end items-center gap-2 w-full">
                     <Link href="/login"><button>Login</button></Link>
                     <Link href="/login"><button>Signup</button></Link>
-                </>
+                </div>
             )}
         </div>
     );
