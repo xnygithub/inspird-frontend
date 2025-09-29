@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import { createClient } from "@/utils/supabase/client"
-import { getFoldersSummary } from "@/lib/queries/folders"
+import { getUsersFolders } from "@/lib/queries/folders"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import FolderCard from "@/app/[username]/components/preview"
 import { FolderCardType } from "@/app/[username]/types"
@@ -15,7 +15,7 @@ export default function FoldersContainer({ userId }: { userId: string }) {
 
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getFoldersSummary(supabase, userId),
+            () => getUsersFolders(supabase, userId),
             { pageSize: 10 }
         );
 

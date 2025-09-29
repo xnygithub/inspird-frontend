@@ -1,15 +1,27 @@
 import { slugify } from "@/utils/slufigy";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-
-export const createCanvasDoc = (client: SupabaseClient, canvasTitle: string) => {
+export const createCanvasDoc = (
+    client: SupabaseClient,
+    canvasTitle: string
+) => {
     return client
         .from("canvas_doc")
-        .insert({ title: canvasTitle, slug: slugify(canvasTitle) })
+        .insert(
+            {
+                title: canvasTitle,
+                slug: slugify(canvasTitle)
+            })
 };
 
-export const deleteCanvasDoc = (client: SupabaseClient, canvasId: string) => {
-    return client.from("canvas_doc").delete().eq("id", canvasId)
+export const deleteCanvasDoc = (
+    client: SupabaseClient,
+    canvasId: string
+) => {
+    return client
+        .from("canvas_doc")
+        .delete()
+        .eq("id", canvasId)
 };
 
 export const getCanvasDoc = (
@@ -27,7 +39,10 @@ export const getCanvasDoc = (
         .single();
 };
 
-export const getUsersCanvasDocs = (client: SupabaseClient, userId: string) => {
+export const getUsersCanvasDocs = (
+    client: SupabaseClient,
+    userId: string
+) => {
     return client
         .from("canvas_doc")
         .select("*, owner:profiles(username,id)")
