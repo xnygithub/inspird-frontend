@@ -22,7 +22,7 @@ function getCount(count: { count: number }[]) {
     return count[0].count
 }
 
-export default async function UsernamePage({ params }: { params: { username: string } }) {
+export default async function UsernamePage({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params
     const supabase = await createClient()
     const user = await getUserProfile(supabase, username)
