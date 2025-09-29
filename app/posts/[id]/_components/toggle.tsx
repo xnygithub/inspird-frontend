@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { FiChevronsLeft, FiChevronsRight } from "react-icons/fi"
-import { useSidebar } from "./sidebar.provider"
+import { useSidebar } from "@/app/posts/[id]/_components/sidebar.provider"
 
 export default function ToggleSidebarButton() {
     const { open, toggle } = useSidebar()

@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { quicksavePost } from "./actions"
+import { quicksavePost } from "@/components/posts/actions"
 
 interface QuicksaveLabelProps {
     postId: string

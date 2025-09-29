@@ -5,11 +5,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { CreateFolder } from "./folder"
-import { UploadImage } from "./images"
-import { Button } from "../ui/button"
+import { CreateFolder } from "@/components/create/folder"
+import { UploadImage } from "@/components/create/images"
+import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { CreateCanvas } from "./canvas"
+import { CreateCanvas } from "@/components/create/canvas"
 
 export const Create = () => {
     const [folderOpen, setFolderOpen] = useState(false)

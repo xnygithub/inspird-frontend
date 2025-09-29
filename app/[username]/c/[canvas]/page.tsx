@@ -1,4 +1,4 @@
-import CanvasPageComponent from "./pages/canvas"
+import CanvasPageComponent from "@/app/[username]/c/[canvas]/pages/canvas"
 import { notFound } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { getCanvasDoc } from "@/lib/queries/canvas"
