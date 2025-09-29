@@ -26,7 +26,14 @@ export const Navbar = async () => {
                         <ModeToggle />
                         <Link href={`/${data.username}`} className="relative">
                             <div className="relative w-8 h-8 overflow-hidden">
-                                <Image src={data.avatarUrl} alt="Avatar" fill className="object-cover" />
+                                <Image
+                                    src={data.avatarUrl}
+                                    alt="Avatar"
+                                    fill
+                                    sizes="32px"
+                                    className="object-cover"
+                                    priority
+                                />
                             </div>
                         </Link>
                         <Dropdown username={data.username} />

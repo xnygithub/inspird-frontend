@@ -39,22 +39,20 @@ export default function PinsContainer({ userId }: { userId: string }) {
         <>
             <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
                 <Masonry>
-                    {data && data.map((item) => (
+                    {data && data.map((item, index) => (
                         <SavedPostWrapper
                             key={item.posts.id}
                             postId={item.posts.id}
                             ownerUsername={item.posts.users.username}>
                             <Link href={`/posts/${item.posts.id}`} >
                                 <Image
-                                    loading="lazy"
                                     className="object-cover"
-                                    sizes="10vw"
+                                    priority={index < 10}
                                     alt={item.posts.mediaAltText}
                                     src={item.posts.mediaUrl}
                                     width={item.posts.mediaWidth}
                                     height={item.posts.mediaHeight}
-                                    style={{ width: '500%', height: 'auto' }}
-
+                                    style={{ width: '100%', height: 'auto' }}
                                 />
                             </Link>
                         </SavedPostWrapper>

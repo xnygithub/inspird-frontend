@@ -32,7 +32,13 @@ export default async function UsernamePage({ params }: { params: Promise<{ usern
         <>
             <div id="profile-container">
                 <div id="profile-avatar">
-                    <Image fill alt="User Avatar" src={user.avatarUrl} className="object-cover" />
+                    <Image
+                        sizes="160px"
+                        fill
+                        alt="User Avatar"
+                        src={user.avatarUrl}
+                        className="object-cover"
+                    />
                 </div>
                 <div id="profile-info">
                     <h2 className="font-bold text-[24px]">{user.displayName}</h2>
