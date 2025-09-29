@@ -10,21 +10,14 @@ import { useWindowSize } from "@/app/[username]/c/[canvas]/hooks/useWindowSize";
 import { useStageZoom } from "@/app/[username]/c/[canvas]/hooks/useZoom";
 import { useContextMenu } from "@/app/[username]/c/[canvas]/hooks/useMenu";
 import AddPostsDialog from "@/app/[username]/c/[canvas]/components/import";
-import { CanvasData } from "@/app/[username]/c/[canvas]/types";
 import { useUpdate } from "@/app/[username]/c/[canvas]/hooks/useUpdate";
-import { ImgItem } from "@/app/[username]/c/[canvas]/types";
 import { updateCanvas } from "@/app/[username]/c/[canvas]/actions";
 import { transformerConfig } from "@/app/[username]/c/[canvas]/config";
 import CtxMenu from "@/app/[username]/c/[canvas]/components/ctx-menu";
-import { CanvasDoc } from "@/app/generated/prisma";
-import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
-
-interface CanvasPageProps {
-    canvas: CanvasDoc & { data: CanvasData };
-}
+import { AddPostProps, CanvasType, CanvasData, ImgItem } from "@/app/[username]/c/[canvas]/types";
 
 // TODO: Investigate min/max resizing for images
-export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
+export default function CanvasPageComponent({ canvas }: { canvas: CanvasType }) {
 
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
@@ -171,7 +164,7 @@ export default function CanvasPageComponent({ canvas }: CanvasPageProps) {
                 <Button onClick={() => setIsLibraryOpen(true)}> Add</Button>
             </div>
             <AddPostsDialog
-                userId={canvas.userId}
+                userId={canvas.owner.id}
                 addPost={addPost}
                 open={isLibraryOpen}
                 onOpenChange={setIsLibraryOpen}

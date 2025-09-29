@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "vercel-build": "next build",
     "local-dev": "dotenv -e .env.localhost -- next dev",
     "cloud-dev": "dotenv -e .env.cloud -- next dev",
     "build:local": "dotenv -e .env.localhost -- next build",

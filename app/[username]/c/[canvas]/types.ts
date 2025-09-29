@@ -13,6 +13,7 @@ export type ImgItem = {
     height: number;
 };
 
+
 export interface CanvasData {
     schemaVersion: number;
     stage: {
@@ -21,6 +22,17 @@ export interface CanvasData {
         y: number;
     };
     images: ImgItem[];
+}
+
+export interface CanvasType {
+    id: string;
+    title: string;
+    data: CanvasData;
+    isPrivate: boolean;
+    owner: {
+        id: string;
+        username: string;
+    };
 }
 
 export interface AddPostProps extends SavedItems {

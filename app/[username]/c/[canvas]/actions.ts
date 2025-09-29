@@ -6,9 +6,8 @@ import { createCanvasDoc } from "@/lib/queries/canvas";
 export async function createCanvas(formData: FormData) {
     const supabase = await createClient();
     const canvasTitle = formData.get("canvasTitle") as string;
-    const { data, error } = await createCanvasDoc(supabase, canvasTitle)
+    const { error } = await createCanvasDoc(supabase, canvasTitle)
     if (error) throw new Error(error.message)
-    return data;
 }
 
 export async function updateCanvas(canvasId: string, canvasData: CanvasData) {
