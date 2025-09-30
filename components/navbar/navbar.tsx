@@ -9,21 +9,22 @@ import SubscribeButton from "@/components/subscribe-button";
 
 export const Navbar = async () => {
     const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-
+    const { data: currentUser } = await supabase.auth.getUser()
 
     let res = null
-    if (data.user !== null) {
+    if (currentUser.user !== null) {
+        const id = currentUser.user.id
         const { data } = await supabase
             .from("profiles")
             .select("*")
+            .eq("id", id)
             .single();
         res = data
     }
 
     return (
         <div id="navbar">
-            {data.user !== null ? (
+            {currentUser.user !== null ? (
                 <>
                     <Link href="/">INSPIRD</Link>
                     <SearchBar />

@@ -1,28 +1,37 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest } from 'next/server'
-
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url)
+    const url = new URL(request.url)
+    const searchParams = url.searchParams
+
+    const next = searchParams.get('next') ?? '/'
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type') as EmailOtpType | null
-    const next = searchParams.get('next') ?? '/'
+    const code = searchParams.get('code')
 
-    if (token_hash && type) {
-        const supabase = await createClient()
+    const supabase = await createClient()
 
-        const { error } = await supabase.auth.verifyOtp({
-            type,
-            token_hash,
-        })
-        if (!error) {
-            // redirect user to specified redirect URL or root of app
-            redirect(next)
+    try {
+        if (code) {
+            // New flow: ConfirmationURL → exchange code for a session
+            const { error } = await supabase.auth.exchangeCodeForSession(code)
+            if (error) throw error
+            return redirect(next)
         }
+
+        if (token_hash && type) {
+            // Legacy/manual flow: verify token_hash yourself
+            const { error } = await supabase.auth.verifyOtp({ type, token_hash })
+            if (error) throw error
+            return redirect(next)
+        }
+    } catch (e) {
+        console.error('Auth confirm error:', e)
     }
 
-    // redirect the user to an error page with some instructions
-    redirect('/error')
+    // If nothing matched or something failed:
+    return redirect('/error')
 }

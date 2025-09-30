@@ -4,6 +4,8 @@ import { useMediaQuery } from 'usehooks-ts'
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { getUserSettings } from "@/lib/queries/profile";
+import { useEffect, useState } from "react";
+import { Session } from "@supabase/supabase-js";
 
 interface SettingsProps {
     open?: boolean;
@@ -13,11 +15,21 @@ interface SettingsProps {
 
 const supabase = createClient()
 export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
+    const [session, setSession] = useState<Session | null>(null)
     const isMobile = useMediaQuery('(max-width: 768px)')
 
+    const getSession = async () => {
+        const { data: session, error } = await supabase.auth.getSession()
+        if (!error) setSession(session.session)
+    }
+
+    useEffect(() => void getSession(), [])
+
     const { isValidating, data } = useQuery(
-        getUserSettings(supabase, "8c5aeb07-61d3-4022-941e-aac964e58a43"),
-        { revalidateOnFocus: false, revalidateOnReconnect: false }
+        getUserSettings(supabase, session?.user.id as string), {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    }
     );
 
     if (isValidating) return <div>Loading...</div>

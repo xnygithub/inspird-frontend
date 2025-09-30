@@ -27,7 +27,7 @@ export async function getUserProfile(
         .eq("username", username)
         .single();
 
-    if (error) throw new Error("Failed to get user profile");
+    if (error) return null;
     let isMe = false;
     if (!currentUser.data.user) isMe = false;
     else isMe = data.id === currentUser.data.user?.id;

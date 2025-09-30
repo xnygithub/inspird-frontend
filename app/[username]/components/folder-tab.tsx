@@ -32,7 +32,7 @@ export default function FoldersContainer({ userId }: { userId: string }) {
 
     return (
         <>
-            {!folders && !loadMore && <div className="flex justify-center items-center h-full">
+            {folders?.length === 0 && !isValidating && !loadMore && <div className="flex justify-center items-center h-full">
                 <p>No folders found</p>
             </div>}
             <div id="folder-container">
