@@ -9,6 +9,12 @@ type Props = {
     userId: string;
 };
 
+const getBaseUrl = () => {
+    return process.env.NEXT_PUBLIC_VERCEL_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+        : 'http://localhost:3000'
+}
+
 async function getUserStripeCustomerId(userId: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -31,8 +37,8 @@ export const subscribe = async ({ email, userId }: Props) => {
     const base: Stripe.Checkout.SessionCreateParams = {
         mode: "subscription",
         payment_method_types: ["card"],
-        success_url: "http://localhost:3000/upgrade/success",
-        cancel_url: "http://localhost:3000/upgrade/cancel",
+        success_url: `${getBaseUrl()}/`,
+        cancel_url: `${getBaseUrl()}/`,
         metadata: { userId, email },
         subscription_data: { metadata: { userId, email } },
         line_items: [{ price: priceId, quantity: 1 }],

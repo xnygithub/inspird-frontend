@@ -16,14 +16,11 @@ export default function SubscribeButton({ user }: Props) {
     const handleSubscribe = async () => {
         startTransition(async () => {
             const url = await subscribe({
-                email: user.email!,
+                email: user.email,
                 userId: user.id
             });
-            if (url) {
-                router.push(url);
-            } else {
-                console.error("Failed to subscribe");
-            }
+            if (url) router.push(url);
+            else console.error("Failed to subscribe");
         });
     };
 
