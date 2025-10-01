@@ -3,15 +3,22 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
+
+const getWebhookSecret = () => {
+    if (process.env.STRIPE_WEBHOOK_VERCEL_SIGNING_SECRET) {
+        return process.env.STRIPE_WEBHOOK_VERCEL_SIGNING_SECRET;
+    }
+    return process.env.STRIPE_WEBHOOK_SIGNING_SECRET;
+}
 
 async function updateUserSubscriptionStatus(
     userId: string,
     subscriptionStatus: string,
     subscriptionId: string
 ) {
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
     const { error } = await supabase
         .from("profiles")
         .update({
@@ -27,22 +34,28 @@ async function updateUserSubscriptionStatus(
 
 
 async function handleCheckoutSessionCompleted(event: Stripe.Event) {
+    console.log("Invoked handleCheckoutSessionCompleted");
 
     const userId = (event.data.object as Stripe.Checkout.Session).metadata?.userId;
     const stripeCustomerId = (event.data.object as Stripe.Checkout.Session).customer;
 
     if (!stripeCustomerId || !userId) {
         console.error("Missing stripeCustomerId or userId");
-        return new NextResponse("Missing stripeCustomerId or userId", { status: 400 });
+        throw new Error("Missing stripeCustomerId or userId");
     }
 
-    const supabase = await createClient();
-    const { error } = await supabase
+    const supabase = await createAdminClient();
+    const { data, error } = await supabase
         .from("profiles")
         .update({ stripeCustomerId: stripeCustomerId })
         .eq("id", userId);
+    console.log("userId", userId);
+    console.log("data", data);
 
-    if (error) return new NextResponse("Error storing stripe customer id", { status: 500 });
+    if (error) {
+        console.error("Error storing stripe customer id" + error.message);
+        throw new Error("Error storing stripe customer id" + error.message);
+    }
 }
 
 async function updateUserSubscriptionHistory(
@@ -52,7 +65,7 @@ async function updateUserSubscriptionHistory(
     startDate: number,
     endDate: number
 ) {
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
     const { error } = await supabase
         .from("userSubscriptionHistory")
         .insert({
@@ -63,7 +76,8 @@ async function updateUserSubscriptionHistory(
             endDate: new Date(endDate * 1000).toISOString(),
         });
     if (error) {
-        return new NextResponse("Error updating user subscription history", { status: 500 });
+        console.error("Error updating user subscription history" + error.message);
+        throw new Error("Error updating user subscription history" + error.message);
     }
 }
 
@@ -73,7 +87,7 @@ async function handleCustomerSubscriptionCreated(event: Stripe.Event) {
 
     const sub = await stripe.subscriptions.retrieve(subscriptionId);
     if (!userId) {
-        return new NextResponse("Missing userId", { status: 400 });
+        throw new Error("Missing userId");
     }
     await updateUserSubscriptionStatus(userId, "active", subscriptionId);
     await updateUserSubscriptionHistory(
@@ -89,7 +103,7 @@ async function handleCustomerSubscriptionDeleted(event: Stripe.Event) {
     const subscriptionId = (event.data.object as Stripe.Subscription).id;
 
     if (!userId) {
-        return new NextResponse("Missing userId", { status: 400 });
+        throw new Error("Missing userId");
     }
     await updateUserSubscriptionStatus(userId, "inactive", subscriptionId);
 }
@@ -100,11 +114,11 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = (await headers()).get("Stripe-Signature");
     if (!signature) {
-        return new NextResponse("Missing Stripe-Signature", { status: 400 });
+        throw new Error("Missing Stripe-Signature");
     }
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET;
+    const webhookSecret = getWebhookSecret();
     if (!webhookSecret) {
-        return new NextResponse("Missing STRIPE_WEBHOOK_SIGNING_SECRET", { status: 500 });
+        throw new Error("Missing STRIPE_WEBHOOK_SIGNING_SECRET");
     }
     let event: Stripe.Event;
 
@@ -112,7 +126,7 @@ export async function POST(request: NextRequest) {
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (error) {
         console.error(error);
-        return new Response("Webhook verification failed", { status: 400 });
+        throw new Error("Webhook verification failed");
     }
     switch (event.type) {
         case "checkout.session.completed":
