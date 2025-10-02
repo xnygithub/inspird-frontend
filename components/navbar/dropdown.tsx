@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -15,6 +16,11 @@ import { Settings } from "@/components/settings/settings";
 
 export const Dropdown = ({ username }: { username: string }) => {
     const [open, setOpen] = useState(false)
+    const router = useRouter();
+
+    const handleOpen = () => {
+        router.replace(`/settings`)
+    }
 
     return (
         <>
@@ -27,7 +33,7 @@ export const Dropdown = ({ username }: { username: string }) => {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Settings</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => setOpen(true)}>
+                    <DropdownMenuItem onClick={handleOpen}>
                         Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

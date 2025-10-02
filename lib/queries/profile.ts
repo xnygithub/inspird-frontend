@@ -6,7 +6,7 @@ export const getUserSettings = (
 ) => {
     return client
         .from("profiles")
-        .select("id, username, email")
+        .select("id, username, displayName, email, profilePrivate, avatarUrl")
         .eq("id", id)
         .single();
 }
@@ -19,7 +19,7 @@ export async function getUserProfile(
     const { data, error } = await client
         .from("profiles")
         .select(`
-        id, username, email, displayName, avatarUrl, profilePrivate, createdAt,
+        id, username, email, displayName, avatarUrl, profilePrivate, createdAt, isPro:subscriptionStatus,
         savedItemsCount:saved_items(count),
         foldersCount:folders(count),
         canvasDocCount:canvas_doc(count)

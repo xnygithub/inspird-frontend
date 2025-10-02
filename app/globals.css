@@ -60,6 +60,19 @@
   @apply bg-navbar text-navbar-foreground;
 }
 
+#transparent-navbar {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: space-between;
+  inset: 0;
+  height: 75px;
+  width: 100%;
+  padding: 2rem;
+  z-index: 10;
+  background-color: transparent;
+}
+
 #mobile-navbar {
   display: flex;
   position: fixed;

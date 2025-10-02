@@ -1,11 +1,13 @@
 "use client"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useMediaQuery } from 'usehooks-ts'
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { getUserSettings } from "@/lib/queries/profile";
 import { useEffect, useState } from "react";
 import { Session } from "@supabase/supabase-js";
+import MobileContainer from "./views/mobile";
+import DesktopContainer from "./views/desktop";
 
 interface SettingsProps {
     open?: boolean;
@@ -43,14 +45,15 @@ export const Settings = ({ open, setOpen, trigger }: SettingsProps) => {
             }
             <DialogContent
                 aria-describedby="Settings"
-                className={`transition-none ${isMobile ? "min-w-full h-screen" : " min-w-[750px] h-[600px]"}`}>
-                <DialogHeader>
-                    <DialogTitle>Settings</DialogTitle>
-                </DialogHeader>
-                <>
-                    <pre>{JSON.stringify(data, null, 2)}</pre>
-                    <p>{isMobile ? "Mobile" : "Desktop"}</p>
-                </>
+                className={`transition-none  
+                    ${isMobile ?
+                        "min-w-full min-h-[100svh] max-h-[100svh] flex flex-col p-0 "
+                        :
+                        "min-w-[750px] h-[600px] px-40 p-0"}`}>
+                {isMobile ?
+                    <MobileContainer data={data} />
+                    :
+                    <DesktopContainer data={data} />}
             </DialogContent>
         </Dialog >
     )

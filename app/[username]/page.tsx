@@ -10,6 +10,8 @@ import { Profile } from '@/app/generated/prisma/client'
 import { getUserProfile } from '@/lib/queries/profile'
 import CanvasContainer from './components/canvas-tab'
 import { createClient } from '@/utils/supabase/server'
+import ProfileWithBanner from './components/profile-with-banner'
+import ProfileWithoutBanner from './components/profile-without-banner'
 
 export interface UserProfile extends Profile {
     isMe: boolean;
@@ -28,27 +30,16 @@ export default async function UsernamePage({ params }: { params: Promise<{ usern
     const user = await getUserProfile(supabase, username)
     if (!user || user.profilePrivate && !user.isMe) return notFound()
 
+    const bannerUrl = "https://t3.ftcdn.net/jpg/07/32/10/90/360_F_732109080_4lXwGofazqAiysUpcCnrbflsNOl9EMdW.jpg"
+
     return (
         <>
-            <div id="profile-container">
-                <div id="profile-avatar">
-                    <Image
-                        sizes="160px"
-                        fill
-                        alt="User Avatar"
-                        src={user.avatarUrl}
-                        className="object-cover"
-                    />
-                </div>
-                <div id="profile-info">
-                    <h2 className="font-bold text-[24px]">{user.displayName}</h2>
-                    <h1 className="font-normal text-[16px]">@{user.username}</h1>
-                </div>
-                <div className="space-x-4">
-                    {user.isMe && <Settings trigger={<Button>Settings</Button>} />}
-                    {user.isMe && <Settings trigger={<Button>Edit Profile</Button>} />}
-                </div>
-            </div >
+            {bannerUrl && user.isPro === "active" ?
+                <ProfileWithBanner bannerUrl={bannerUrl} user={user} />
+                :
+                <ProfileWithoutBanner user={user} />
+            }
+
             <Tabs id="profile-tabs-container" defaultValue="pins">
                 <TabsList>
                     <TabsTrigger value="pins">

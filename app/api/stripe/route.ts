@@ -34,7 +34,6 @@ async function updateUserSubscriptionStatus(
 
 
 async function handleCheckoutSessionCompleted(event: Stripe.Event) {
-    console.log("Invoked handleCheckoutSessionCompleted");
 
     const userId = (event.data.object as Stripe.Checkout.Session).metadata?.userId;
     const stripeCustomerId = (event.data.object as Stripe.Checkout.Session).customer;
@@ -45,12 +44,10 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
     }
 
     const supabase = await createAdminClient();
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("profiles")
         .update({ stripeCustomerId: stripeCustomerId })
         .eq("id", userId);
-    console.log("userId", userId);
-    console.log("data", data);
 
     if (error) {
         console.error("Error storing stripe customer id" + error.message);
