@@ -1,4 +1,27 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { unstable_cache } from "next/cache";
+import { createClient } from "@/utils/supabase/client";
+
+export async function getProfileRaw(userId: string) {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+// a tiny factory so we can have dynamic keys/tags
+export function getProfileCached(userId: string) {
+    const tag = `profile:${userId}`;
+    return unstable_cache(
+        async () => getProfileRaw(userId),
+        [tag],                          // cache key
+        { tags: [tag] }                 // make it tag-invalidatable
+    )();
+}
 
 export const getUserSettings = (
     client: SupabaseClient,

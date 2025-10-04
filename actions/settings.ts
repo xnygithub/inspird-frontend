@@ -2,6 +2,7 @@
 import { slugify } from "@/utils/slufigy";
 import { EditAccountInput, editAccountInputSchema } from "@/lib/zod/settings.schema";
 import { createClient } from "@/utils/supabase/server";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 
@@ -28,6 +29,6 @@ export async function updateAccount(data: EditAccountInput) {
         .eq("id", currentUser.data.user.id)
 
     if (error) console.log(error.message)
-    if (!error) redirect(`/${username}`)
-
+    revalidateTag(`profile:${currentUser.data.user.id}`);
+    redirect(`/${username}`);
 }

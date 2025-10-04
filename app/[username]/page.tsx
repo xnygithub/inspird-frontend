@@ -1,27 +1,25 @@
 import './profile.css'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import PinsContainer from '@/app/[username]/components/pin-tab'
 import FoldersContainer from '@/app/[username]/components/folder-tab'
-import { Settings } from '@/components/settings/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button'
 import { Profile } from '@/app/generated/prisma/client'
 import { getUserProfile } from '@/lib/queries/profile'
 import CanvasContainer from './components/canvas-tab'
 import { createClient } from '@/utils/supabase/server'
-import ProfileWithBanner from './components/profile-with-banner'
-import ProfileWithoutBanner from './components/profile-without-banner'
+import Image from 'next/image';
+import UserSettings from './components/user-settings';
 
-export interface UserProfile extends Profile {
+export interface UserProfile
+    extends Omit<
+        Profile,
+        'subscriptionStatus' | 'hasOnboarded' | 'stripeCustomerId' | 'subscriptionId'
+    > {
+    isPro: boolean;
     isMe: boolean;
     savedItemsCount: { count: number }[];
     foldersCount: { count: number }[];
     canvasDocCount: { count: number }[];
-}
-
-function getCount(count: { count: number }[]) {
-    return count[0].count
 }
 
 export default async function UsernamePage({ params }: { params: Promise<{ username: string }> }) {
@@ -30,26 +28,36 @@ export default async function UsernamePage({ params }: { params: Promise<{ usern
     const user = await getUserProfile(supabase, username)
     if (!user || user.profilePrivate && !user.isMe) return notFound()
 
-    const bannerUrl = "https://t3.ftcdn.net/jpg/07/32/10/90/360_F_732109080_4lXwGofazqAiysUpcCnrbflsNOl9EMdW.jpg"
 
     return (
         <>
-            {bannerUrl && user.isPro === "active" ?
-                <ProfileWithBanner bannerUrl={bannerUrl} user={user} />
-                :
-                <ProfileWithoutBanner user={user} />
-            }
+            <div id="profile-container">
+                <div id="profile-avatar">
+                    <Image
+                        sizes="160px"
+                        fill
+                        alt="User Avatar"
+                        src={user.avatarUrl}
+                        className="object-cover"
+                    />
+                </div>
+                <div id="profile-info">
+                    <h2 className="font-bold text-[24px]">{user.displayName}</h2>
+                    <h1 className="font-normal text-[16px]">@{user.username}</h1>
+                </div>
+                {user.isMe && <UserSettings />}
+            </div >
 
             <Tabs id="profile-tabs-container" defaultValue="pins">
                 <TabsList>
                     <TabsTrigger value="pins">
-                        {getCount(user.savedItemsCount)} Pins
+                        {user.savedItemsCount[0].count} Pins
                     </TabsTrigger>
                     <TabsTrigger value="folders">
-                        {getCount(user.foldersCount)} Folders
+                        {user.foldersCount[0].count} Folders
                     </TabsTrigger>
                     <TabsTrigger value="canvas">
-                        {getCount(user.canvasDocCount)} Canvas
+                        {user.canvasDocCount[0].count} Canvas
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent id="tabs-content" value="pins" forceMount>

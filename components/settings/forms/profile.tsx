@@ -5,6 +5,7 @@ import { editAccountInputSchema, type EditAccountInput } from "@/lib/zod/setting
 import { updateAccount } from "@/actions/settings";
 import Avatar from "./avatar";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Props {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,7 +27,7 @@ export default function Profile({ user }: Props) {
     }
 
     return (
-        < >
+        <>
             <Avatar user={user} />
             <form
                 onSubmit={handleSubmit(handleUpdate)}
@@ -45,7 +46,8 @@ export default function Profile({ user }: Props) {
                 <Input {...register("profilePrivate")} type="checkbox" className="mr-auto" />
                 <p>{errors.profilePrivate?.message as string}</p>
 
-                <button type="submit" className="w-full text-[20px]">Update</button>
+                <Button type="submit" className="w-full text-[20px]">Update</Button>
+
             </form>
         </>
     )

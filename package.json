@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "vercel-build": "next build",
-    "local-dev": "dotenv -e .env.localhost -- next dev --hostname 0.0.0.0 -p 3000",
+    "local-dev": "dotenv -e .env.localhost -- next dev",
     "cloud-dev": "dotenv -e .env.cloud -- next dev",
     "build:local": "dotenv -e .env.localhost -- next build",
     "build:cloud": "dotenv -e .env.cloud -- next build",

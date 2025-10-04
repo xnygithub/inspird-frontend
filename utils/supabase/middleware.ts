@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const DEFAULT_TAB = "profile";
+const allowedTabs = ["profile", "account", "filtering", "subscription"];
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
@@ -15,7 +17,7 @@ export async function updateSession(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+                    cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
                     supabaseResponse = NextResponse.next({
                         request,
                     })
@@ -36,6 +38,37 @@ export async function updateSession(request: NextRequest) {
     const {
         data: { user },
     } = await supabase.auth.getUser()
+
+    // Handle settings routes by redirecting to "/" and bootstrapping modal via cookies
+    const { pathname } = request.nextUrl
+    const isSettingsRoute =
+        pathname === '/settings' || pathname === '/settings/' || pathname.startsWith('/settings/')
+    if (isSettingsRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+
+        const redirectResponse = NextResponse.redirect(url)
+        // Preserve Supabase-managed cookies to avoid session desync
+        const supaCookies = supabaseResponse.cookies.getAll()
+        supaCookies.forEach((cookie) => redirectResponse.cookies.set(cookie))
+
+        // Set short-lived cookies to open settings UI on the client
+        const parts = pathname.split('/').filter(Boolean) // e.g., ["settings", "account"]
+        const tab = allowedTabs.includes(parts[1]) ? parts[1] : DEFAULT_TAB
+
+        redirectResponse.cookies.set('openSettings', '1', {
+            path: '/',
+            maxAge: 15,
+            httpOnly: false,
+        })
+        redirectResponse.cookies.set('openSettingsTab', tab, {
+            path: '/',
+            maxAge: 15,
+            httpOnly: false,
+        })
+
+        return redirectResponse
+    }
 
     if (
         !user &&

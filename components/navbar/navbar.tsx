@@ -1,11 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Dropdown } from "@/components/navbar/dropdown";
-import { createClient } from "@/utils/supabase/server";
-import { ModeToggle } from "@/components/navbar/theme-toggle";
-import { SearchBar } from "@/components/search/search-bar";
 import { Create } from "@/components/create/dropdown";
+import { createClient } from "@/utils/supabase/server";
+import { Dropdown } from "@/components/navbar/dropdown";
+import { getProfileCached } from "@/lib/queries/profile";
+import { SearchBar } from "@/components/search/search-bar";
 import SubscribeButton from "@/components/subscribe-button";
+import { ModeToggle } from "@/components/navbar/theme-toggle";
+
 
 export const Navbar = async () => {
     const supabase = await createClient()
@@ -14,12 +16,7 @@ export const Navbar = async () => {
     let res = null
     if (currentUser.user !== null) {
         const id = currentUser.user.id
-        const { data } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", id)
-            .single();
-        res = data
+        res = await getProfileCached(id)
     }
 
     return (
