@@ -13,7 +13,10 @@ import UserSettings from './components/user-settings';
 export interface UserProfile
     extends Omit<
         Profile,
-        'subscriptionStatus' | 'hasOnboarded' | 'stripeCustomerId' | 'subscriptionId'
+        'hasOnboarded' |
+        'subscriptionId' |
+        'stripeCustomerId' |
+        'subscriptionStatus'
     > {
     isPro: boolean;
     isMe: boolean;
@@ -22,7 +25,9 @@ export interface UserProfile
     canvasDocCount: { count: number }[];
 }
 
-export default async function UsernamePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function UsernamePage(
+    { params }: { params: Promise<{ username: string }> }
+) {
     const { username } = await params
     const supabase = await createClient()
     const user = await getUserProfile(supabase, username)
