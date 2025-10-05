@@ -22,17 +22,6 @@ export const deletePostFromFolder = (
         .eq("postId", postId);
 }
 
-export const quickSavePost = (
-    client: SupabaseClient,
-    postId: string
-) => {
-    return client
-        .from("saved_items")
-        .upsert({ postId: postId }, { onConflict: "userId,postId" })
-        .select("id")
-        .single();
-}
-
 export const savePostToFolder = (
     client: SupabaseClient,
     savedItemsId: string,
@@ -62,16 +51,7 @@ export const getFolderPosts = (
         .eq('folderId', folderId)
 }
 
-export interface FolderDropdown {
-    "id": string,
-    "name": string,
-    "isPrivate": boolean,
-    "postCount": number,
-    "thumbnail": string,
-    "containsPost": boolean
-}
-
-export const folderDropdown = (
+export const getFolderDropdown = (
     client: SupabaseClient,
     postId: string
 ) => {

@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
-import { quicksavePost } from "@/components/posts/actions"
+import { quickSavePost } from "@/lib/queries/posts"
+import { createClient } from "@/utils/supabase/client"
 
 interface QuicksaveLabelProps {
     postId: string
@@ -9,10 +10,14 @@ interface QuicksaveLabelProps {
 
 export const QuicksaveLabel = ({ postId, disabled }: QuicksaveLabelProps) => {
     const [isSaved, setIsSaved] = useState(false)
-    const handleQuicksave = () => {
-        quicksavePost(postId).then(() => {
+    const supabase = createClient()
+    const handleQuicksave = async () => {
+        const { error } = await quickSavePost(supabase, postId)
+        if (!error) {
             setIsSaved(true)
-        })
+            return
+        }
+        console.error(error)
     }
 
     return (

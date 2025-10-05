@@ -1,9 +1,9 @@
 "use client"
 import Image from 'next/image'
 import React, { useState } from 'react'
-import { Button } from '../ui/button'
+import { Button } from '@/components/ui/button'
 import gray from '@/public/gray.png'
-import { FolderDropdown as FolderDropdownType } from '@/lib/queries/folders'
+import { FolderDropdown as FolderDropdownType } from '@/types/folders'
 
 interface itemProps {
     folder: FolderDropdownType

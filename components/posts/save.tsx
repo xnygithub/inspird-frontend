@@ -5,11 +5,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { createClient } from "@/utils/supabase/client"
 import { ChevronDown } from 'lucide-react';
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { folderDropdown, FolderDropdown as FolderDropdownType } from "@/lib/queries/folders";
+import { FolderDropdown as FolderDropdownType } from "@/types/folders";
+import { getFolderDropdown } from "@/lib/queries/folders"
 import { useInView } from "react-intersection-observer";
 import { deletePostFromFolder, savePostToFolder } from "@/lib/queries/folders";
 import { Item } from "@/components/posts/item"
-import { quickSavePost } from "@/lib/queries/folders"
+import { quickSavePost } from "@/lib/queries/posts"
 
 const supabase = createClient();
 
@@ -17,7 +18,7 @@ function FolderList({ postId }: { postId: string }) {
     const { ref, inView } = useInView({ threshold: 0 });
 
     const { data, loadMore, isValidating } = useOffsetInfiniteScrollQuery(
-        () => folderDropdown(supabase, postId),
+        () => getFolderDropdown(supabase, postId),
         {
             pageSize: 10,
             revalidateOnFocus: false,

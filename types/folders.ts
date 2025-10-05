@@ -1,6 +1,6 @@
 import { MediaType, Post, SavedItems } from "@/app/generated/prisma";
 
-export type FolderCard = {
+export interface FolderCard {
     id: string
     slug: string
     name: string
@@ -11,7 +11,7 @@ export type FolderCard = {
     thumbnails: string[] | null
 }
 
-export type FolderDetails = {
+export interface FolderDetails {
     id: string;
     owner: {
         username: string;
@@ -34,4 +34,13 @@ export interface FolderPosts {
     posts: Post & { profiles: { username: string } }
     saved_items: SavedItems
     createdAt: string
+}
+
+export interface FolderDropdown {
+    id: string,
+    name: string,
+    isPrivate: boolean,
+    postCount: number,
+    thumbnail: string,
+    containsPost: boolean
 }

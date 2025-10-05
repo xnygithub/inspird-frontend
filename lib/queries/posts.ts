@@ -1,5 +1,16 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
+export const quickSavePost = (
+    client: SupabaseClient,
+    postId: string
+) => {
+    return client
+        .from("saved_items")
+        .upsert({ postId: postId }, { onConflict: "userId,postId" })
+        .select("id")
+        .single();
+}
+
 export const getUsersPosts = (
     client: SupabaseClient,
     userId: string
