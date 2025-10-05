@@ -9,7 +9,7 @@ import { Check } from "lucide-react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { useInView } from "react-intersection-observer";
-import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
+import { AddPostProps } from "@/types/canvas";
 import { PIN_MASONRY } from "@/constants/masonry";
 
 const PAGE_SIZE = 10;

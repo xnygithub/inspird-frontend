@@ -1,5 +1,5 @@
 "use client";
-import { subscribe } from "../actions/actions";
+import { subscribe } from "../app/actions/stripe";
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";

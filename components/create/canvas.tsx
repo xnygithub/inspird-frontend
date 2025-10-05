@@ -1,6 +1,6 @@
 "use client";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { createCanvas } from "@/app/[username]/c/[canvas]/actions";
+import { createCanvas } from "@/app/actions/canvas";
 
 interface CreateCanvasProps {
     setCreateOpen: (open: boolean) => void;

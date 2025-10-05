@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { editAccountInputSchema, type EditAccountInput } from "@/lib/zod/settings.schema";
-import { updateAccount } from "@/actions/settings";
+import { updateAccount } from "@/app/actions/settings";
 import Avatar from "./avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

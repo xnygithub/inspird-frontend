@@ -1,6 +1,6 @@
 "use client"
 import "@/app/[username]/[folder]/folder.css";
-import { editFolder } from "../actions";
+import { editFolder } from "@/app/actions/folders";
 import { Info } from "lucide-react";
 import {
     Dialog,
@@ -16,11 +16,11 @@ import { useParams } from "next/navigation";
 import { deleteFolder } from "@/lib/queries/folders";
 import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
-import { FolderWithCounts } from "@/app/[username]/[folder]/types"
+import { FolderDetails } from "@/types/folders"
 
 const supabase = createClient();
 
-export const EditFolder = ({ folder }: { folder: FolderWithCounts }) => {
+export const EditFolder = ({ folder }: { folder: FolderDetails }) => {
     const params = useParams<{ username: string; foldername: string }>();
     const { register, handleSubmit, formState } = useForm({
         resolver: zodResolver(editFolderSchema),

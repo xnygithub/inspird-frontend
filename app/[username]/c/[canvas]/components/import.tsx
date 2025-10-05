@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UsersPostLibrary from "@/app/[username]/c/[canvas]/components/library";
 import Explore from "@/app/[username]/c/[canvas]/components/explore";
 import "@/app/[username]/c/[canvas]/canvas.css";
-import { AddPostProps } from "@/app/[username]/c/[canvas]/types";
+import { AddPostProps } from "@/types/canvas";
 
 interface ImportProps {
     userId: string;

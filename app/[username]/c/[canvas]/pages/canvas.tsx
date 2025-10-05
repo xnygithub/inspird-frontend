@@ -11,10 +11,10 @@ import { useStageZoom } from "@/app/[username]/c/[canvas]/hooks/useZoom";
 import { useContextMenu } from "@/app/[username]/c/[canvas]/hooks/useMenu";
 import AddPostsDialog from "@/app/[username]/c/[canvas]/components/import";
 import { useUpdate } from "@/app/[username]/c/[canvas]/hooks/useUpdate";
-import { updateCanvas } from "@/app/[username]/c/[canvas]/actions";
+import { updateCanvas } from "@/app/actions/canvas";
 import { transformerConfig } from "@/app/[username]/c/[canvas]/config";
 import CtxMenu from "@/app/[username]/c/[canvas]/components/ctx-menu";
-import { AddPostProps, CanvasType, CanvasData, ImgItem } from "@/app/[username]/c/[canvas]/types";
+import { AddPostProps, CanvasType, CanvasData, ImgItem } from "@/types/canvas";
 
 // TODO: Investigate min/max resizing for images
 export default function CanvasPageComponent({ canvas }: { canvas: CanvasType }) {

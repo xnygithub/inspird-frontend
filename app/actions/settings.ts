@@ -14,10 +14,7 @@ export async function updateAccount(data: EditAccountInput) {
 
     if (!currentUser.data.user) throw new Error("User not found")
 
-    const {
-        username,
-        displayName,
-        profilePrivate } = parsed.data;
+    const { username, displayName, profilePrivate } = parsed.data;
 
     const { error } = await supabase
         .from("profiles")

@@ -2,7 +2,7 @@ import CanvasPageComponent from "@/app/[username]/c/[canvas]/pages/canvas"
 import { notFound } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { getCanvasDoc } from "@/lib/queries/canvas"
-import { CanvasType } from "@/app/[username]/c/[canvas]/types"
+import { CanvasType } from "@/types/canvas"
 
 interface Props {
     params: Promise<{ username: string; canvas: string }>;

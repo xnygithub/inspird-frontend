@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
-import type { ImgItem } from "../types";
-import { CanvasData } from "../types";
+import type { ImgItem } from "../../../../../types/canvas";
+import { CanvasData } from "../../../../../types/canvas";
 import { Post } from "@/app/generated/prisma";
 
 

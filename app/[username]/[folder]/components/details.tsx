@@ -1,5 +1,5 @@
 import "@/app/[username]/[folder]/folder.css";
-import { FolderWithCounts } from "@/app/[username]/[folder]/types";
+import { FolderDetails as FolderDetailsType } from "@/types/folders";
 import { EditFolder } from "@/app/[username]/[folder]/components/form";
 import {
     Breadcrumb,
@@ -14,12 +14,12 @@ export const FolderDetails = async ({
     folder,
     canEdit,
 }: {
-    folder: FolderWithCounts;
+    folder: FolderDetailsType;
     canEdit: boolean;
 }) => {
     const totalCount = Object
         .values(folder.mediaCounts)
-        .reduce((acc: number, item: number) => acc + item, 0);
+        .reduce((acc, item) => acc + item, 0);
 
     return (
         <>

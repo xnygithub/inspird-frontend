@@ -1,6 +1,6 @@
 "use server"
 import { createClient } from "@/utils/supabase/server";
-import { CanvasData } from "@/app/[username]/c/[canvas]/types";
+import { CanvasData } from "@/types/canvas";
 import { createCanvasDoc } from "@/lib/queries/canvas";
 
 export async function createCanvas(formData: FormData) {

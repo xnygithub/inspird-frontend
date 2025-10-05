@@ -10,11 +10,11 @@ import { SavedPostWrapper } from '@/components/posts/wrappers'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { PIN_MASONRY } from '@/constants/masonry'
-import { FolderWithCounts } from '@/app/[username]/[folder]/types'
+import { FolderDetails } from '@/types/folders'
 
 const supabase = createClient();
 
-export default function FolderPosts({ folder }: { folder: FolderWithCounts }) {
+export default function FolderPosts({ folder }: { folder: FolderDetails }) {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
 

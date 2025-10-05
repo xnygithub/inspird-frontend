@@ -7,7 +7,7 @@ import { useInView } from "react-intersection-observer"
 import { createClient } from "@/utils/supabase/client"
 import { getUsersFolders } from "@/lib/queries/folders"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { FolderCardType } from "@/app/[username]/types"
+import { FolderCard } from "@/types/folders"
 import defaultImage from "@/public/gray.png"
 import { timeAgo } from "@/utils/timeAgo"
 
@@ -22,7 +22,7 @@ export default function FoldersContainer({ userId }: { userId: string }) {
             { pageSize: 10 }
         );
 
-    const folders = data as FolderCardType[] | undefined;
+    const folders = data as FolderCard[] | undefined;
 
     useEffect(() => setHydrated(true), [])
 

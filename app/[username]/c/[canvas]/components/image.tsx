@@ -3,7 +3,7 @@ import type Konva from "konva";
 import useImage from "use-image";
 import { Image as KonvaImage } from "react-konva";
 import { useRef } from "react";
-import { ImgItem } from '@/app/[username]/c/[canvas]/types';
+import { ImgItem } from '@/types/canvas';
 
 type Props = {
     item: ImgItem;

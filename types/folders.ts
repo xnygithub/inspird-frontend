@@ -1,6 +1,17 @@
 import { MediaType, Post, SavedItems } from "@/app/generated/prisma";
 
-export type FolderWithCounts = {
+export type FolderCard = {
+    id: string
+    slug: string
+    name: string
+    isPrivate: boolean
+    lastUpdated: string
+    ownerUsername: string
+    postCount: number
+    thumbnails: string[] | null
+}
+
+export type FolderDetails = {
     id: string;
     owner: {
         username: string;
