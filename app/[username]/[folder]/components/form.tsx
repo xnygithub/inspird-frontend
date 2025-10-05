@@ -43,7 +43,7 @@ export const EditFolder = ({ folder }: { folder: FolderWithCounts }) => {
 
     return (
         <Dialog>
-            <DialogTrigger>
+            <DialogTrigger asChild>
                 <Info size={18} />
             </DialogTrigger>
             <DialogContent>

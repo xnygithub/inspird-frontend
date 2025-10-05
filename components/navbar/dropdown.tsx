@@ -26,6 +26,11 @@ export const Dropdown = ({ username }: { username: string }) => {
                     Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuLabel>Billing</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => openSettings("subscription")}>
+                    Subscription
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>
                     Logout
                 </DropdownMenuItem>

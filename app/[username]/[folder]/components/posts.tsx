@@ -14,7 +14,7 @@ import { FolderWithCounts } from '@/app/[username]/[folder]/types'
 
 const supabase = createClient();
 
-export default function FolderPosts(folder: FolderWithCounts) {
+export default function FolderPosts({ folder }: { folder: FolderWithCounts }) {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
 

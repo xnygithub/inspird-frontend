@@ -1,6 +1,6 @@
 import "@/app/[username]/[folder]/folder.css";
 import { FolderWithCounts } from "@/app/[username]/[folder]/types";
-import { EditFolder } from "@/app/[username]/[folder]/components/edit";
+import { EditFolder } from "@/app/[username]/[folder]/components/form";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -9,7 +9,14 @@ import {
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 
-export const FolderDetails = (folder: FolderWithCounts) => {
+
+export const FolderDetails = async ({
+    folder,
+    canEdit,
+}: {
+    folder: FolderWithCounts;
+    canEdit: boolean;
+}) => {
     const totalCount = Object
         .values(folder.mediaCounts)
         .reduce((acc: number, item: number) => acc + item, 0);
@@ -30,9 +37,9 @@ export const FolderDetails = (folder: FolderWithCounts) => {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex flex-row space-x-2">
+            <div className="flex flex-row items-center space-x-2">
                 <h1 id="folder-name">{folder.name}</h1>
-                <EditFolder folder={folder} />
+                {canEdit && <EditFolder folder={folder} />}
             </div>
             {folder.description && <p id="folder-description">{folder.description}</p>}
             <div className="flex flex-row space-x-2 font-semibold text-[14px] text-gray-500">
