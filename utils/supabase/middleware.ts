@@ -42,8 +42,12 @@ export async function updateSession(request: NextRequest) {
     // Handle settings routes by redirecting to "/" and bootstrapping modal via cookies
     const { pathname } = request.nextUrl
     const isSettingsRoute =
-        pathname === '/settings' || pathname === '/settings/' || pathname.startsWith('/settings/')
-    if (isSettingsRoute) {
+        pathname === '/settings' ||
+        pathname === '/settings/' ||
+        pathname.startsWith('/settings/')
+
+    // Only settings cookies here if user is logged in
+    if (isSettingsRoute && user) {
         const url = request.nextUrl.clone()
         url.pathname = '/'
 
@@ -53,7 +57,7 @@ export async function updateSession(request: NextRequest) {
         supaCookies.forEach((cookie) => redirectResponse.cookies.set(cookie))
 
         // Set short-lived cookies to open settings UI on the client
-        const parts = pathname.split('/').filter(Boolean) // e.g., ["settings", "account"]
+        const parts = pathname.split('/').filter(Boolean)
         const tab = allowedTabs.includes(parts[1]) ? parts[1] : DEFAULT_TAB
 
         redirectResponse.cookies.set('openSettings', '1', {
