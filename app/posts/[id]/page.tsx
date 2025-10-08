@@ -8,6 +8,7 @@ import ToggleSidebarButton from "@/app/posts/[id]/_components/toggle"
 import Similar from "@/app/posts/[id]/_components/similar"
 import { SaveLabel } from '@/components/posts/save'
 import Edit from "@/app/posts/[id]/_components/edit"
+import { getMediaUrl } from "@/utils/urls"
 
 async function getPost(id: string) {
     const supabase = await createClient()
@@ -28,16 +29,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         <SidebarProvider>
             <div id="selected-post-container" >
                 <Image
-                    src={data.mediaUrl}
+                    src={getMediaUrl(data.mediaUrl)}
                     alt={data.mediaAltText}
                     width={data.mediaWidth}
                     height={data.mediaHeight}
-                    className="object-contain"
-                    style={{ width: '100%', height: 'auto', maxHeight: '600px' }}
+                    className="max-w-full max-h-[calc(100vh-200px)] object-contain"
                 />
                 <div className="top-4 right-4 absolute flex space-x-2">
                     <SaveLabel postId={data.id} />
-                    <Edit postId={data.id} />
+                    <Edit postId={data.id} urlPath={data.mediaUrl} />
                     <ToggleSidebarButton />
                 </div>
             </div>

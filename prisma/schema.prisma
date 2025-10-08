@@ -60,7 +60,7 @@ model Post {
   mediaUrl         String                 @db.VarChar(255)
   mediaWidth       Int
   processingStatus ProcessingStatus       @default(not_started)
-  id               String                 @id @default(uuid()) @db.Uuid
+  id               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   embedding        Unsupported("vector")?
   FolderPost       FolderPost[]
   users            Profile                @relation(fields: [userId], references: [id])
@@ -114,7 +114,7 @@ model FolderPost {
   id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   postId       String     @db.Uuid
   folders      Folder     @relation(fields: [folderId, userId], references: [id, userId], onDelete: Cascade)
-  Post         Post       @relation(fields: [postId], references: [id])
+  Post         Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
   saved        SavedItems @relation(fields: [userId, savedItemsId], references: [userId, id], onDelete: Cascade)
 
   @@unique([folderId, savedItemsId], map: "uq_folder_saved")

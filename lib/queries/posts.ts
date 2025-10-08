@@ -1,5 +1,29 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
+interface CreatePostProps {
+    mediaUrl: string;
+    mediaWidth: number
+    mediaHeight: number
+    mediaSize: number
+    mediaAspectRatio: number
+    mediaAltText: string
+    embedding: number[]
+}
+
+export const createPost = (
+    client: SupabaseClient,
+    post: CreatePostProps
+) => {
+    return client.from("posts").insert(post).select("id").single();
+}
+
+export const createSavedPost = (
+    client: SupabaseClient,
+    postId: string
+) => {
+    return client.from("saved_items").insert({ postId });
+}
+
 export const quickSavePost = (
     client: SupabaseClient,
     postId: string
@@ -38,4 +62,11 @@ export const deletePost = (
     postId: string
 ) => {
     return client.from("posts").delete().eq("id", postId);
+}
+
+export const deletePostFromStorage = (
+    client: SupabaseClient,
+    key: string
+) => {
+    return client.storage.from("i").remove([key]);
 }

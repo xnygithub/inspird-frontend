@@ -1,22 +1,23 @@
 'use client'
 import { Info } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/utils/supabase/client'
-import { redirect } from 'next/navigation'
-import { deletePost } from '@/lib/queries/posts'
+import { deletePost, deletePostFromStorage } from '@/lib/queries/posts'
+import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger }
+    from "@/components/ui/dropdown-menu";
 
-export default function Edit({ postId }: { postId: string }) {
 
+export default function Edit(
+    { postId, urlPath }: { postId: string, urlPath: string }
+) {
     const handleDelete = async () => {
         const supabase = await createClient()
         const { error } = await deletePost(supabase, postId)
-        if (!error) redirect(`/`)
+        if (!error) {
+            const { error: storageError } = await deletePostFromStorage(supabase, urlPath)
+            if (!storageError) redirect(`/`)
+        }
     }
     return (
         <DropdownMenu modal={false}>

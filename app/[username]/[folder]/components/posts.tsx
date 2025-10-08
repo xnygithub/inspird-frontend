@@ -11,6 +11,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { PIN_MASONRY } from '@/constants/masonry'
 import { FolderDetails } from '@/types/folders'
+import { getMediaUrl } from '@/utils/urls'
 
 const supabase = createClient();
 
@@ -48,7 +49,7 @@ export default function FolderPosts({ folder }: { folder: FolderDetails }) {
                                     loading="lazy"
                                     className="object-cover"
                                     alt={post.posts.mediaAltText}
-                                    src={post.posts.mediaUrl}
+                                    src={getMediaUrl(post.posts.mediaUrl)}
                                     width={post.posts.mediaWidth}
                                     height={post.posts.mediaHeight}
                                     style={{ width: '100%', height: 'auto' }}

@@ -45,7 +45,7 @@ export default function SidebarProvider({ children }: SidebarProviderProps) {
                 style={{ marginRight: open ? (!isMobile ? WIDTH : 0) : 0 }}>
                 {children}
             </div>
-            <Sidebar open={open} />
+            <Sidebar />
         </SidebarContext.Provider>
     )
 }

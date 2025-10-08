@@ -10,6 +10,7 @@ import { SavedPostWrapper } from '@/components/posts/wrappers'
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { PIN_MASONRY } from "@/constants/masonry";
+import { getMediaUrl } from "@/utils/urls";
 
 const supabase = createClient();
 
@@ -28,6 +29,16 @@ export default function PinsContainer({ userId }: { userId: string }) {
     useEffect(() => {
         if (inView && loadMore) loadMore()
     }, [inView, loadMore])
+
+    const getSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        const accessToken = session?.access_token
+        console.log(accessToken)
+    }
+
+    useEffect(() => {
+        if (hydrated) void getSession()
+    }, [hydrated])
 
     if (!hydrated) return null
 
@@ -49,7 +60,7 @@ export default function PinsContainer({ userId }: { userId: string }) {
                                     className="object-cover"
                                     priority={index < 10}
                                     alt={item.posts.mediaAltText}
-                                    src={item.posts.mediaUrl}
+                                    src={getMediaUrl(item.posts.mediaUrl)}
                                     width={item.posts.mediaWidth}
                                     height={item.posts.mediaHeight}
                                     style={{ width: '100%', height: 'auto' }}

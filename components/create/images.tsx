@@ -1,30 +1,27 @@
 "use client";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { getS3UploadUrl } from "@/app/actions/s3";
-import { getImageSize, fileToBase64 } from "@/lib/utils";
-import { MediaType, Post, ProcessingStatus, SavedItems } from "@/app/generated/prisma";
 import { createClient } from "@/utils/supabase/client";
+import { getImageSize, fileToBase64 } from "@/lib/utils";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { createPost, createSavedPost } from "@/lib/queries/posts";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface UploadImageProps {
     setUploadOpen: (open: boolean) => void;
     uploadOpen: boolean;
 }
 
-interface PostWithEmbeddings extends Post {
-    embedding: number[];
-}
-
 
 // TODO: Move call to HF endpoint to the server side
 // TODO: HF endpoint has cold starts when scaled to zero, returns 500 whilst warming up
 // TODO: Consider setting min replica to 1 / disabling scale to zero
+// TODO: Move all this logic to server side
 
 export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => {
     const [status, setStatus] = useState("Ready");
     async function handleFile(ev: React.ChangeEvent<HTMLInputElement>) {
-        const supabase = await createClient();
-        const { data: user } = await supabase.auth.getUser();
+        const supabase = createClient();
 
         const file = ev.target.files?.[0];
         if (!file) return;
@@ -56,69 +53,54 @@ export const UploadImage = ({ setUploadOpen, uploadOpen }: UploadImageProps) => 
         }
         const { embeddings } = await hfResponse.json()
 
-        // Ask the server action for a presigned POST
-        const { url, fields, key } = await getS3UploadUrl({
-            contentType: file.type,
-            sizeBytes: file.size,
-        });
+        const ext = file.name.split('.').pop();
+        const path = `${crypto.randomUUID()}.${ext}`;
+        const arrayBuf = await file.arrayBuffer();
 
-        // Build a multipart / form - data POST directly to S3
-        const form = new FormData();
-        Object.entries(fields).forEach(([k, v]) => form.append(k, v as string));
-        form.append("file", file);
+        const { error: storageError }
+            = await supabase.storage
+                .from('i')
+                .upload(path, arrayBuf, {
+                    contentType: file.type,
+                    cacheControl: '31536000',
+                    upsert: false,
+                });
 
-        setStatus("Uploading to S3…");
-        const res = await fetch(url, { method: "POST", body: form });
-
-        if (!res.ok) {
-            console.error(res);
+        if (storageError) {
+            console.error(storageError);
             setStatus("Upload failed");
             return;
         }
-
         setStatus("Done!");
 
-        const newPost: PostWithEmbeddings = {
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            isAiGenerated: false,
-            isNsfw: false,
-            isPrivate: false,
-            userId: user?.user?.id as string,
-            mediaUrl: "https://pinit-images-bucket.s3.eu-west-1.amazonaws.com/" + key,
-            mediaType: "image" as MediaType,
+        const newPost = {
+            mediaUrl: path,
             mediaWidth: imageData.width,
             mediaHeight: imageData.height,
             mediaSize: imageData.size,
             mediaAspectRatio: imageData.aspectRatio,
             mediaAltText: "",
             embedding: embeddings,
-            processingStatus: "not_started" as ProcessingStatus,
         };
 
-        const { data, error } = await supabase.from("posts").insert(newPost).select("id").single();
+        const { data, error } = await createPost(supabase, newPost);
         if (error) {
             console.error(error);
             setStatus("Upload failed");
             return;
         }
-
-        const new_saved_post: SavedItems = {
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            postId: data.id,
-            userId: user?.user?.id as string,
-        }
-        await supabase.from("saved_items").insert(new_saved_post).select("id").single();
-
+        await createSavedPost(supabase, data.id);
     }
 
     return (
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-            <DialogContent className="bg-black text-white">
+            <DialogContent >
                 <DialogTitle>Upload Image</DialogTitle>
                 <p>{status}</p>
-                <input
+                <Label htmlFor="image">Upload Image</Label>
+                <Input
+                    hidden
+                    id="image"
                     type="file"
                     accept="image/jpeg,image/png,image/jpg"
                     onChange={handleFile}

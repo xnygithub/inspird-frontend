@@ -10,6 +10,7 @@ import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-
 import { FolderCard } from "@/types/folders"
 import defaultImage from "@/public/gray.png"
 import { timeAgo } from "@/utils/timeAgo"
+import { getMediaUrl } from "@/utils/urls"
 
 const supabase = createClient();
 export default function FoldersContainer({ userId }: { userId: string }) {
@@ -41,6 +42,13 @@ export default function FoldersContainer({ userId }: { userId: string }) {
         )
     }
 
+    const getFolderThumbnail = (folder: FolderCard) => {
+        if (folder.thumbnails && folder.thumbnails[0]) {
+            return getMediaUrl(folder.thumbnails[0])
+        }
+        return defaultImage
+    }
+
     return (
         <>
             <div id="folder-container">
@@ -55,7 +63,7 @@ export default function FoldersContainer({ userId }: { userId: string }) {
                             <Link href={`/${folder.ownerUsername}/${folder.slug}`}>
                                 <div className="absolute inset-0">
                                     <Image
-                                        src={(folder.thumbnails && folder.thumbnails[0]) || defaultImage}
+                                        src={getFolderThumbnail(folder)}
                                         alt="Image"
                                         fill
                                         className="object-cover"
