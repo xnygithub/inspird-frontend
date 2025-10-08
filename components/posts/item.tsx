@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import gray from '@/public/gray.png'
 import { FolderDropdown as FolderDropdownType } from '@/types/folders'
+import { getMediaUrl } from '@/utils/urls'
 
 interface itemProps {
     folder: FolderDropdownType
@@ -31,7 +32,7 @@ export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
                     width={50}
                     height={50}
                     className='object-cover aspect-square'
-                    src={folder.thumbnail || gray}
+                    src={getMediaUrl(folder.thumbnail) || gray}
                     alt={"Folder Thumbnail"}
                 />
                 <div id="folder-item-name">
