@@ -7,10 +7,9 @@ import { useState, useEffect } from 'react'
 import { getUsersPosts } from '@/lib/queries/posts';
 import { createClient } from "@/utils/supabase/client";
 import { SavedPostWrapper } from '@/components/posts/wrappers'
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { PIN_MASONRY } from "@/constants/masonry";
 import { getMediaUrl } from "@/utils/urls";
+import { Masonry } from 'react-masonry'
 
 const supabase = createClient();
 
@@ -47,10 +46,10 @@ export default function PinsContainer({ userId }: { userId: string }) {
     }
 
     return (
-        <div className="mb-4">
-            <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
-                <Masonry>
-                    {data && data.map((item, index) => (
+        <div>
+            <Masonry>
+                {data && data.map((item, index) => (
+                    <div key={item.posts.id} className="masonry-box masonry-item" >
                         <SavedPostWrapper
                             key={item.posts.id}
                             postId={item.posts.id}
@@ -67,10 +66,11 @@ export default function PinsContainer({ userId }: { userId: string }) {
                                 />
                             </Link>
                         </SavedPostWrapper>
-                    ))}
-                </Masonry>
-            </ResponsiveMasonry >
+                    </div>
+                ))}
+            </Masonry>
             {!isValidating && loadMore && <div ref={ref} className="h-10"></div>}
         </div>
     )
+
 }   
