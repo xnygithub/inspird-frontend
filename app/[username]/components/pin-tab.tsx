@@ -27,8 +27,8 @@ export default function PinsContainer({ userId }: { userId: string }) {
     useEffect(() => { setHydrated(true) }, [])
 
     useEffect(() => {
-        if (inView && loadMore) loadMore()
-    }, [inView, loadMore])
+        if (inView && loadMore && hydrated && !isValidating) loadMore()
+    }, [inView, loadMore, hydrated, isValidating])
 
     const getSession = async () => {
         const { data: { session } } = await supabase.auth.getSession()
@@ -47,7 +47,7 @@ export default function PinsContainer({ userId }: { userId: string }) {
     }
 
     return (
-        <>
+        <div className="mb-4">
             <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
                 <Masonry>
                     {data && data.map((item, index) => (
@@ -70,7 +70,7 @@ export default function PinsContainer({ userId }: { userId: string }) {
                     ))}
                 </Masonry>
             </ResponsiveMasonry >
-            {!isValidating && loadMore && <div ref={ref}></div>}
-        </>
+            {!isValidating && loadMore && <div ref={ref} className="h-10"></div>}
+        </div>
     )
 }   

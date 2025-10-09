@@ -18,6 +18,7 @@ interface Props {
 }
 
 
+// TODO: Consider moving this logic to the server side
 export const Import = ({ setCreateOpen, createOpen }: Props) => {
     const supabase = createClient();
     const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/pinterest-board`;
@@ -26,6 +27,15 @@ export const Import = ({ setCreateOpen, createOpen }: Props) => {
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Board["boards"][]>([]);
+
+    const importUrl = `https://rg7yqmsst7.execute-api.eu-west-1.amazonaws.com/prod/run`;
+
+    const getAccessToken = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        const accessToken = session?.access_token;
+        if (!accessToken) return null;
+        return accessToken;
+    }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,11 +60,34 @@ export const Import = ({ setCreateOpen, createOpen }: Props) => {
         setLoading(false);
     }
 
-    const handleSelect = (e: FormEvent<HTMLFormElement>) => {
+    const submitImport = async (board: string, token: string) => {
+        const res = await fetch(`${importUrl}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ board_url: board })
+        });
+        if (!res.ok) {
+            console.log("Failed to import board:", res.statusText);
+            return;
+        }
+        console.log("Successfully imported board:", res);
+        const data = await res.json();
+        console.log("Data:", data);
+    }
+
+    const handleSelect = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const selectedBoards = formData.getAll("boards");
-        console.log("Boards:", selectedBoards);
+        const selectedBoard = formData.get("boardsUrl") as string;
+        if (!selectedBoard) {
+            return;
+        }
+        const accessToken = await getAccessToken();
+        if (!accessToken) return;
+        await submitImport(selectedBoard, accessToken);
     };
 
     const TotalPinCount = data.reduce((acc, board) => acc + board.pin_count, 0);
@@ -92,9 +125,9 @@ export const Import = ({ setCreateOpen, createOpen }: Props) => {
                                     className="group flex flex-row items-center gap-4 w-full cursor-pointer select-none"
                                 >
                                     <input
-                                        type="checkbox"
+                                        type="radio"
                                         id={board.id}
-                                        name="boards"
+                                        name="boardsUrl"
                                         value={board.url}
                                         className="w-5 h-5" // you can style this
                                     />

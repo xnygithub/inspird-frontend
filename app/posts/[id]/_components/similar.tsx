@@ -9,6 +9,7 @@ import { useSidebar } from './sidebar.provider'
 import { SimilarPost } from '@/types/posts'
 import { getSimilarPosts } from '@/lib/queries/posts'
 import { Button } from '@/components/ui/button'
+import { getMediaUrl } from '@/utils/urls'
 
 export default function Similar({ postId }: { postId: string }) {
     const [hydrated, setHydrated] = useState(false)
@@ -41,7 +42,7 @@ export default function Similar({ postId }: { postId: string }) {
                                     loading="lazy"
                                     className="object-cover"
                                     alt={post.mediaalttext || ''}
-                                    src={post.mediaurl}
+                                    src={getMediaUrl(post.mediaurl)}
                                     width={post.mediawidth}
                                     height={post.mediaheight}
                                     style={{ width: '100%', height: 'auto' }}

@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-interface ImageSize {
+export interface ImageMeta {
+  url: string;
   size: number;
   type: string;
   width: number;
@@ -13,12 +14,13 @@ interface ImageSize {
   aspectRatio: number;
 }
 
-export function getImageSize(file: File): Promise<ImageSize> {
+export function getImageMeta(file: File): Promise<ImageMeta> {
   return new Promise((resolve) => {
     const image = new Image();
     image.src = URL.createObjectURL(file);
     image.onload = () => {
       resolve({
+        url: `${crypto.randomUUID()}.${file.name.split('.').pop()}`,
         size: file.size,
         type: file.type,
         width: image.width,
