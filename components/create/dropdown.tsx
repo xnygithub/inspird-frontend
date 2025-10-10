@@ -21,7 +21,7 @@ export const Create = () => {
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button>Create</Button>
+                    <Button variant="genericRounded">Create</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem onClick={() => setFolderOpen(true)}>
