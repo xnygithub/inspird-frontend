@@ -35,7 +35,7 @@ export default function FolderPosts({ folder }: { folder: FolderDetails }) {
 
     return (
         <div id="folder-posts-container">
-            <Masonry>
+            <Masonry transition="fade" transitionStep={1000}>
                 {data?.map((post) => (
                     <div key={post.id} className="masonry-box masonry-item" >
                         <SavedPostWrapper

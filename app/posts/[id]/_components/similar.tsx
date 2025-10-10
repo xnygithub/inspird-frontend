@@ -29,7 +29,7 @@ export default function Similar({ postId }: { postId: string }) {
     if (!hydrated) return null
     return (
         <div id="similar-posts-container">
-            <Masonry>
+            <Masonry transition="fade" transitionStep={1000}>
                 {similarPosts.map((post) => (
                     <div key={post.id} className="masonry-box masonry-item" >
                         <Link href={`/posts/${post.id}`}>

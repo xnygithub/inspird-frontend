@@ -47,7 +47,7 @@ export default function PinsContainer({ userId }: { userId: string }) {
 
     return (
         <div>
-            <Masonry>
+            <Masonry transition="fade" transitionStep={1000}>
                 {data && data.map((item, index) => (
                     <div key={item.posts.id} className="masonry-box masonry-item" >
                         <SavedPostWrapper
