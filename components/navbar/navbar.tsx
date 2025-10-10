@@ -7,6 +7,7 @@ import { getProfileCached } from "@/lib/queries/profile";
 import { SearchBar } from "@/components/search/search-bar";
 import SubscribeButton from "@/components/subscribe-button";
 import { ModeToggle } from "@/components/navbar/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 
 export const Navbar = async () => {
@@ -46,8 +47,12 @@ export const Navbar = async () => {
                 </>
             ) : (
                 <div className="flex flex-row justify-end items-center gap-2 w-full">
-                    <Link href="/login"><button>Login</button></Link>
-                    <Link href="/login"><button>Signup</button></Link>
+                    <Link href="/login">
+                        <Button>Login</Button>
+                    </Link>
+                    <Link href="/login">
+                        <Button>Signup</Button>
+                    </Link>
                 </div>
             )}
         </div>

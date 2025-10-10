@@ -39,6 +39,14 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // Prevent logged in users from accessing login page
+    if (user && request.nextUrl.pathname.startsWith('/login')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
+
+    }
+
     // Handle settings routes by redirecting to "/" and bootstrapping modal via cookies
     const { pathname } = request.nextUrl
     const isSettingsRoute =
