@@ -7,10 +7,9 @@ import { useState, useEffect } from 'react'
 import { getUsersPosts } from '@/lib/queries/posts';
 import { createClient } from "@/utils/supabase/client";
 import { SavedPostWrapper } from '@/components/posts/wrappers'
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { PIN_MASONRY } from "@/constants/masonry";
 import { getMediaUrl } from "@/utils/urls";
+import { Masonry } from 'react-masonry'
 
 const supabase = createClient();
 
@@ -27,8 +26,8 @@ export default function PinsContainer({ userId }: { userId: string }) {
     useEffect(() => { setHydrated(true) }, [])
 
     useEffect(() => {
-        if (inView && loadMore) loadMore()
-    }, [inView, loadMore])
+        if (inView && loadMore && hydrated && !isValidating) loadMore()
+    }, [inView, loadMore, hydrated, isValidating])
 
     const getSession = async () => {
         const { data: { session } } = await supabase.auth.getSession()
@@ -47,10 +46,10 @@ export default function PinsContainer({ userId }: { userId: string }) {
     }
 
     return (
-        <>
-            <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
-                <Masonry>
-                    {data && data.map((item, index) => (
+        <div>
+            <Masonry transition="fade" transitionStep={1000}>
+                {data && data.map((item, index) => (
+                    <div key={item.posts.id} className="masonry-box masonry-item" >
                         <SavedPostWrapper
                             key={item.posts.id}
                             postId={item.posts.id}
@@ -67,10 +66,11 @@ export default function PinsContainer({ userId }: { userId: string }) {
                                 />
                             </Link>
                         </SavedPostWrapper>
-                    ))}
-                </Masonry>
-            </ResponsiveMasonry >
-            {!isValidating && loadMore && <div ref={ref}></div>}
-        </>
+                    </div>
+                ))}
+            </Masonry>
+            {!isValidating && loadMore && <div ref={ref} className="h-10"></div>}
+        </div>
     )
+
 }   

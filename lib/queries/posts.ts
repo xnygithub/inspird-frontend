@@ -14,14 +14,7 @@ export const createPost = (
     client: SupabaseClient,
     post: CreatePostProps
 ) => {
-    return client.from("posts").insert(post).select("id").single();
-}
-
-export const createSavedPost = (
-    client: SupabaseClient,
-    postId: string
-) => {
-    return client.from("saved_items").insert({ postId });
+    return client.from("posts").insert(post);
 }
 
 export const quickSavePost = (

@@ -7,9 +7,8 @@ import { getFolderPosts } from '@/lib/queries/folders'
 import { createClient } from '@/utils/supabase/client'
 import { useInView } from 'react-intersection-observer'
 import { SavedPostWrapper } from '@/components/posts/wrappers'
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import { Masonry } from 'react-masonry'
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { PIN_MASONRY } from '@/constants/masonry'
 import { FolderDetails } from '@/types/folders'
 import { getMediaUrl } from '@/utils/urls'
 
@@ -36,9 +35,9 @@ export default function FolderPosts({ folder }: { folder: FolderDetails }) {
 
     return (
         <div id="folder-posts-container">
-            <ResponsiveMasonry columnsCountBreakPoints={PIN_MASONRY}>
-                <Masonry>
-                    {data?.map((post) => (
+            <Masonry transition="fade" transitionStep={1000}>
+                {data?.map((post) => (
+                    <div key={post.id} className="masonry-box masonry-item" >
                         <SavedPostWrapper
                             key={post.id}
                             postId={post.posts.id}
@@ -56,9 +55,9 @@ export default function FolderPosts({ folder }: { folder: FolderDetails }) {
                                 />
                             </Link>
                         </SavedPostWrapper>
-                    ))}
-                </Masonry>
-            </ResponsiveMasonry >
+                    </div>
+                ))}
+            </Masonry>
             <div ref={ref}></div>
         </div>
     )
