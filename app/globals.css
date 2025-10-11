@@ -47,9 +47,16 @@
   --color-navbar-foreground: var(--navbar-foreground);
 }
 
+/* Prevent layout shifts due to scrollbar/shadcn modals */
 html {
   scrollbar-gutter: stable;
 }
+body { overflow-x: hidden; } 
+
+[data-scroll-locked][data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
