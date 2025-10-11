@@ -1,19 +1,27 @@
 "use client"
 import Link from 'next/link'
-import React from 'react'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { Profile } from '@/app/generated/prisma/client'
 import { cn } from '@/lib/utils'
+import { usePathname } from 'next/navigation'
+import React, { useState, useEffect } from 'react'
+import { Profile } from '@/app/generated/prisma/client'
 
 export const Avatar = ({ res }: { res: Profile }) => {
+    const [currentPath, setCurrentPath] = useState<string>(usePathname())
     const pathname = usePathname()
-    // Check whether the user is on the profile page
-    const isProfilePage = pathname.includes(`/${res.username}`)
+    useEffect(() => {
+        if (pathname.includes(`/settings`)) {
+            if (currentPath.includes(`/${res.username}`)) return
+            setCurrentPath(pathname)
+        }
+        else setCurrentPath(pathname)
+    }, [pathname, currentPath, res.username])
+
+    const isProfilePage = currentPath.includes(`/${res.username}`)
     return (
         <Link href={`/${res.username}`} className="relative">
             <div className={cn("relative rounded-full w-8 h-8 overflow-hidden",
-                isProfilePage && "outline-[2px] outline-primary/70")}>
+                isProfilePage && "outline-[2px] outline-primary/70 ")}>
                 <Image
                     src={res.avatarUrl}
                     alt="Avatar"
