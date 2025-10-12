@@ -32,8 +32,12 @@ export const Navbar = async () => {
                 </>
             ) : (
                 <div className="flex flex-row justify-end items-center gap-2 w-full">
-                    <Link href="/login"><button>Login</button></Link>
-                    <Link href="/login"><button>Signup</button></Link>
+                    <Link href="/login">
+                        <Button>Login</Button>
+                    </Link>
+                    <Link href="/login">
+                        <Button>Signup</Button>
+                    </Link>
                 </div>
             )}
         </div>

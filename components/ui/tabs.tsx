@@ -1,9 +1,47 @@
 "use client"
 
 import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
-
 import { cn } from "@/lib/utils"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
+import { cva, VariantProps } from "class-variance-authority"
+
+
+const tabsListVariants = cva(
+  "inline-flex justify-center items-center",
+  {
+    variants: {
+      variant: {
+        default: "bg-muted text-muted-foreground h-9 w-fit  rounded-lg p-[3px]",
+        profile: "text-muted-foreground w-fit gap-2",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+const tabsTriggerVariants = cva(
+  cn(
+    "dark:data-[state=inactive]:hover:brightness-150 dark:data-[state=active]:text-foreground dark:text-muted-foreground", // Dark Mode Styles
+    "data-[state=inactive]:hover:brightness-50 data-[state=active]:text-black text-muted-foreground", // Light Mode Styles
+    "inline-flex h-[calc(100%-1px)] data-[state=inactive]:hover:cursor-pointer",
+    "px-2.5 py-1 whitespace-nowrap transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+  ),
+  {
+    variants: {
+      variant: {
+        default:
+          "text-lg font-medium",
+        profile:
+          "text-lg active:translate-y-0.5 transition-transform font-medium",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
 function Tabs({
   className,
@@ -20,13 +58,13 @@ function Tabs({
 
 function TabsList({
   className,
+  variant,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
+}: React.ComponentProps<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn(
-        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+      className={cn(tabsListVariants({ variant }),
         className
       )}
       {...props}
@@ -36,13 +74,13 @@ function TabsList({
 
 function TabsTrigger({
   className,
+  variant,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+}: React.ComponentProps<typeof TabsPrimitive.Trigger> & VariantProps<typeof tabsTriggerVariants>) {
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
-      className={cn(
-        "data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      className={cn(tabsTriggerVariants({ variant }),
         className
       )}
       {...props}
