@@ -6,6 +6,7 @@ import { Dropdown } from "@/components/navbar/dropdown";
 import { getProfileCached } from "@/lib/queries/profile";
 import { SearchBar } from "@/components/search/search-bar";
 import SubscribeButton from "@/components/subscribe-button";
+import { Button } from "@/components/ui/button";
 
 export const Navbar = async () => {
     const supabase = await createClient()
