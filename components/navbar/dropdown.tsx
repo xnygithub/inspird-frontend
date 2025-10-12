@@ -35,11 +35,7 @@ export const Dropdown = ({ username }: { username: string }) => {
                     <Link href={`/${username}`}>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel>Settings</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => openSettings()}>
-                    Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+
                 <DropdownMenuLabel>Billing</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => openSettings("subscription")}>
                     Subscription
@@ -50,7 +46,12 @@ export const Dropdown = ({ username }: { username: string }) => {
                     {theme === "light" ? "Dark Mode" : "Light Mode"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>
+                <DropdownMenuLabel>Settings</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => openSettings()}>
+                    Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={signOut}>
                     Logout
                 </DropdownMenuItem>
             </DropdownMenuContent>
