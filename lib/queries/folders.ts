@@ -47,7 +47,7 @@ export const getFolderPosts = (
 ) => {
     return client
         .from('folder_posts')
-        .select('*, posts (*, profiles (username))')
+        .select('id, posts (id, mediaUrl, mediaWidth, mediaHeight, mediaAltText, profiles (username))')
         .eq('folderId', folderId)
 }
 

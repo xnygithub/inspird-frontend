@@ -32,6 +32,7 @@
     "clsx": "^2.1.1",
     "konva": "^10.0.2",
     "lucide-react": "^0.542.0",
+    "masonic": "^4.1.0",
     "next": "15.5.2",
     "next-themes": "^0.4.6",
     "react": "19.1.0",
@@ -40,13 +41,12 @@
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",
     "react-konva": "^19.0.10",
-    "react-masonry": "^1.0.7",
-    "react-responsive-masonry": "^2.7.1",
     "stripe": "^18.5.0",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
     "use-image": "^1.1.4",
     "usehooks-ts": "^3.1.1",
+    "vaul": "^1.1.2",
     "zod": "^4.1.11"
   },
   "devDependencies": {
