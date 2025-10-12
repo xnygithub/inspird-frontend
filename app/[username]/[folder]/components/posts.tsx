@@ -13,8 +13,9 @@ const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), {
 
 const supabase = createClient();
 
-export default function FolderPosts({ folder }: { folder: FolderDetails }) {
-
+export default function FolderPosts(
+    { folder }: { folder: FolderDetails }
+) {
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
             () => getFolderPosts(supabase, folder.id),

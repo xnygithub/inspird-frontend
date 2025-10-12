@@ -1,19 +1,19 @@
 "use client";
-import "@/app/[username]/c/[canvas]/canvas.css";
+import "@/app/[username]/canvas/[canvas]/canvas.css";
 import React, { useRef, useEffect, useState } from "react";
 import { Stage, Layer, Transformer } from "react-konva";
 import Konva from "konva";
 import { Button } from "@/components/ui/button";
-import URLImage from "@/app/[username]/c/[canvas]/components/image";
-import { useHydrated } from "@/app/[username]/c/[canvas]/hooks/useHydrated";
-import { useWindowSize } from "@/app/[username]/c/[canvas]/hooks/useWindowSize";
-import { useStageZoom } from "@/app/[username]/c/[canvas]/hooks/useZoom";
-import { useContextMenu } from "@/app/[username]/c/[canvas]/hooks/useMenu";
-import AddPostsDialog from "@/app/[username]/c/[canvas]/components/import";
-import { useUpdate } from "@/app/[username]/c/[canvas]/hooks/useUpdate";
+import URLImage from "@/app/[username]/canvas/[canvas]/components/image";
+import { useHydrated } from "@/app/[username]/canvas/[canvas]/hooks/useHydrated";
+import { useWindowSize } from "@/app/[username]/canvas/[canvas]/hooks/useWindowSize";
+import { useStageZoom } from "@/app/[username]/canvas/[canvas]/hooks/useZoom";
+import { useContextMenu } from "@/app/[username]/canvas/[canvas]/hooks/useMenu";
+import AddPostsDialog from "@/app/[username]/canvas/[canvas]/components/import";
+import { useUpdate } from "@/app/[username]/canvas/[canvas]/hooks/useUpdate";
 import { updateCanvas } from "@/app/actions/canvas";
-import { transformerConfig } from "@/app/[username]/c/[canvas]/config";
-import CtxMenu from "@/app/[username]/c/[canvas]/components/ctx-menu";
+import { transformerConfig } from "@/app/[username]/canvas/[canvas]/config";
+import CtxMenu from "@/app/[username]/canvas/[canvas]/components/ctx-menu";
 import { AddPostProps, CanvasType, CanvasData, ImgItem } from "@/types/canvas";
 
 // TODO: Investigate min/max resizing for images

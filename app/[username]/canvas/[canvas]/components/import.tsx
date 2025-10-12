@@ -1,8 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UsersPostLibrary from "@/app/[username]/c/[canvas]/components/library";
-import Explore from "@/app/[username]/c/[canvas]/components/explore";
-import "@/app/[username]/c/[canvas]/canvas.css";
+import UsersPostLibrary from "@/app/[username]/canvas/[canvas]/components/library";
+import Explore from "@/app/[username]/canvas/[canvas]/components/explore";
+import "@/app/[username]/canvas/[canvas]/canvas.css";
 import { AddPostProps } from "@/types/canvas";
 
 interface ImportProps {
