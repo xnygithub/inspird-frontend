@@ -35,7 +35,7 @@ export default function CanvasContainer({ userId }: { userId: string }) {
             <div id="canvas-container" >
                 {data && data.map((canvasDoc) => (
                     <div key={canvasDoc.id}>
-                        <Link href={`/${canvasDoc.owner.username}/c/${canvasDoc.title}`}>
+                        <Link href={`/${canvasDoc.owner.username}/canvas/${canvasDoc.title}`}>
                             <div className="bg-gray-200/30 w-full h-full"></div>
                             <h2>{canvasDoc.title}</h2>
                         </Link>

@@ -1,65 +1,50 @@
 "use client"
-import Link from 'next/link'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import '@/app/[username]/[folder]/folder.css'
+import dynamic from 'next/dynamic';
 import { getFolderPosts } from '@/lib/queries/folders'
 import { createClient } from '@/utils/supabase/client'
-import { useInView } from 'react-intersection-observer'
-import { SavedPostWrapper } from '@/components/posts/wrappers'
-import { Masonry } from 'react-masonry'
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { FolderDetails } from '@/types/folders'
-import { getMediaUrl } from '@/utils/urls'
+import { FolderMasonryItem } from '@/components/posts/masonry-item'
+import { useInfiniteLoader } from 'masonic';
+
+const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), {
+    ssr: false,
+});
 
 const supabase = createClient();
 
-export default function FolderPosts({ folder }: { folder: FolderDetails }) {
-    const [hydrated, setHydrated] = useState<boolean>(false)
-    const { ref, inView } = useInView({ threshold: 0 });
-
+export default function FolderPosts(
+    { folder }: { folder: FolderDetails }
+) {
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
             () => getFolderPosts(supabase, folder.id),
-            { pageSize: 10 }
+            { pageSize: 20 }
         );
+    const items = data ?? [];
+    const hasMore = !isValidating && !!loadMore;
 
-    useEffect(() => setHydrated(true), [])
+    const maybeLoadMore = useInfiniteLoader(
+        async () => { if (hasMore) loadMore(); },
+        {
+            isItemLoaded: (index, items) => !!items[index],
+            totalItems: hasMore ? items.length + 1 : items.length,
 
-    useEffect(() => {
-        if (!hydrated || isValidating || !loadMore) return
-        if (inView) loadMore()
-    }, [inView, hydrated, isValidating, loadMore])
-
-    if (!hydrated) return null
+        }
+    );
 
     return (
-        <div id="folder-posts-container">
-            <Masonry transition="fade" transitionStep={1000}>
-                {data?.map((post) => (
-                    <div key={post.id} className="masonry-box masonry-item" >
-                        <SavedPostWrapper
-                            key={post.id}
-                            postId={post.posts.id}
-                            ownerUsername={post.posts.profiles.username}>
-                            <Link href={`/posts/${post.posts.id}`}>
-                                <Image
-                                    key={post.id}
-                                    loading="lazy"
-                                    className="object-cover"
-                                    alt={post.posts.mediaAltText}
-                                    src={getMediaUrl(post.posts.mediaUrl)}
-                                    width={post.posts.mediaWidth}
-                                    height={post.posts.mediaHeight}
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                            </Link>
-                        </SavedPostWrapper>
-                    </div>
-                ))}
-            </Masonry>
-            <div ref={ref}></div>
+        <div className='mt-8'>
+            {data?.length ? (
+                <Masonry
+                    items={data}
+                    rowGutter={15}
+                    columnGutter={15}
+                    columnWidth={200}
+                    onRender={maybeLoadMore}
+                    render={FolderMasonryItem}
+                />
+            ) : null}
         </div>
     )
 }
-

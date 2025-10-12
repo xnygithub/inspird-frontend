@@ -8,6 +8,7 @@ import { MobileNavbar } from "@/components/navbar/mobile";
 import { SettingsModalProvider, SettingsTab } from "./context/settings-modal";
 import SettingsBootstrap from "@/app/modal-controller";
 import { Settings } from "@/components/settings/settings";
+import SWRProvider from '@/app/providers';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,13 +43,15 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <SettingsModalProvider>
-            <Navbar />
-            <SettingsBootstrap shouldOpen={shouldOpen} initialTab={initialTab} />
-            <Settings />
-            {children}
-            <MobileNavbar />
-          </SettingsModalProvider>
+          <SWRProvider>
+            <SettingsModalProvider>
+              <Navbar />
+              <SettingsBootstrap shouldOpen={shouldOpen} initialTab={initialTab} />
+              <Settings />
+              {children}
+              <MobileNavbar />
+            </SettingsModalProvider>
+          </SWRProvider>
         </ThemeProvider>
       </body>
     </html >

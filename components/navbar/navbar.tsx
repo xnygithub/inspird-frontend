@@ -1,14 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Avatar } from "@/components/navbar/profile";
 import { Create } from "@/components/create/dropdown";
 import { createClient } from "@/utils/supabase/server";
 import { Dropdown } from "@/components/navbar/dropdown";
 import { getProfileCached } from "@/lib/queries/profile";
 import { SearchBar } from "@/components/search/search-bar";
 import SubscribeButton from "@/components/subscribe-button";
-import { ModeToggle } from "@/components/navbar/theme-toggle";
-import { Button } from "@/components/ui/button";
-
 
 export const Navbar = async () => {
     const supabase = await createClient()
@@ -29,19 +26,7 @@ export const Navbar = async () => {
                     <div className="flex flex-row items-center gap-2">
                         {res.subscriptionStatus !== "active" && <SubscribeButton user={res} />}
                         <Create />
-                        <ModeToggle />
-                        <Link href={`/${res.username}`} className="relative">
-                            <div className="relative w-8 h-8 overflow-hidden">
-                                <Image
-                                    src={res.avatarUrl}
-                                    alt="Avatar"
-                                    fill
-                                    sizes="32px"
-                                    className="object-cover"
-                                    priority
-                                />
-                            </div>
-                        </Link>
+                        <Avatar res={res} />
                         <Dropdown username={res.username} />
                     </div>
                 </>

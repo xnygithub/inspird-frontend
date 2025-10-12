@@ -48,8 +48,8 @@ export default async function UsernamePage(
                     />
                 </div>
                 <div id="profile-info">
-                    <h2 className="font-bold text-[24px]">{user.displayName}</h2>
-                    <h1 className="font-normal text-[16px]">@{user.username}</h1>
+                    <h2 className="font-semibold text-[24px]">{user.displayName}</h2>
+                    <h1 className="opacity-80 font-normal text-[16px]">@{user.username}</h1>
                 </div>
                 {user.isMe && <UserSettings />}
             </div >
