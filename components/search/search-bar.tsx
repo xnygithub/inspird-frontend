@@ -2,12 +2,14 @@
 import * as React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export const SearchBar: React.FC = () => {
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState("");
     const anchorRef = React.useRef<HTMLDivElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
+    const router = useRouter();
 
     React.useEffect(() => {
         if (open) {
@@ -18,6 +20,14 @@ export const SearchBar: React.FC = () => {
             };
         }
     }, [open]);
+
+    function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const q = (formData.get('q') as string).trim();
+        if (!q) return;
+        router.push(`/search?${new URLSearchParams({ q }).toString()}`);
+    }
 
     return (
         <>
@@ -40,26 +50,29 @@ export const SearchBar: React.FC = () => {
                         // keep the input in focus to keep the panel open
                         onFocus={() => setOpen(true)}
                     >
-                        <Input
-                            ref={inputRef}
-                            type="text"
-                            placeholder="Search"
-                            value={query}
-                            onChange={(e) => {
-                                if (!open) setOpen(true);
-                                setQuery(e.target.value);
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Escape") {
-                                    setOpen(false);
-                                    inputRef.current?.blur();
-                                }
-                            }}
-                            aria-autocomplete="list"
-                            aria-expanded={open}
-                            role="combobox"
-                            className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                        />
+                        <form onSubmit={onSubmit} role="search" className="w-full">
+                            <Input
+                                name="q"
+                                ref={inputRef}
+                                type="search"
+                                placeholder="Search"
+                                value={query}
+                                onChange={(e) => {
+                                    if (!open) setOpen(true);
+                                    setQuery(e.target.value);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Escape") {
+                                        setOpen(false);
+                                        inputRef.current?.blur();
+                                    }
+                                }}
+                                aria-autocomplete="list"
+                                aria-expanded={open}
+                                role="combobox"
+                                className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                        </form>
                     </div>
                 </Popover.Anchor>
 
