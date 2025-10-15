@@ -32,6 +32,18 @@ model Profile {
   @@map("profiles")
 }
 
+model UserSearchHistory {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @default(dbgenerated("auth.uid()")) @db.Uuid
+  query     String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, query], map: "uq_user_search_history")
+  @@index([userId])
+  @@index([query])
+  @@map("search_history")
+}
+
 model CanvasDoc {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @default(dbgenerated("auth.uid()")) @db.Uuid

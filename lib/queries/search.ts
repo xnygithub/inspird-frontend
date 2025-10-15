@@ -12,3 +12,10 @@ export const matchPosts = (
         include_private: false,
     });
 }
+
+export const deleteHistoryItem = (
+    client: SupabaseClient,
+    id: string
+) => {
+    return client.from('search_history').delete().eq('id', id);
+}

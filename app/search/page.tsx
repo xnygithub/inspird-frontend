@@ -1,5 +1,7 @@
 import { embedText } from "@/lib/api/hf";
+import { Database } from "@/database.types";
 import { matchPosts } from "@/lib/queries/search";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 import MasonryComponent from "@/app/search/components/masonry";
 
@@ -15,6 +17,17 @@ interface Props {
 
 const supabase = await createClient();
 
+async function storeQuery(
+    client: SupabaseClient<Database>, userId: string, query: string
+) {
+    const { error } = await client.from('search_history')
+        .insert({ query })
+    if (error) {
+        console.error(error.message)
+    }
+}
+
+
 export default async function SearchPage(
     { searchParams }: Props
 ) {
@@ -22,6 +35,12 @@ export default async function SearchPage(
     const q = sp?.q;
 
     const res = await embedText(q as string);
+
+    const { data: user } = await supabase.auth.getUser();
+    if (user.user) {
+        void storeQuery(supabase, user.user.id, q as string)
+            .catch(console.error);
+    }
 
     if (!res.ok) {
         console.error(res.statusText)

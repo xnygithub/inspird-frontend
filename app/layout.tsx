@@ -47,6 +47,7 @@ export default async function RootLayout({
   const { data } = await supabase.auth.getUser();
 
   let user: RawUser | null = null;
+  let history: { id: string, query: string }[] | null = null;
   const userId = data.user?.id;
   if (userId) {
     const { data: userData } = await supabase
@@ -55,6 +56,11 @@ export default async function RootLayout({
       .eq("id", userId)
       .single();
     user = userData;
+    const { data: historyData } = await supabase
+      .from("search_history")
+      .select("id, query")
+      .eq("userId", userId);
+    history = historyData ?? [];
   }
 
 
@@ -68,7 +74,7 @@ export default async function RootLayout({
           disableTransitionOnChange>
           <SWRProvider>
             <SettingsModalProvider>
-              <UserProvider initialUser={user}>
+              <UserProvider initialUser={user} initialHistory={history}>
                 <Navbar user={user} />
                 <SettingsBootstrap
                   shouldOpen={shouldOpen}

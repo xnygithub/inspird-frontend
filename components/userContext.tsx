@@ -9,14 +9,23 @@ type UserContextType = {
     setUser: (user: RawUser | null) => void;
     updateUser: (data: Partial<RawUser>) => void;
     refetchUser: () => void;
+    history: { id: string, query: string }[] | null;
+    setHistory: (history: { id: string, query: string }[] | null) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+interface UserProviderProps {
+    children: ReactNode;
+    initialUser: RawUser | null;
+    initialHistory: { id: string, query: string }[] | null;
+}
+
 export function UserProvider(
-    { children, initialUser }: { children: ReactNode, initialUser: RawUser | null }
+    { children, initialUser, initialHistory }: UserProviderProps
 ) {
     const [user, setUser] = useState<RawUser | null>(initialUser);
+    const [history, setHistory] = useState<{ id: string, query: string }[] | null>(initialHistory);
 
     const updateUser = async (data: Partial<RawUser>) => {
         setUser({ ...user, ...data } as RawUser);
@@ -34,7 +43,14 @@ export function UserProvider(
     }
 
     return (
-        <UserContext.Provider value={{ user, setUser, updateUser, refetchUser }}>
+        <UserContext.Provider value={{
+            user,
+            setUser,
+            updateUser,
+            refetchUser,
+            history,
+            setHistory
+        }}>
             {children}
         </UserContext.Provider>
     );
