@@ -1,5 +1,5 @@
 import React from 'react'
-import UserSettings from '@/app/[username]/components/user-settings'
+import UserSettings, { ProfileSettings } from '@/app/[username]/components/user-settings'
 import { User } from '@/types/users'
 import Banner from '@/app/[username]/components/banner'
 import { Avatar } from '@/components/avatar'
@@ -36,9 +36,7 @@ const ProfileCard = (
                     </div>
                     <div className="space-x-2 mt-4">
                         {isMe ? (
-                            <Button variant="genericRounded">
-                                Edit Profile
-                            </Button>
+                            <ProfileSettings />
                         ) : (
                             <Button variant="genericRounded">
                                 Follow

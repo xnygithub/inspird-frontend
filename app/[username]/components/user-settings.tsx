@@ -8,8 +8,19 @@ export default function UserSettings() {
     return (
         <Button
             variant="genericRounded"
-            onClick={() => openSettings()}>
+            onClick={() => openSettings('filtering')}>
             Settings
+        </Button>
+    )
+}
+
+export const ProfileSettings = () => {
+    const { openSettings } = useSettingsModal();
+    return (
+        <Button
+            variant="genericRounded"
+            onClick={() => openSettings('profile')}>
+            Edit Profile
         </Button>
     )
 }
