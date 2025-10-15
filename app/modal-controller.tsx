@@ -18,7 +18,6 @@ export default function SettingsBootstrap(
             document.cookie = "openSettingsTab=; Max-Age=0; Path=/";
         } catch { }
         openSettings(initialTab);
-        console.log("openSettings", initialTab);
     }, [shouldOpen, initialTab, openSettings]);
 
     return null;

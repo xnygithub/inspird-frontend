@@ -1,12 +1,17 @@
 'use client'
 import React, { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Sort from '@/app/[username]/components/sort';
+import { Sort } from '@/app/[username]/components/sort';
 import Search from '@/app/[username]/components/search';
 import PinsContainer from '@/app/[username]/components/pin-tab';
 import FoldersContainer from '@/app/[username]/components/folders/tab-content';
 import CanvasContainer from '@/app/[username]/components/canvas-tab';
 import ToggleSearch from '@/app/[username]/components/toggle-search';
+
+type TabKey = 'pins' | 'folders' | 'canvas';
+type SortValue = 'latest' | 'oldest';
+type SortState = Record<TabKey, SortValue>;
+
 
 function getTabCount(count: number, text: string) {
     return count + " " + (count === 1 ? text : text + "s")
@@ -17,7 +22,11 @@ const Container = (
 ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [tab, setTab] = useState('pins');
-    const [sort, setSort] = useState('latest');
+    const [sort, setSort] = useState<SortState>({
+        pins: 'latest',
+        folders: 'latest',
+        canvas: 'latest',
+    });
 
     return (
         <Tabs className="profile-tabs" defaultValue={tab} onValueChange={setTab}>
@@ -33,7 +42,11 @@ const Container = (
                 </TabsTrigger>
                 <div className='top-0 right-0 absolute flex items-center gap-2 mr-[6px]'>
                     {tab === 'pins' && <ToggleSearch open={isOpen} setOpen={setIsOpen} />}
-                    <Sort setSort={setSort} />
+                    <Sort
+                        tab={tab as TabKey}
+                        sort={sort[tab as TabKey]}               // pass current tab’s sort
+                        setSort={setSort}              // pass the setter directly
+                    />
                 </div>
             </TabsList>
             {tab == 'pins' && <Search open={isOpen} />}

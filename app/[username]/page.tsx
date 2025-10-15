@@ -23,14 +23,11 @@ export default async function ProfilePage(
     if (!!data.bannerUrl && data.isPro === "active")
         showBanner = true
 
-    console.log(data)
     return (
         <div className={`${showBanner ? "" : "padding-top"}`}>
-            {/* <EditingProvider> */}
             <NavTransparencyController showBanner={showBanner} />
             <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
             {isPrivate ? <div>Private Profile</div> : <Container user={data} isMe={isMe} />}
-            {/* <EditingProvider> */}
         </div>
     )
 }   

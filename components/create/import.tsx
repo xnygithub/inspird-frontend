@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Board } from "@/types/import";
 import { useState, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
@@ -70,12 +71,10 @@ export const Import = ({ setCreateOpen, createOpen }: Props) => {
             body: JSON.stringify({ board_url: board })
         });
         if (!res.ok) {
-            console.log("Failed to import board:", res.statusText);
+            toast.error(`Failed to import board`);
             return;
         }
-        console.log("Successfully imported board:", res);
-        const data = await res.json();
-        console.log("Data:", data);
+        toast.success("Import job started");
     }
 
     const handleSelect = async (e: FormEvent<HTMLFormElement>) => {

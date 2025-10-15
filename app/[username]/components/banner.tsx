@@ -115,7 +115,7 @@ export default function Banner({ url }: BannerProps) {
                 <div className="group relative w-full h-full">
                     <Image fill alt="Banner" src={bannerUrl} className="brightness-80 group-hover:brightness-40 object-cover transition-brightness duration-300 select-none" sizes="100vw" />
                     <div className="right-1/2 bottom-1/2 absolute flex items-center gap-2 translate-x-1/2 translate-y-1/2">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" tabIndex={0}>
                             <div className="flex flex-col items-center gap-1">
                                 <span className="opacity-90 font-medium text-lg">Replace Banner Image</span>
                                 <span className="opacity-80 font-semibold text-sm">Optimal dimensions: 1500x500</span>
