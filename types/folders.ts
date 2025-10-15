@@ -1,30 +1,15 @@
-import { MediaType, Post, SavedItems } from "@/app/generated/prisma";
+import { Post, SavedItems } from "@/app/generated/prisma";
+import { Database } from "@/database.types";
 
-export interface FolderCard {
-    id: string
-    slug: string
-    name: string
-    isPrivate: boolean
-    lastUpdated: string
-    ownerUsername: string
-    postCount: number
-    thumbnails: string[] | null
+type FolderDetailsType = Database['public']['Functions']['get_folder_with_counts']['Returns'][number];
+type MediaType = Database['public']['Enums']['MediaType'];
+
+export interface FolderWithCounts extends Omit<FolderDetailsType, 'mediaCounts'> {
+    mediaCounts: Record<MediaType, number>;
 }
 
-export interface FolderDetails {
-    id: string;
-    owner: {
-        username: string;
-        userId: string;
-    };
-    name: string;
-    slug: string;
-    description: string | null;
-    isPrivate: boolean;
-    createdAt: string;
-    lastUpdated: string;
-    mediaCounts: Record<MediaType, number>;
-};
+export type FolderCard = Database['public']['Functions']['folders_summary']['Returns'][number];
+export type FolderSummary = Database['public']['Functions']['folders_summary']['Returns'][number];
 
 
 export interface FolderPosts {

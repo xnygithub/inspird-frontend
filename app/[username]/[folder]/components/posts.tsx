@@ -1,11 +1,11 @@
 "use client"
 import dynamic from 'next/dynamic';
-import { getFolderPosts } from '@/lib/queries/folders'
 import { createClient } from '@/utils/supabase/client'
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { FolderDetails } from '@/types/folders'
-import { FolderMasonryItem } from '@/components/posts/masonry-item'
+import { FolderWithCounts } from '@/types/folders'
+import { MasonryItem } from '@/components/posts/masonry-item'
 import { useInfiniteLoader } from 'masonic';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), {
     ssr: false,
@@ -13,9 +13,14 @@ const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), {
 
 const supabase = createClient();
 
+const getFolderPosts = (client: SupabaseClient, f_id: string) => {
+    return client.rpc('get_folder_posts', { f_id });
+}
+
 export default function FolderPosts(
-    { folder }: { folder: FolderDetails }
+    { folder }: { folder: FolderWithCounts }
 ) {
+    console.log(folder);
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
             () => getFolderPosts(supabase, folder.id),
@@ -32,6 +37,7 @@ export default function FolderPosts(
 
         }
     );
+    console.log(data);
 
     return (
         <div className='mt-8'>
@@ -42,7 +48,7 @@ export default function FolderPosts(
                     columnGutter={15}
                     columnWidth={200}
                     onRender={maybeLoadMore}
-                    render={FolderMasonryItem}
+                    render={MasonryItem}
                 />
             ) : null}
         </div>

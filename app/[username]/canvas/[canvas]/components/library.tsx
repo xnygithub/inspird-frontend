@@ -2,15 +2,13 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
 import { getUsersPosts } from "@/lib/queries/posts";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { Masonry } from 'react-masonry';
+import { Masonry } from 'masonic';
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { useInView } from "react-intersection-observer";
 import { AddPostProps } from "@/types/canvas";
-import { getMediaUrl } from "@/utils/urls";
+import { MasonryItem } from "@/components/posts/masonry-item";
 
 const PAGE_SIZE = 10;
 const supabase = createClient();
@@ -50,26 +48,13 @@ export default function UsersPostsLibrary({ userId, addPost }: LibraryProps) {
 
     return (
         <div className="flex flex-col h-full">
-            <Masonry>
-                {data && data.map((post) => (
-                    <div
-                        key={post.posts.id}
-                        className="group relative masonry-box masonry-item"
-                        onClick={() => handleSelectPost(post.posts)}>
-                        {selectedPosts.includes(post.posts) && <Check className="top-2 right-2 absolute w-4 h-4" />}
-                        <Image
-                            loading="lazy"
-                            className="object-cover"
-                            alt={post.posts.mediaAltText}
-                            src={getMediaUrl(post.posts.mediaUrl)}
-                            width={post.posts.mediaWidth}
-                            height={post.posts.mediaHeight}
-                            style={{ width: '100%', height: 'auto' }}
-                        />
-                    </div>
-                ))}
-
-            </Masonry>
+            <Masonry
+                items={data}
+                rowGutter={15}
+                columnGutter={15}
+                columnWidth={250}
+                render={MasonryItem}
+            />
             {!isValidating && loadMore && <div ref={ref}></div>}
             <div className="flex justify-center mt-auto">
                 <Button onClick={() => { addPost(selectedPosts); handleClearSelectedPosts() }}>

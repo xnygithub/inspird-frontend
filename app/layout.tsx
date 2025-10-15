@@ -4,11 +4,14 @@ import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/navbar/navbar";
-import { MobileNavbar } from "@/components/navbar/mobile";
 import { SettingsModalProvider, SettingsTab } from "./context/settings-modal";
 import SettingsBootstrap from "@/app/modal-controller";
 import { Settings } from "@/components/settings/settings";
 import SWRProvider from '@/app/providers';
+import { UserProvider } from "@/components/userContext";
+import { createClient } from "@/utils/supabase/server";
+import { RawUser } from "@/types/users";
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,17 +42,41 @@ export default async function RootLayout({
     if (openCookie) cookieStore.set("openSettings", "", { path: "/", maxAge: 0 });
     if (tabCookie) cookieStore.set("openSettingsTab", "", { path: "/", maxAge: 0 });
   } catch { }
+
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
+  let user: RawUser | null = null;
+  const userId = data.user?.id;
+  if (userId) {
+    const { data: userData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    user = userData;
+  }
+
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          enableSystem
+          attribute="class"
+          defaultTheme="system"
+          disableTransitionOnChange>
           <SWRProvider>
             <SettingsModalProvider>
-              <Navbar />
-              <SettingsBootstrap shouldOpen={shouldOpen} initialTab={initialTab} />
-              <Settings />
-              {children}
-              <MobileNavbar />
+              <UserProvider initialUser={user}>
+                <Navbar user={user} />
+                <SettingsBootstrap
+                  shouldOpen={shouldOpen}
+                  initialTab={initialTab} />
+                <Settings />
+                {children}
+                <Toaster />
+              </UserProvider>
             </SettingsModalProvider>
           </SWRProvider>
         </ThemeProvider>

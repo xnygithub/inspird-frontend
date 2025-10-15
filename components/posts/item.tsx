@@ -1,21 +1,23 @@
 "use client"
 import Image from 'next/image'
+import gray from '@/public/gray.png'
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import gray from '@/public/gray.png'
-import { FolderDropdown as FolderDropdownType } from '@/types/folders'
-import { getFolderUrl } from '@/utils/urls'
+import { FolderDropdown } from '@/types/folders'
 
-interface itemProps {
-    folder: FolderDropdownType
+interface Props {
+    folder: FolderDropdown
     handleSave: (id: string) => void
     handleDelete: (id: string) => void
 }
 
-export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
+export const FolderItem = (
+    { folder, handleSave, handleDelete }: Props
+) => {
+    // TODO: Show thumnail when available
     const [isSaved, setIsSaved] = useState(folder.containsPost)
 
-    const handleSaveClick = () => {
+    const handleClick = () => {
         if (isSaved) {
             handleDelete(folder.id)
             setIsSaved(false)
@@ -26,13 +28,13 @@ export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
     }
 
     return (
-        <div id="folder-item-container" >
+        <div id="folder-item-container" key={folder.id}>
             <div id="folder-item">
                 <Image
                     width={50}
                     height={50}
                     className='object-cover aspect-square'
-                    src={getFolderUrl(folder.thumbnail) || gray}
+                    src={gray}
                     alt={"Folder Thumbnail"}
                 />
                 <div id="folder-item-name">
@@ -41,7 +43,10 @@ export const Item = ({ folder, handleSave, handleDelete }: itemProps) => {
                     <p>{folder.isPrivate ? "(Private)" : "Public"}</p>
                 </div>
             </div>
-            <Button onClick={handleSaveClick}>{isSaved ? "Delete" : "Save"}</Button>
+            <Button onClick={handleClick}>
+                {isSaved ? "Delete" : "Save"}
+            </Button>
         </div>
+
     )
 }

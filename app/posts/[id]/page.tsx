@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client"
 import SidebarProvider from "@/app/posts/[id]/_components/sidebar.provider"
 import ToggleSidebarButton from "@/app/posts/[id]/_components/toggle"
 import Similar from "@/app/posts/[id]/_components/similar"
-import { SaveLabel } from '@/components/posts/save'
+import { FolderSave } from '@/components/posts/save'
 import Edit from "@/app/posts/[id]/_components/edit"
 import { getMediaUrl } from "@/utils/urls"
 
@@ -36,7 +36,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                     className="max-w-full max-h-[calc(100vh-200px)] object-contain"
                 />
                 <div className="top-4 right-4 absolute flex space-x-2">
-                    <SaveLabel postId={data.id} />
+                    <FolderSave postId={data.id} />
                     <Edit postId={data.id} urlPath={data.mediaUrl} />
                     <ToggleSidebarButton />
                 </div>

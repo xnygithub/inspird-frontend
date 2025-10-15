@@ -5,35 +5,31 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { createClient } from "@/utils/supabase/client"
 import { ChevronDown } from 'lucide-react';
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { FolderDropdown as FolderDropdownType } from "@/types/folders";
 import { getFolderDropdown } from "@/lib/queries/folders"
 import { useInView } from "react-intersection-observer";
+import { FolderDropdown } from "@/types/folders";
 import { deletePostFromFolder, savePostToFolder } from "@/lib/queries/folders";
-import { Item } from "@/components/posts/item"
+import { FolderItem } from "@/components/posts/item"
 import { quickSavePost } from "@/lib/queries/posts"
 
-const supabase = createClient();
+
 
 function FolderList({ postId }: { postId: string }) {
+    const supabase = createClient();
     const { ref, inView } = useInView({ threshold: 0 });
+    const { data, loadMore, isValidating } =
+        useOffsetInfiniteScrollQuery(() =>
+            getFolderDropdown(supabase, postId), { pageSize: 10 }
+        );
 
-    const { data, loadMore, isValidating } = useOffsetInfiniteScrollQuery(
-        () => getFolderDropdown(supabase, postId),
-        {
-            pageSize: 10,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
+    const items = data as unknown as FolderDropdown[] ?? [];
+    const hasMore = !isValidating && !!loadMore;
 
     const handleSave = async (folderId: string) => {
+        // TODO: Handle this in a transaction, ideally with RPC
         const { data, error } = await quickSavePost(supabase, postId)
-        if (error) throw new Error(error.message)
-        if (!data) throw new Error("Failed to save post")
-        const savedItemsId = data.id
-
-        const { error: saveError } = await savePostToFolder(supabase, savedItemsId, folderId, postId)
-        if (saveError) throw new Error(saveError.message)
+        if (error || !data) return
+        await savePostToFolder(supabase, data.id, folderId, postId)
     }
 
 
@@ -41,39 +37,35 @@ function FolderList({ postId }: { postId: string }) {
         await deletePostFromFolder(supabase, folderId, postId)
 
     useEffect(() => {
-        if (inView && !isValidating && loadMore) loadMore();
-    }, [inView, loadMore, isValidating]);
-
-    const folders = (data ?? []) as unknown as FolderDropdownType[];
+        if (inView && hasMore) loadMore();
+    }, [inView, loadMore, hasMore]);
 
     return (
         <>
-            {folders && folders.map((folder) => {
+            {items?.length > 0 && items.map((folder) => {
                 return (
-                    <Item
-                        key={folder.id}
+                    <FolderItem
+                        key={folder.id as string}
                         folder={folder}
                         handleSave={handleSave}
                         handleDelete={handleDelete} />
                 )
             })}
-            {!isValidating && loadMore && <div ref={ref} />}
-            <div ref={ref} />
+            {hasMore && <div ref={ref} />}
         </>
     );
 }
 
-export const SaveLabel = ({ postId }: { postId: string }) => {
+export const FolderSave = (
+    { postId }: { postId: string }
+) => {
     const [open, setOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);
 
     return (
         <Popover
             open={open}
-            onOpenChange={(v) => {
-                setOpen(v);            // important: use v, not !open
-                if (v) setHasOpened(true);
-            }}
+            onOpenChange={(v) => { setOpen(v); if (v) setHasOpened(true) }}
         >
             <PopoverTrigger asChild>
                 <button><ChevronDown size={16} /></button>

@@ -31,7 +31,6 @@ export const SearchBar: React.FC = () => {
 
     return (
         <>
-            {/* Overlay (dim background) */}
             <div
                 className={`fixed inset-0 bg-black/50 transition-opacity duration-500 z-40 ${open ? "opacity-100 visible" : "opacity-0 invisible"
                     }`}
@@ -50,12 +49,18 @@ export const SearchBar: React.FC = () => {
                         // keep the input in focus to keep the panel open
                         onFocus={() => setOpen(true)}
                     >
-                        <form onSubmit={onSubmit} role="search" className="w-full">
+                        <form
+                            onSubmit={onSubmit}
+                            role="search"
+                            className="w-full">
                             <Input
                                 name="q"
-                                ref={inputRef}
                                 type="search"
+                                autoComplete="off"
                                 placeholder="Search"
+                                id="navbar-search-input"
+                                className="px-6 border-none rounded-2xl outline-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white placeholder:text-white transition-all duration-500"
+                                ref={inputRef}
                                 value={query}
                                 onChange={(e) => {
                                     if (!open) setOpen(true);
@@ -70,7 +75,6 @@ export const SearchBar: React.FC = () => {
                                 aria-autocomplete="list"
                                 aria-expanded={open}
                                 role="combobox"
-                                className="focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
                         </form>
                     </div>
@@ -78,7 +82,7 @@ export const SearchBar: React.FC = () => {
 
                 <Popover.Content
                     align="start"
-                    sideOffset={0}
+                    sideOffset={5}
                     // Keep focus on the input:
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onCloseAutoFocus={(e) => e.preventDefault()}
@@ -89,12 +93,12 @@ export const SearchBar: React.FC = () => {
                     }}
                     // Match the anchor width
                     style={{ width: "var(--radix-popover-trigger-width)" }}
-                    className="z-50 bg-background p-0 border-r border-b border-l overflow-hidden"
+                    className="z-50 bg-background p-0 border-r border-b border-l rounded-2xl overflow-hidden"
                 >
                     <div className="h-72 overflow-auto no-scrollbar">
                         {query ? (
                             <>
-                                <div className="opacity-60 px-3 pt-2 text-xs uppercase tracking-wide">Suggestions for “{query}”</div>
+                                <div className="opacity-60 px-3 pt-4 text-xs uppercase tracking-wide">Suggestions for “{query}”</div>
                                 <ul className="p-2">
                                     <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 1")}>last search 1</li>
                                     <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 2")}>last search 2</li>
@@ -102,7 +106,7 @@ export const SearchBar: React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <div className="opacity-60 px-3 pt-2 text-xs uppercase tracking-wide">Recent</div>
+                                <div className="opacity-60 px-3 pt-4 text-xs uppercase tracking-wide">Recent</div>
                                 <ul className="p-2">
                                     <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 1")}>last search 1</li>
                                     <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 2")}>last search 2</li>

@@ -1,65 +1,37 @@
-import { FolderDetails as Fd } from "@/types/folders";
-import { EditFolder } from "@/app/[username]/[folder]/components/edit/container";
+import { EditButton } from "@/app/[username]/[folder]/components/edit/container";
 import { FolderNav } from "@/app/[username]/[folder]/components/nav";
+import type { FolderWithCounts } from "@/types/folders";
 
+interface Props {
+    folder: FolderWithCounts
+    canEdit: boolean
+}
 
-export const FolderDetails = async (
-    { folder, canEdit }: { folder: Fd; canEdit: boolean }
+export const FolderDetails = (
+    { folder, canEdit }: Props
 ) => {
     const totalCount = Object
         .values(folder.mediaCounts)
         .reduce((acc, item) => acc + item, 0);
 
     return (
-        <>
-            <FolderNav username={folder.owner.username} slug={folder.slug} />
-            <div style={styles.container}>
-                <h1 style={styles.name}>{folder.name}</h1>
-                {canEdit && <EditFolder folder={folder} />}
+        <div className="flex flex-col">
+            <FolderNav username={folder.ownerUsername} slug={folder.slug} />
+            <div className="inline-flex items-center gap-2">
+                <h1>{folder.name}</h1>
+                {canEdit && <EditButton folder={folder} />}
             </div>
-            {folder.description && <p style={styles.desc}>{folder.description}</p>}
-            <div style={styles.details}>
-                <p>{totalCount} Posts</p>
-                <p>{folder.mediaCounts.image} images</p>
-                <p>{folder.mediaCounts.video} videos</p>
-                <p>{folder.mediaCounts.gif} gifs</p>
+            {folder.description && <h2>{folder.description}</h2>}
+            <div className="space-x-2">
+                <span>{totalCount} Posts</span>
+                {Object.entries(folder.mediaCounts).map(([type, count]) => (
+                    <span key={type}>{count} {type}{count !== 1 ? 's' : ''}</span>
+                ))}
             </div>
-            <div style={styles.details}>
-                <p>Created {new Date(folder.createdAt).toLocaleDateString()}</p>
-                <p>Updated {new Date(folder.lastUpdated).toLocaleDateString()}</p>
+            <div className="space-x-2">
+                <span>Created {new Date(folder.createdAt).toLocaleDateString()}</span>
+                <span>Updated {new Date(folder.lastUpdated).toLocaleDateString()}</span>
             </div>
-        </>
+        </div>
     )
 }
-
-
-const styles = {
-    container: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        gap: "6px",
-        marginTop: "12px"
-    },
-
-    name: {
-        fontSize: "30px",
-        fontWeight: 500,
-        lineHeight: 1.1,
-        opacity: 0.9
-    },
-
-    desc: {
-        fontWeight: 500,
-        color: "#666",
-    },
-
-    details: {
-        display: "flex",
-        flexDirection: "row",
-        gap: "8px",
-        fontSize: "14px",
-        fontWeight: 400,
-        opacity: 0.6
-    }
-} satisfies Record<string, React.CSSProperties>;

@@ -11,9 +11,11 @@ import { signOut } from "@/app/login/actions";
 import { useSettingsModal } from "@/app/context/settings-modal";
 import { Button } from "../ui/button";
 import { ChevronDown } from 'lucide-react';
+import { useUserContext } from "@/components/userContext";
 
 
-export const Dropdown = ({ username }: { username: string }) => {
+export const Dropdown = () => {
+    const { user, updateUser } = useUserContext()
     const { setTheme, theme } = useTheme()
     const { openSettings } = useSettingsModal();
 
@@ -21,6 +23,13 @@ export const Dropdown = ({ username }: { username: string }) => {
         if (theme === "light") setTheme("dark")
         else setTheme("light")
     }
+
+    const updatePfp = async () => {
+        const url = "https://i.pinimg.com/1200x/b8/2f/13/b82f131f10933bdc88469afdb4415070.jpg"
+        await updateUser({ avatarUrl: url })
+    }
+
+    if (!user) return null;
 
     return (
         <DropdownMenu modal={false}>
@@ -32,10 +41,9 @@ export const Dropdown = ({ username }: { username: string }) => {
             <DropdownMenuContent align="end" sideOffset={15} >
                 <DropdownMenuLabel>Account</DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                    <Link href={`/${username}`}>Profile</Link>
+                    <Link href={`/${user.username}`}>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
                 <DropdownMenuLabel>Billing</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => openSettings("subscription")}>
                     Subscription
@@ -51,10 +59,13 @@ export const Dropdown = ({ username }: { username: string }) => {
                     Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => updatePfp()}>
+                    Update PFP
+                </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onClick={signOut}>
                     Logout
                 </DropdownMenuItem>
             </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu >
     );
 };  

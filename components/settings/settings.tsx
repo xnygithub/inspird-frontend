@@ -9,6 +9,7 @@ import { Session } from "@supabase/supabase-js";
 import MobileContainer from "./views/mobile";
 import DesktopContainer from "./views/desktop";
 import { useSettingsModal } from "@/app/context/settings-modal";
+import { useUserContext } from "../userContext";
 
 const supabase = createClient()
 
@@ -36,28 +37,9 @@ export const NoData = () => {
 
 
 export const Settings = () => {
+    const { user } = useUserContext()
     const { open, closeSettings } = useSettingsModal();
-    const [session, setSession] = useState<Session | null>(null)
     const isMobile = useMediaQuery('(max-width: 768px)')
-    const getSession = async () => {
-        const { data: session, error } = await supabase.auth.getSession()
-        if (!error) setSession(session.session)
-    }
-
-    useEffect(() => {
-        void getSession()
-    }, [])
-
-    const { isValidating, data } = useQuery(
-        session?.user?.id ?
-            getUserSettings(supabase, session.user.id)
-            :
-            null, {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        revalidateIfStale: false,
-    }
-    );
     const userDismiss = useRef(false);
 
     return (
@@ -69,16 +51,11 @@ export const Settings = () => {
                         "min-w-full min-h-[100svh] max-h-[100svh] flex flex-col p-0 "
                         :
                         "min-w-[750px] h-[600px] px-40 p-0"}`}>
-                {isValidating ?
-                    <Loading />
+                {user &&
+                    isMobile ?
+                    <MobileContainer data={user} />
                     :
-                    !data ?
-                        <NoData />
-                        :
-                        isMobile ?
-                            <MobileContainer data={data} />
-                            :
-                            <DesktopContainer data={data} />
+                    <DesktopContainer data={user} />
                 }
             </DialogContent>
         </Dialog >

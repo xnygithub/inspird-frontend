@@ -46,3 +46,6 @@ stripe.exe
 
 # sql
 .sql
+
+# vscode
+.vscode

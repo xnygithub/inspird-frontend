@@ -21,6 +21,10 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         genericRounded:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-full cursor-pointer",
+        savePin:
+          "absolute top-[.5rem] right-[.5rem] bg-primary text-primary-foreground disabled:bg-secondary disabled:text-secondary-foreground shadow-xs hover:bg-primary/90 rounded-full cursor-pointer disabled:opacity-100",
+        pinUsername:
+          "absolute bottom-[.5rem] right-[.5rem] bg-primary text-primary-foreground rounded-[0.8rem] cursor-pointer p-0",
         icon:
           "rounded-full hover:bg-accent active:scale-85 cursor-pointer",
         link: "text-primary underline-offset-4 hover:underline",
@@ -29,6 +33,7 @@ const buttonVariants = cva(
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        username: "px-2.5 py-1",
         icon: "size-9",
       },
     },

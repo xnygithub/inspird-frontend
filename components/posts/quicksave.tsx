@@ -1,31 +1,32 @@
 "use client"
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
 import { quickSavePost } from "@/lib/queries/posts"
 import { createClient } from "@/utils/supabase/client"
 
-interface QuicksaveLabelProps {
+interface Props {
+    isAlreadySaved: boolean
     postId: string
-    disabled: boolean
 }
 
-export const QuicksaveLabel = ({ postId, disabled }: QuicksaveLabelProps) => {
-    const [isSaved, setIsSaved] = useState(false)
+export const Quicksave = (
+    { isAlreadySaved, postId }: Props
+) => {
+    const [isSaved, setIsSaved] = useState(isAlreadySaved)
     const supabase = createClient()
+
     const handleQuicksave = async () => {
         const { error } = await quickSavePost(supabase, postId)
-        if (!error) {
-            setIsSaved(true)
-            return
-        }
-        console.error(error)
+        if (!error) setIsSaved(true)
     }
 
     return (
-        <button
-            disabled={isSaved || disabled}
+        <Button
+            variant="savePin"
+            disabled={isSaved}
             onClick={handleQuicksave} >
             {isSaved ? "Saved" : "Save"}
-        </button >
+        </Button >
     )
 
 }

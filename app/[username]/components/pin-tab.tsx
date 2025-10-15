@@ -1,76 +1,57 @@
 "use client"
-import React from "react"
-import Link from 'next/link'
-import Image from 'next/image'
-import { useInView } from "react-intersection-observer";
-import { useState, useEffect } from 'react'
-import { getUsersPosts } from '@/lib/queries/posts';
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { createClient } from "@/utils/supabase/client";
-import { SavedPostWrapper } from '@/components/posts/wrappers'
+import { useInView } from "react-intersection-observer";
+import { MasonryItem } from '@/components/posts/masonry-item'
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { getMediaUrl } from "@/utils/urls";
-import { Masonry } from 'react-masonry'
+import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "@/database.types";
 
 const supabase = createClient();
+const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), { ssr: false });
 
-export default function PinsContainer({ userId }: { userId: string }) {
-    const [hydrated, setHydrated] = useState<boolean>(false)
+export const getPosts = (
+    client: SupabaseClient<Database>,
+    userId: string
+) => {
+    return client.rpc("get_posts", { user_uuid: userId }).select("*");
+}
+
+export default function PinsContainer(
+    { userId }: { userId: string }
+) {
     const { ref, inView } = useInView({ threshold: 0 });
-
-    const { data, loadMore, isValidating } =
+    const { data, isValidating, loadMore } =
         useOffsetInfiniteScrollQuery(
-            () => getUsersPosts(supabase, userId),
-            { pageSize: 10 }
-        );
+            () => getPosts(supabase, userId), {
+            pageSize: 10,
+            revalidateFirstPage: false,
+        });
 
-    useEffect(() => { setHydrated(true) }, [])
 
-    useEffect(() => {
-        if (inView && loadMore && hydrated && !isValidating) loadMore()
-    }, [inView, loadMore, hydrated, isValidating])
-
-    const getSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession()
-        const accessToken = session?.access_token
-        console.log(accessToken)
-    }
+    const items = data ?? [];
+    const hasMore = !isValidating && !!loadMore;
 
     useEffect(() => {
-        if (hydrated) void getSession()
-    }, [hydrated])
+        if (inView && hasMore) loadMore()
+    }, [inView, loadMore, hasMore])
 
-    if (!hydrated) return null
-
-    if (data?.length === 0 && !isValidating && !loadMore) {
-        return <div className="mt-10 text-center">No posts found</div>
+    if (!loadMore && !isValidating && items.length === 0) {
+        return <div className="mt-10 text-center">No pins found</div>
     }
 
     return (
-        <div>
-            <Masonry transition="fade" transitionStep={1000}>
-                {data && data.map((item, index) => (
-                    <div key={item.posts.id} className="masonry-box masonry-item" >
-                        <SavedPostWrapper
-                            key={item.posts.id}
-                            postId={item.posts.id}
-                            ownerUsername={item.posts.users.username}>
-                            <Link href={`/posts/${item.posts.id}`} >
-                                <Image
-                                    className="object-cover"
-                                    priority={index < 10}
-                                    alt={item.posts.mediaAltText}
-                                    src={getMediaUrl(item.posts.mediaUrl)}
-                                    width={item.posts.mediaWidth}
-                                    height={item.posts.mediaHeight}
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                            </Link>
-                        </SavedPostWrapper>
-                    </div>
-                ))}
-            </Masonry>
-            {!isValidating && loadMore && <div ref={ref} className="h-10"></div>}
-        </div>
+        <>
+            <Masonry
+                items={items}
+                rowGutter={15}
+                columnGutter={15}
+                columnWidth={250}
+                render={(MasonryItem)}
+            />
+            {hasMore && <div ref={ref} style={{ height: 1 }} />}
+        </>
     )
 
 }   

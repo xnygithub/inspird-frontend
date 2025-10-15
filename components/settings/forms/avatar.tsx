@@ -1,9 +1,10 @@
 "use client"
 import Image from "next/image";
 import { useState } from "react";
+import { RawUser } from "@/types/users";
+
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    user: any;
+    user: RawUser;
 }
 
 export default function Avatar({ user }: Props) {

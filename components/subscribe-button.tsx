@@ -3,13 +3,11 @@ import { subscribe } from "../app/actions/stripe";
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Profile } from "@/app/generated/prisma";
+import { RawUser } from "@/types/users";
 
-type Props = {
-    user: Profile;
-};
-
-export default function SubscribeButton({ user }: Props) {
+export default function SubscribeButton(
+    { user }: { user: RawUser }
+) {
     const router = useRouter();
     const [isLoading, startTransition] = useTransition();
 

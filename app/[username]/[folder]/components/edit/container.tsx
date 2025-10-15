@@ -1,45 +1,65 @@
 "use client"
 import { useState } from "react";
-import { Info } from "lucide-react";
+import { MdEdit } from "react-icons/md";
 import { useMediaQuery } from "usehooks-ts";
-import { FolderDetails } from "@/types/folders"
-import { EditFolderForm } from "@/app/[username]/[folder]/components/edit/form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { useIsMounted } from "@/hooks/mounted";
+import { Button } from "@/components/ui/button";
+import type { FolderWithCounts, FolderSummary } from "@/types/folders";
+import { EditFolder as EditFolderForm } from "@/app/[username]/[folder]/components/edit/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 
-export const EditFolder = (
-    { folder }: { folder: FolderDetails }
+interface ContainerProps {
+    folder: FolderWithCounts | FolderSummary
+    open: boolean
+    setOpen: (open: boolean) => void
+}
+
+export const FormContainer = (
+    { folder, open, setOpen }: ContainerProps
 ) => {
     const isDesktop = useMediaQuery("(min-width: 768px)")
-    const [open, setOpen] = useState(false);
+    const isMounted = useIsMounted()
+    if (!isMounted) return null;
 
     if (!isDesktop) {
         return (
             <Drawer open={open} onOpenChange={setOpen}>
-                <DrawerTrigger asChild>
-                    <Info size={20} />
-                </DrawerTrigger>
                 <DrawerContent className="pb-32 pl-3">
                     <DrawerHeader hidden>
-                        <DrawerTitle>Edit Folder</DrawerTitle>
+                        <DrawerTitle>Edit Folderss</DrawerTitle>
                     </DrawerHeader>
                     <EditFolderForm folder={folder} />
                 </DrawerContent>
             </Drawer >
         )
     }
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Info size={20} />
-            </DialogTrigger>
             <DialogContent className="[&>button]:hidden">
                 <DialogHeader hidden>
-                    <DialogTitle>Edit Folder</DialogTitle>
+                    <DialogTitle>Edit Folderss</DialogTitle>
                 </DialogHeader>
                 <EditFolderForm folder={folder} />
             </DialogContent >
         </Dialog >
+    )
+}
+
+export const EditButton = (
+    { folder }: { folder: FolderWithCounts }
+) => {
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setOpen(true)}
+                className="rounded-full active:translate-y-0.5 cursor-pointer">
+                <MdEdit />
+            </Button>
+            <FormContainer folder={folder} open={open} setOpen={setOpen} />
+        </>
     )
 }

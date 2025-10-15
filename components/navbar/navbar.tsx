@@ -1,34 +1,29 @@
 import Link from "next/link";
 import { Avatar } from "@/components/navbar/profile";
 import { Create } from "@/components/create/dropdown";
-import { createClient } from "@/utils/supabase/server";
 import { Dropdown } from "@/components/navbar/dropdown";
-import { getProfileCached } from "@/lib/queries/profile";
 import { SearchBar } from "@/components/search/search-bar";
 import SubscribeButton from "@/components/subscribe-button";
 import { Button } from "@/components/ui/button";
+import { RawUser } from "@/types/users";
 
-export const Navbar = async () => {
-    const supabase = await createClient()
-    const { data: currentUser } = await supabase.auth.getUser()
-
-    let res = null
-    if (currentUser.user !== null) {
-        const id = currentUser.user.id
-        res = await getProfileCached(id)
-    }
+export const Navbar = async (
+    { user }: { user: RawUser | null }
+) => {
 
     return (
-        <div id="navbar">
-            {currentUser.user !== null ? (
+        <div id="navbar" className="nav-default">
+            {!!user ? (
                 <>
-                    <Link href="/">INSPIRD</Link>
+                    <Link href="/">
+                        <span className="font-semibold text-xl">INSPIRD</span>
+                    </Link>
                     <SearchBar />
                     <div className="flex flex-row items-center gap-2">
-                        {res.subscriptionStatus !== "active" && <SubscribeButton user={res} />}
+                        {user.subscriptionStatus !== "active" && <SubscribeButton user={user} />}
                         <Create />
-                        <Avatar res={res} />
-                        <Dropdown username={res.username} />
+                        <Avatar />
+                        <Dropdown />
                     </div>
                 </>
             ) : (

@@ -1,34 +1,18 @@
 "use client"
+import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
-import { usePathname } from 'next/navigation'
-import React, { useState, useEffect } from 'react'
-import { Profile } from '@/app/generated/prisma/client'
+import { useUserContext } from '../userContext'
 
-export const Avatar = ({ res }: { res: Profile }) => {
-    const [currentPath, setCurrentPath] = useState<string>(usePathname())
-    const pathname = usePathname()
-    useEffect(() => {
-        if (pathname.includes(`/settings`)) {
-            if (currentPath.includes(`/${res.username}`)) return
-            setCurrentPath(pathname)
-        }
-        else setCurrentPath(pathname)
-    }, [pathname, currentPath, res.username])
-
-    const isProfilePage = currentPath.includes(`/${res.username}`)
+export const Avatar = () => {
+    const { user } = useUserContext()
+    if (!user) return null;
     return (
-        <Link href={`/${res.username}`} className="relative">
-            <div className={cn("relative rounded-full w-8 h-8 overflow-hidden",
-                isProfilePage && "outline-[2px] outline-primary/70 ")}>
-                <Image
-                    src={res.avatarUrl}
-                    alt="Avatar"
-                    fill
-                    sizes="32px"
+        <Link href={`/${user.username}`} className="relative">
+            <div className="relative rounded-full w-8 h-8 overflow-hidden">
+                <Image fill sizes="32px" alt="Avatar" priority
+                    src={user.avatarUrl}
                     className="object-cover"
-                    priority
                 />
             </div>
         </Link>

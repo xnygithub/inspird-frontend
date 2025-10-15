@@ -1,4 +1,24 @@
+import { FolderWithCounts } from "@/types/folders";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "@/database.types";
+
+
+export async function getFolderWithCounts(
+    client: SupabaseClient,
+    f_slug: string,
+    p_username: string
+): Promise<FolderWithCounts> {
+    const { data, error } = await client.rpc(
+        'get_folder_with_counts',
+        { f_slug, p_username }
+    );
+
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('Folder not found');
+
+    return data[0] as FolderWithCounts;
+}
+
 
 export const deleteFolder = (
     client: SupabaseClient,
@@ -35,20 +55,10 @@ export const savePostToFolder = (
 
 
 export const getUsersFolders = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     userId: string
-) =>
-    client.rpc("folders_summary", { user_id: userId });
-
-
-export const getFolderPosts = (
-    client: SupabaseClient,
-    folderId: string
 ) => {
-    return client
-        .from('folder_posts')
-        .select('id, posts (id, mediaUrl, mediaWidth, mediaHeight, mediaAltText, profiles (username))')
-        .eq('folderId', folderId)
+    return client.rpc("folders_summary", { user_id: userId }).select("*");
 }
 
 export const getFolderDropdown = (

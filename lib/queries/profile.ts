@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@/utils/supabase/client";
+import { Database } from "@/database.types";
 
 export async function getProfileRaw(userId: string) {
     const supabase = createClient();
@@ -34,25 +35,31 @@ export const getUserSettings = (
         .single();
 }
 
-export async function getUserProfile(
-    client: SupabaseClient,
-    username: string
+export function getProfileRPC(
+    client: SupabaseClient<Database>,
+    p_username: string
 ) {
-    const currentUser = await client.auth.getUser();
-    const { data, error } = await client
-        .from("profiles")
-        .select(`
-        id, username, email, displayName, avatarUrl, profilePrivate, createdAt, isPro:subscriptionStatus,
-        savedItemsCount:saved_items(count),
-        foldersCount:folders(count),
-        canvasDocCount:canvas_doc(count)
-`)
-        .eq("username", username)
-        .single();
+    return client.rpc("get_profile", { p_username }).maybeSingle();
+}
 
-    if (error) return null;
-    let isMe = false;
-    if (!currentUser.data.user) isMe = false;
-    else isMe = data.id === currentUser.data.user?.id;
-    return { ...data, isMe };
+export function updateAvatar(
+    client: SupabaseClient<Database>,
+    avatarUrl: string,
+    userId: string
+) {
+    return client.from("profiles").update({ avatarUrl }).eq("id", userId);
+}
+
+export function uploadAvatar(
+    client: SupabaseClient<Database>,
+    avatarUrl: string,
+    file: File
+) {
+    return client.storage
+        .from("user-avatars")
+        .update(avatarUrl, file, {
+            contentType: file.type,
+            upsert: true,
+            cacheControl: "600"
+        });
 }

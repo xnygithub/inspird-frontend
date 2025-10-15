@@ -12,11 +12,11 @@
     gap: 1rem;
     margin-left: 1rem;
     margin-right: 1rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 
-#profile-tabs-container {
+.profile-tabs {
     margin-top: 3rem;
     display: flex;
     flex-direction: column;
@@ -41,7 +41,6 @@
     width: 8rem;
     height: 8rem;
     overflow: hidden;
-    z-index: -10;
 }
   
 #folder-container {
