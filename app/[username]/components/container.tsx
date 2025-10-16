@@ -52,7 +52,7 @@ const Container = (
             {tab == 'pins' && <Search open={isOpen} />}
 
             <TabsContent id="tabs-content" value="pins">
-                <PinsContainer userId={user.id} />
+                <PinsContainer userId={user.id} sort={sort.pins as 'newest' | 'oldest'} />
             </TabsContent>
             <TabsContent id="tabs-content" value="folders">
                 <FoldersContainer userId={user.id} isMe={isMe} />

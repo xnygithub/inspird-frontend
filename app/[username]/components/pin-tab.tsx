@@ -19,15 +19,15 @@ export const getPosts = (
 }
 
 export default function PinsContainer(
-    { userId }: { userId: string }
+    { userId, sort }: { userId: string, sort: 'newest' | 'oldest' }
 ) {
     const { ref, inView } = useInView({ threshold: 0 });
+    const ascending = sort === 'oldest' ? true : false;
     const { data, isValidating, loadMore } =
         useOffsetInfiniteScrollQuery(
-            () => getPosts(supabase, userId), {
-            pageSize: 10,
-            revalidateFirstPage: false,
-        });
+            () => getPosts(supabase, userId)
+                .order('createdAt', { ascending }),
+            { pageSize: 10, revalidateFirstPage: false });
 
 
     const items = data ?? [];
@@ -38,12 +38,13 @@ export default function PinsContainer(
     }, [inView, loadMore, hasMore])
 
     if (!loadMore && !isValidating && items.length === 0) {
-        return <div className="mt-10 text-center">No pins found</div>
+        return <div className="mt-10 text-center">This user hasn&apos;t posted anything yet</div>
     }
 
     return (
         <>
             <Masonry
+                key={sort}
                 items={items}
                 rowGutter={15}
                 columnGutter={15}
