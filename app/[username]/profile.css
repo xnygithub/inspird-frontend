@@ -15,6 +15,15 @@
     margin-top: 1rem;
 }
 
+.tab-filter{
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 0.5rem;
+}
 
 .profile-tabs {
     margin-top: 3rem;
@@ -24,12 +33,6 @@
     justify-content: center;
     margin-left: 1rem;
     margin-right: 1rem;
-}
-  
-#tabs-content {
-    margin-top: 0.5rem;
-    width: 100%;
-    @apply data-[state=inactive]:hidden;
 }
   
   

@@ -377,6 +377,7 @@ export type Database = {
       folders_summary: {
         Args: Record<PropertyKey, never> | { user_id: string }
         Returns: {
+          createdAt: string
           description: string
           id: string
           isPrivate: boolean
@@ -433,6 +434,7 @@ export type Database = {
       get_posts: {
         Args: { user_uuid: string }
         Returns: {
+          createdAt: string
           id: string
           isAiGenerated: boolean
           isNsfw: boolean

@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 import Container from '@/app/[username]/components/container';
 import ProfileCard from '@/app/[username]/components/profile';
 import NavTransparencyController from '@/app/[username]/components/navbar-contoller';
+import { ProfileProvider } from '@/app/[username]/components/provider';
 
 export default async function ProfilePage(
     { params }: { params: Promise<{ username: string }> }
@@ -20,14 +21,23 @@ export default async function ProfilePage(
     const isPrivate = data.profilePrivate && !isMe
 
     let showBanner = false
-    if (!!data.bannerUrl && data.isPro === "active")
+    // @ts-expect-error - Exists in db but not in database.types.ts. Fix later.
+    if (data.bannerUrl && data.isPro === "active")
         showBanner = true
 
     return (
+
         <div className={`${showBanner ? "" : "padding-top"}`}>
             <NavTransparencyController showBanner={showBanner} />
             <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
-            {isPrivate ? <div>Private Profile</div> : <Container user={data} isMe={isMe} />}
-        </div>
+            {isPrivate ?
+                <div>Private Profile</div>
+                :
+                <ProfileProvider user={data} isMe={isMe}>
+                    <Container />
+                </ProfileProvider>
+            }
+        </div >
+
     )
 }   

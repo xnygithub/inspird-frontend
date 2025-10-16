@@ -24,12 +24,6 @@
     z-index: 100;
 }
 
-
-#tabs-content {
-    width: 100%;
-    @apply data-[state=inactive]:hidden;
-}
-
 #tabs-container {
     display: flex;
     flex-direction: column;

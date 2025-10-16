@@ -7,6 +7,7 @@ import { MasonryItem } from '@/components/posts/masonry-item'
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/database.types";
+import { useProfile } from '@/app/[username]/components/provider';
 
 const supabase = createClient();
 const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), { ssr: false });
@@ -18,15 +19,15 @@ export const getPosts = (
     return client.rpc("get_posts", { user_uuid: userId }).select("*");
 }
 
-export default function PinsContainer(
-    { userId, sort }: { userId: string, sort: 'newest' | 'oldest' }
-) {
+
+
+export const PinTab = () => {
+    const { user, sort } = useProfile();
     const { ref, inView } = useInView({ threshold: 0 });
-    const ascending = sort === 'oldest' ? true : false;
     const { data, isValidating, loadMore } =
         useOffsetInfiniteScrollQuery(
-            () => getPosts(supabase, userId)
-                .order('createdAt', { ascending }),
+            () => getPosts(supabase, user.id)
+                .order('createdAt', { ascending: sort.pins === 'latest' ? false : true }),
             { pageSize: 10, revalidateFirstPage: false });
 
 
@@ -44,7 +45,7 @@ export default function PinsContainer(
     return (
         <>
             <Masonry
-                key={sort}
+                key={sort.pins}
                 items={items}
                 rowGutter={15}
                 columnGutter={15}
@@ -55,4 +56,6 @@ export default function PinsContainer(
         </>
     )
 
-}   
+}
+
+export default PinTab;

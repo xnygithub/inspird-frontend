@@ -6,16 +6,20 @@ import { useInView } from "react-intersection-observer"
 import { createClient } from "@/utils/supabase/client";
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
 import DeleteButton from "@/components/canvas/delete-button"
+import { useProfile } from '@/app/[username]/components/provider';
 
 const supabase = createClient();
-export default function CanvasContainer({ userId }: { userId: string }) {
+
+export const CanvasTab = () => {
     const [hydrated, setHydrated] = useState<boolean>(false)
     const { ref, inView } = useInView({ threshold: 0 });
-
+    const { user, sort } = useProfile();
+    const ascending = sort.canvas === 'latest' ? false : true;
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getUsersCanvasDocs(supabase, userId),
-            { pageSize: 10 }
+            () => getUsersCanvasDocs(supabase, user.id)
+                .order('createdAt', { ascending }),
+            { pageSize: 10, revalidateFirstPage: false }
         );
 
     useEffect(() => setHydrated(true), [])
@@ -47,4 +51,6 @@ export default function CanvasContainer({ userId }: { userId: string }) {
         </>
     )
 
-}   
+}
+
+export default CanvasTab;
