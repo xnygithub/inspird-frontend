@@ -13,6 +13,8 @@ interface ProviderContext {
     user: UserProfile;
     isMe: boolean;
     sort: SortState;
+    searchOpen: boolean;
+    setSearchOpen: (open: boolean) => void;
     handleSort: (tab: TabKey, value: 'latest' | 'oldest') => void;
 }
 
@@ -22,21 +24,24 @@ export type SortState = Record<TabKey, SortValue>;
 
 export const ProfileProvider = (
     { user, isMe, children }: ProviderProps) => {
+
+    const [searchOpen, setSearchOpen] = useState(false);
     const [sort, setSort] = useState<SortState>({
         pins: 'latest',
         folders: 'oldest',
         canvas: 'latest',
     });
 
-    const handleSort = (tab: TabKey, value: 'latest' | 'oldest') => {
+    const handleSort = (
+        tab: TabKey,
+        value: SortValue
+    ) => {
         setSort((prev: SortState) => ({ ...prev, [tab]: value }));
     };
 
-
-
     return <>
         <Ctx.Provider
-            value={{ user, isMe, sort, handleSort }}>
+            value={{ user, isMe, sort, handleSort, searchOpen, setSearchOpen }}>
             {children}
         </Ctx.Provider>
     </>;
