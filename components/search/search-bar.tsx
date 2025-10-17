@@ -110,12 +110,14 @@ export const SearchBar: React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <div className="opacity-60 px-3 pt-4 font-sans text-sm uppercase tracking-wide">Recent</div>
-                                <ul className="flex flex-row items-start gap-2.5 p-2 pl-3 max-h-1/4 overflow-x-hidden">
-                                    {history && history.length > 0 && history.map((item) => (
-                                        <Recent key={item.id} query={item} setQuery={setQuery} />
-                                    ))}
-                                </ul>
+                                {history && history.length > 0 && (
+                                    <>
+                                        <div className="opacity-60 px-3 pt-4 font-sans text-sm uppercase tracking-wide">Recent</div>
+                                        <ul className="flex flex-row items-start gap-2.5 p-2 pl-3 max-h-1/4 overflow-x-hidden">
+                                            {history.map((item) => (<Recent key={item.id} query={item} setQuery={setQuery} />))}
+                                        </ul>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>

@@ -10,13 +10,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 export const ToggleSearch = (
 ) => {
     const { searchOpen, setSearchOpen } = useProfile();
+    const disabled = true;
     return (
         <Tooltip>
             <TooltipTrigger asChild>
                 <Button
                     variant="ghost"
                     className='rounded-full active:translate-y-0.5'
-                    onClick={() => setSearchOpen(!searchOpen)}>
+                    onClick={() => !disabled && setSearchOpen(!searchOpen)}>
                     <Search />
                 </Button>
             </TooltipTrigger>

@@ -7,6 +7,7 @@ export default function UserSettings() {
     const { openSettings } = useSettingsModal();
     return (
         <Button
+            size="lg"
             variant="genericRounded"
             onClick={() => openSettings('filtering')}>
             Settings
@@ -18,6 +19,7 @@ export const ProfileSettings = () => {
     const { openSettings } = useSettingsModal();
     return (
         <Button
+            size="lg"
             variant="genericRounded"
             onClick={() => openSettings('profile')}>
             Edit Profile

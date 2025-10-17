@@ -81,7 +81,7 @@ export default async function RootLayout({
                   initialTab={initialTab} />
                 <Settings />
                 {children}
-                <Toaster />
+                <Toaster position="bottom-center" />
               </UserProvider>
             </SettingsModalProvider>
           </SWRProvider>

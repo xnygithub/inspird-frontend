@@ -3,7 +3,7 @@
 import React from 'react'
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { deleteHistoryItem } from '@/lib/queries/search';
+import { deleteQuery } from '@/lib/queries/search';
 import { createClient } from '@/utils/supabase/client';
 import { useUserContext } from '@/components/userContext';
 
@@ -18,7 +18,7 @@ export default function Recent(
     const { history, setHistory } = useUserContext();
     const handleDelete = async () => {
         const supabase = createClient();
-        await deleteHistoryItem(supabase, id);
+        await deleteQuery(supabase, id);
         setHistory(history?.filter((item) => item.id !== id) ?? []);
     }
     return (

@@ -21,22 +21,16 @@ export default async function ProfilePage(
     const isPrivate = data.profilePrivate && !isMe
 
     let showBanner = false
-    // @ts-expect-error - Exists in db but not in database.types.ts. Fix later.
     if (data.bannerUrl && data.isPro === "active")
         showBanner = true
 
     return (
-
         <div className={`${showBanner ? "" : "padding-top"}`}>
             <NavTransparencyController showBanner={showBanner} />
-            <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
-            {isPrivate ?
-                <div>Private Profile</div>
-                :
-                <ProfileProvider user={data} isMe={isMe}>
-                    <Container />
-                </ProfileProvider>
-            }
+            <ProfileProvider user={data} isMe={isMe}>
+                <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
+                {isPrivate ? <div>Private Profile</div> : <Container />}
+            </ProfileProvider>
         </div >
 
     )

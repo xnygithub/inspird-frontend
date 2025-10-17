@@ -13,7 +13,15 @@ export const matchPosts = (
     });
 }
 
-export const deleteHistoryItem = (
+
+export const storeQuery = (
+    client: SupabaseClient<Database>,
+    query: string
+) => {
+    return client.from('search_history').insert({ query })
+}
+
+export const deleteQuery = (
     client: SupabaseClient,
     id: string
 ) => {

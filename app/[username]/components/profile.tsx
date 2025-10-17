@@ -1,9 +1,9 @@
 import React from 'react'
-import UserSettings, { ProfileSettings } from '@/app/[username]/components/user-settings'
+import UserSettings from '@/app/[username]/components/user-settings'
 import { User } from '@/types/users'
 import Banner from '@/app/[username]/components/banner'
 import { Avatar } from '@/components/avatar'
-import { Button } from '@/components/ui/button'
+import { FollowersButton } from '@/app/[username]/components/followers'
 
 interface Props {
     user: User
@@ -30,24 +30,16 @@ const ProfileCard = (
                         </div>
                     </div>
 
-                    <div id="profile-info" className="mt-20">
-                        <h2 className="font-semibold text-[24px]">{user.displayName}</h2>
-                        <h1 className="opacity-80 font-normal text-[16px]">@{user.username}</h1>
-                    </div>
-                    <div className="space-x-2 mt-4">
-                        {isMe ? (
-                            <ProfileSettings />
-                        ) : (
-                            <Button variant="genericRounded">
-                                Follow
-                            </Button>
-                        )}
-                        {isMe && <UserSettings />}
+                    <div id="profile-info" className="mt-20 font-sans">
+                        <h1 className="brightness-95 font-semibold text-[24px]">{user.displayName}</h1>
+                        <h2 className="opacity-80 font-normal text-[16px]">@{user.username}</h2>
+                        <FollowersButton followers={2} following={3} />
                     </div>
                 </div >
             </>
         )
     }
+
     return (
         <div id="profile-container">
             <div id="profile-avatar">

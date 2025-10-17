@@ -11,7 +11,9 @@ interface CreateFolderProps {
     createOpen: boolean;
 }
 
-export const CreateFolder = ({ setCreateOpen, createOpen }: CreateFolderProps) => {
+export const CreateFolder = (
+    { setCreateOpen, createOpen }
+        : CreateFolderProps) => {
     const { register, handleSubmit, formState } = useForm({
         resolver: zodResolver(createFolderSchema)
     })

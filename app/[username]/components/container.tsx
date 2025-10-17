@@ -45,9 +45,15 @@ export const Container = (
             </TabsList>
             {tab == 'pins' && <SearchBar />}
 
-            <TabsContent value="pins"><PinTab /></TabsContent>
-            <TabsContent value="folders"><FolderTab /></TabsContent>
-            <TabsContent value="canvas"><CanvasTab /></TabsContent>
+            <TabsContent value="pins">
+                <PinTab />
+            </TabsContent>
+            <TabsContent value="folders">
+                <FolderTab />
+            </TabsContent>
+            <TabsContent value="canvas">
+                <CanvasTab />
+            </TabsContent>
         </Tabs>
     )
 }

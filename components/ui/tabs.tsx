@@ -49,7 +49,7 @@ const tabsTriggerVariants = cva(
         default:
           "text-lg font-medium",
         profile:
-          "text-lg active:translate-y-1 transition-transform font-medium",
+          "text-base active:translate-y-0.5 transition-transform font-medium select-none font-sans",
       },
     },
     defaultVariants: {
