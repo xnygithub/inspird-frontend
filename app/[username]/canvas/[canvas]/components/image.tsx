@@ -1,44 +1,56 @@
 "use client";
+
+//types
 import type Konva from "konva";
+import type { ImgItem } from '@/types/canvas';
+
+//hooks
 import useImage from "use-image";
-import { Image as KonvaImage } from "react-konva";
 import { useRef } from "react";
-import { ImgItem } from '@/types/canvas';
+import { Image as KonvaImage } from "react-konva";
+import { useCanvas } from "../provider";
 
-type Props = {
+export default function URLImage({
+    item,
+}: {
     item: ImgItem;
-    onChange: (patch: Partial<ImgItem>) => void;
-    onSelect: (ref: Konva.Image) => void;
-};
-
-export default function URLImage({ item, onChange, onSelect }: Props) {
+}) {
+    const { patchImage, refs: { imgRef, trRef } } = useCanvas();
     const nodeRef = useRef<Konva.Image>(null);
     const [img] = useImage(item.src, "anonymous");
 
+    const onRefClick = (ref: Konva.Image) => {
+        if (!trRef.current) return;
+        if (ref.getType() !== "Shape") return;
+        imgRef.current = ref;
+        imgRef.current?.moveToTop();
+        trRef.current.nodes([ref]);
+        trRef.current.getLayer()?.batchDraw();
+    };
+
     return (
         <KonvaImage
-            ref={nodeRef}
-            id={item.id}
-            image={img}
-            draggable={true}
             x={item.x}
             y={item.y}
+            image={img}
+            id={item.id}
+            ref={nodeRef}
+            draggable={true}
+            postId={item.postId}
             width={item.width}
             height={item.height}
             scaleX={item.scaleX ?? 1}
             scaleY={item.scaleY ?? 1}
             rotation={item.rotation ?? 0}
-            onMouseDown={(e) => { onSelect(e.target as Konva.Image) }}
-            onDragEnd={(e) => { onChange({ x: e.target.x(), y: e.target.y() }) }}
-            onTransformEnd={(e) => {
-                onChange({
-                    x: e.target.x(),
-                    y: e.target.y(),
-                    scaleX: e.target.scaleX(),
-                    scaleY: e.target.scaleY(),
-                    rotation: e.target.rotation(),
-                });
-            }}
+            onMouseDown={(e) => onRefClick(e.target as Konva.Image)}
+            onDragEnd={(e) => patchImage(item.id, { x: e.target.x(), y: e.target.y() } as Partial<ImgItem>)}
+            onTransformEnd={(e) => patchImage(item.id, {
+                x: e.target.x(),
+                y: e.target.y(),
+                scaleX: e.target.scaleX(),
+                scaleY: e.target.scaleY(),
+                rotation: e.target.rotation(),
+            } as Partial<ImgItem>)}
         />
     );
 }

@@ -14,7 +14,7 @@ export type ImgItem = {
 };
 
 
-export interface CanvasData {
+export type CanvasData = {
     schemaVersion: number;
     stage: {
         zoom: number;

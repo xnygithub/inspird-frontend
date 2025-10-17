@@ -5,7 +5,7 @@ import type Konva from "konva";
 const MAX_ZOOM = 1.5;
 const MIN_ZOOM = 0.1;
 
-export function useStageZoom(stageRef: React.RefObject<Konva.Stage>) {
+export function useStageZoom(stageRef: React.RefObject<Konva.Stage | null>) {
     return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
         e.evt.preventDefault();
 
@@ -23,7 +23,7 @@ export function useStageZoom(stageRef: React.RefObject<Konva.Stage>) {
 
 
         let direction = e.evt.deltaY > 0 ? -1 : 1;
-        if (e.evt.ctrlKey) direction = -direction; // trackpad gesture inversion
+        if (e.evt.ctrlKey) direction = -direction;
 
 
         const scaleBy = 1.2;

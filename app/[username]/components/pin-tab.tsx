@@ -9,7 +9,7 @@ import { useInView } from "react-intersection-observer";
 import { MasonryItem } from '@/components/posts/masonry-item'
 import { useProfile } from '@/app/[username]/components/provider';
 import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-swr';
-import { MasonryGrid } from "./masonry-test";
+// import { MasonryGrid } from "./masonry-test";
 
 const supabase = createClient();
 const Masonry = dynamic(() => import('masonic').then(m => m.Masonry), { ssr: false });
@@ -41,36 +41,36 @@ export const PinTab = () => {
         return <div className="mt-10 text-center">This user hasn&apos;t posted anything yet</div>
     }
 
-    // return (
-    //     <div className="px-4">
-    //         <Masonry
-    //             items={items}
-    //             rowGutter={15}
-    //             key={sort.pins}
-    //             columnGutter={15}
-    //             columnWidth={275}
-    //             render={({ index, data }) => (
-    //                 <MasonryItem
-    //                     isMe={isMe}
-    //                     index={index}
-    //                     data={data as unknown as ProfilePostsType}
-    //                 />
-    //             )}
-    //         />
-    //         {hasMore && <div ref={ref} style={{ height: 1 }} />}
-    //     </div>
-    // )
-
     return (
-        <>
-            <MasonryGrid columns={6} gap={15}>
-                {items.map((item, index) => (
-                    <MasonryItem key={index} index={index} data={item} isMe={isMe} />
-                ))}
-            </MasonryGrid>
+        <div className="px-4">
+            <Masonry
+                items={items}
+                rowGutter={15}
+                key={sort.pins}
+                columnGutter={15}
+                columnWidth={225}
+                render={({ index, data }) => (
+                    <MasonryItem
+                        isMe={isMe}
+                        index={index}
+                        data={data as unknown as ProfilePostsType}
+                    />
+                )}
+            />
             {hasMore && <div ref={ref} style={{ height: 1 }} />}
-        </>
+        </div>
     )
+
+    // return (
+    //     <>
+    //         <MasonryGrid columns={6} gap={15}>
+    //             {items.map((item, index) => (
+    //                 <MasonryItem key={index} index={index} data={item} isMe={isMe} />
+    //             ))}
+    //         </MasonryGrid>
+    //         {hasMore && <div ref={ref} style={{ height: 1 }} />}
+    //     </>
+    // )
 }
 
 export default PinTab;

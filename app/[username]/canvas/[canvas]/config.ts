@@ -1,4 +1,5 @@
-export const transformerConfig = {
+export const trConfig = {
+    anchorCornerRadius: 50,
     flipEnabled: false,
     rotateEnabled: false,
     centeredScaling: true,
