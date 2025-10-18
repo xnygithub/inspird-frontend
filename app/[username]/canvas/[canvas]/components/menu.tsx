@@ -6,12 +6,13 @@ import { ContextMenuItem, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubC
 import { useCanvas } from '../provider';
 
 const ImageMenu = () => {
-    const { refs: { imgRef } } = useCanvas();
+    const { refs: { imgRef, trRef }, removeImage } = useCanvas();
 
     function openNewTab() {
         if (!imgRef.current) return;
 
         const imageElement = imgRef.current.image(); // HTMLImageElement
+        //@ts-expect-error - fix later
         const imageSrc = imageElement?.src; // string | undefined
 
         if (!imageSrc) return;
@@ -47,7 +48,11 @@ const ImageMenu = () => {
 
     function deleteImage() {
         if (!imgRef.current) return;
-        console.log("deleting image: ", imgRef.current.id());
+        removeImage(imgRef.current.id());
+        if (trRef.current) {
+            trRef.current.nodes([]);
+            trRef.current.getLayer()?.batchDraw();
+        }
     }
 
     return (

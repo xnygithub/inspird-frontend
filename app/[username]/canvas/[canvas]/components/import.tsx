@@ -10,9 +10,9 @@ export default function AddPosts({ }) {
             <DialogTrigger asChild>
                 <Button size="icon"> <ImageIcon className="w-4 h-4" /> </Button>
             </DialogTrigger>
-            <DialogContent showCloseButton={false} className="flex flex-col min-w-5/6 min-h-5/6 max-h-96 overflow-y-auto">
+            <DialogContent showCloseButton={false} className="flex w-full min-w-5/6 min-h-5/6 max-h-96">
                 <DialogHeader hidden>
-                    <DialogTitle>Import</DialogTitle>
+                    <DialogTitle className="text-center">Add pins to your canvas</DialogTitle>
                 </DialogHeader>
                 <UsersPostLibrary />
             </DialogContent>

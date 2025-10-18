@@ -133,30 +133,3 @@ export const MasonryItem = (
         </div>
     </ContextMenuWrapper>
 )
-
-
-
-export const CanvasItem = ({
-    index,
-    data,
-    selectedPosts,
-    handleSelectPost
-}: {
-    index: number;
-    data: ItemType;
-    selectedPosts: ItemType[];
-    handleSelectPost: (post: ItemType) => void;
-}) => (
-    <div className="relative" key={index} onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleSelectPost(data) }}>
-        <div className={`${selectedPosts.includes(data) ? 'border-2 border-primary' : ''}`}>
-            <Image
-                className="object-cover"
-                alt={data.mediaAltText || ''}
-                src={getMediaUrl(data.mediaUrl)}
-                width={data.mediaWidth}
-                height={data.mediaHeight}
-                style={{ width: '100%', height: 'auto' }}
-            />
-        </div>
-    </div>
-)

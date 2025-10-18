@@ -24,7 +24,12 @@ export default function URLImage({
         if (ref.getType() !== "Shape") return;
         imgRef.current = ref;
         imgRef.current?.moveToTop();
+
+        // If tfRes has more than 2 nodes, and image ref is already in the nodes,
+        // We assume the user has made a selection and is about to drag/move the selection
+        if (trRef.current.nodes().length >= 2 && trRef.current.nodes().includes(ref)) return;
         trRef.current.nodes([ref]);
+        trRef.current.moveToTop();
         trRef.current.getLayer()?.batchDraw();
     };
 
@@ -43,7 +48,9 @@ export default function URLImage({
             scaleY={item.scaleY ?? 1}
             rotation={item.rotation ?? 0}
             onMouseDown={(e) => onRefClick(e.target as Konva.Image)}
-            onDragEnd={(e) => patchImage(item.id, { x: e.target.x(), y: e.target.y() } as Partial<ImgItem>)}
+            onDragEnd={(e) => {
+                patchImage(item.id, { x: e.target.x(), y: e.target.y() } as Partial<ImgItem>);
+            }}
             onTransformEnd={(e) => patchImage(item.id, {
                 x: e.target.x(),
                 y: e.target.y(),

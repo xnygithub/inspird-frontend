@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 //konva
-import { Stage, Layer, Transformer } from "react-konva";
+import { Stage, Layer, Transformer, Rect } from "react-konva";
 
 //types
 import Konva from "konva";
@@ -38,24 +38,34 @@ export default function CanvasPage() {
     const { refs, window, images, onWheel } = useCanvas();
     const { stageRef, layerRef, trRef } = refs;
     const [openImageMenu, setOpenImageMenu] = useState<boolean>(false);
-    const [openCanvasMenu, setOpenCanvasMenu] = useState<boolean>(false);
 
-    const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    const selectionRectRef = useRef<Konva.Rect>(null);
+    const selectionStart = useRef<{ x: number; y: number } | null>(null);
+
+    const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
         const stage = e.target.getStage();
         if (!stage) return;
-        // Start panning on middle mouse
+
+        // We pan on scroll button not mb0 (left mouse button)
         if (e.evt && e.evt.button === 1) {
             e.evt.preventDefault();
             stage.draggable(true);
             stage.startDrag();
             return;
         }
+
         if (e.target === stage) {
-            setOpenImageMenu(false);
-            if (trRef.current) {
-                trRef.current.nodes([]);
-                trRef.current.getLayer()?.batchDraw();
-            }
+            const pos = stage.getRelativePointerPosition();
+            if (!pos) return;
+            selectionStart.current = pos;
+            selectionRectRef.current?.visible(true);
+            selectionRectRef.current?.setAttrs({
+                x: pos.x,
+                y: pos.y,
+                width: 0,
+                height: 0,
+            });
+            selectionRectRef.current?.getLayer()?.batchDraw();
         }
     }
 
@@ -68,6 +78,51 @@ export default function CanvasPage() {
         setOpenImageMenu(true);
     }
 
+    const handleMouseMove = (e) => {
+        // Do nothing if we didn't start selection
+        if (!selectionStart.current) return;
+
+        const stage = e.target.getStage();
+        const pos = stage.getRelativePointerPosition();
+        if (!pos) return;
+
+        const sx = selectionStart.current.x;
+        const sy = selectionStart.current.y;
+        const x = Math.min(pos.x, sx);
+        const y = Math.min(pos.y, sy);
+        const width = Math.abs(pos.x - sx);
+        const height = Math.abs(pos.y - sy);
+
+        selectionRectRef.current?.setAttrs({ x, y, width, height });
+        selectionRectRef.current?.getLayer()?.batchDraw();
+    }
+
+    const handleMouseUp = () => {
+        // Do nothing if we didn't start selection
+        if (!selectionStart.current) return;
+
+        const selBox = selectionRectRef.current!.getClientRect();
+
+        const layer = layerRef.current!;
+        const candidateNodes = layer.find<Konva.Image>('Image');
+        const selectedNodes = candidateNodes.filter((n) => {
+            const nodeBox = n.getClientRect();
+            return Konva.Util.haveIntersection(selBox, nodeBox);
+        });
+
+        if (trRef.current) {
+            trRef.current.nodes(selectedNodes);
+            trRef.current.moveToTop();
+            trRef.current.getLayer()?.batchDraw();
+        }
+
+        selectionStart.current = null;
+        selectionRectRef.current!.visible(false);
+        selectionRectRef.current!.getLayer()?.batchDraw();
+    };
+
+    console.log("rendered")
+
     return (
         <div className="padding-top relative bg-accent/40">
             <ContextMenu>
@@ -78,7 +133,9 @@ export default function CanvasPage() {
                         onWheel={onWheel}
                         width={window.width}
                         height={window.height}
-                        onMouseDown={handleStageMouseDown}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
                         onContextMenu={(e) => {
                             if (e.target.getType() === "Shape") {
                                 imageCtxMenu(e);
@@ -88,8 +145,14 @@ export default function CanvasPage() {
                         }}
                     >
                         <Layer ref={layerRef}>
-                            <Transformer ref={trRef} {...trConfig} />
                             {images.map((item) => <URLImage item={item} key={item.id} />)}
+                        </Layer>
+
+                        <Layer>
+                            <Transformer ref={trRef} {...trConfig} />
+                        </Layer>
+                        <Layer>
+                            <Rect ref={selectionRectRef} fill="rgba(0,0,255,0.2)" visible={false} />
                         </Layer>
                     </Stage>
                 </ContextMenuTrigger>
