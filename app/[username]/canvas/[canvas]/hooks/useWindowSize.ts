@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const NAVBAR_HEIGHT = 60;
 
 export function useWindowSize() {
     const [size, setSize] = useState({ width: 0, height: 0 });
@@ -9,7 +8,7 @@ export function useWindowSize() {
         const apply = () =>
             setSize({
                 width: window.innerWidth,
-                height: window.innerHeight - NAVBAR_HEIGHT
+                height: window.innerHeight
             });
         apply();
         window.addEventListener("resize", apply);

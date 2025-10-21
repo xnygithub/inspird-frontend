@@ -1,50 +1,36 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
-//konva
-import { Stage, Layer, Transformer, Rect } from "react-konva";
-
-//types
 import Konva from "konva";
-
-//shadcn
-// import * as ContextMenu from '@radix-ui/react-context-menu';
-
-import URLImage from "@/app/[username]/canvas/[canvas]/components/image";
-import { trConfig } from "@/app/[username]/canvas/[canvas]/config";
-import { useCanvas } from "@/app/[username]/canvas/[canvas]/provider";
-import { ImageMenu } from "../components/menu";
+import { tfConfig } from "../config";
+import { useCanvas } from "../provider";
+import URLImage from "../components/image";
+import KonvaText from "../components/text";
+import GroupNode from "../components/group";
 import Toolbar from "../components/toolbar";
+import { ImageMenu } from "../components/menu";
+import { GroupMenu } from "../components/menuGroup";
+import { Stage, Layer, Transformer, Rect } from "react-konva";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { useStageZoom } from "../hooks/useZoom";
+import { useWindowSize } from "../hooks/useWindowSize";
+import { KonvaMouseEvent } from "../types";
+import GroupEditor from "../components/group-editor";
 
-
-function attachTrRef(
-    ref: Konva.Node,
-    trRef: React.RefObject<Konva.Transformer>
-) {
-    if (!trRef.current) return;
-    trRef.current.nodes([ref]);
-    trRef.current.getLayer()?.batchDraw();
-}
-
-function detachTrRef(
-    trRef: React.RefObject<Konva.Transformer>
-) {
-    if (!trRef.current) return;
-    trRef.current.nodes([]);
-}
 
 export default function CanvasPage() {
-    const { refs, window, images, onWheel } = useCanvas();
-    const { stageRef, layerRef, trRef } = refs;
-    const [openImageMenu, setOpenImageMenu] = useState<boolean>(false);
+    const window = useWindowSize();
+    const { refs, images, groups, texts, ctxMenu, setCtxMenu, selectedGroup } = useCanvas();
+    const selRectRef = useRef<Konva.Rect>(null);
+    const selStart = useRef<Konva.Vector2d | null>(null);
+    const onWheel = useStageZoom(refs.stageRef);
 
-    const selectionRectRef = useRef<Konva.Rect>(null);
-    const selectionStart = useRef<{ x: number; y: number } | null>(null);
-
-    const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    const handleMouseDown = (e: KonvaMouseEvent) => {
         const stage = e.target.getStage();
         if (!stage) return;
+        console.log('handleMouseDown');
+        setCtxMenu({ open: false, ref: null, kind: null });
+
 
         // We pan on scroll button not mb0 (left mouse button)
         if (e.evt && e.evt.button === 1) {
@@ -57,78 +43,89 @@ export default function CanvasPage() {
         if (e.target === stage) {
             const pos = stage.getRelativePointerPosition();
             if (!pos) return;
-            selectionStart.current = pos;
-            selectionRectRef.current?.visible(true);
-            selectionRectRef.current?.setAttrs({
+            selStart.current = pos;
+            selRectRef.current?.visible(true);
+            selRectRef.current?.setAttrs({
                 x: pos.x,
                 y: pos.y,
                 width: 0,
                 height: 0,
             });
-            selectionRectRef.current?.getLayer()?.batchDraw();
+            selRectRef.current?.getLayer()?.batchDraw();
+            if (refs.tfRef.current) {
+                refs.tfRef.current.nodes([]);
+                refs.tfRef.current.getLayer()?.batchDraw();
+            }
         }
     }
 
-    function imageCtxMenu(e: Konva.KonvaEventObject<MouseEvent>) {
-        if (e.target.getType() !== "Shape") return;
-        // @ts-expect-error - fix later
-        refs.imgRef.current = e.target
-        // @ts-expect-error - fix later
-        attachTrRef(refs.imgRef.current, trRef);
-        setOpenImageMenu(true);
-    }
-
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: KonvaMouseEvent) => {
         // Do nothing if we didn't start selection
-        if (!selectionStart.current) return;
+        if (!selStart.current) return;
 
         const stage = e.target.getStage();
+        if (!stage) return;
         const pos = stage.getRelativePointerPosition();
         if (!pos) return;
 
-        const sx = selectionStart.current.x;
-        const sy = selectionStart.current.y;
+        const sx = selStart.current.x;
+        const sy = selStart.current.y;
         const x = Math.min(pos.x, sx);
         const y = Math.min(pos.y, sy);
         const width = Math.abs(pos.x - sx);
         const height = Math.abs(pos.y - sy);
 
-        selectionRectRef.current?.setAttrs({ x, y, width, height });
-        selectionRectRef.current?.getLayer()?.batchDraw();
+        selRectRef.current?.setAttrs({ x, y, width, height });
+        selRectRef.current?.getLayer()?.batchDraw();
     }
 
     const handleMouseUp = () => {
         // Do nothing if we didn't start selection
-        if (!selectionStart.current) return;
+        if (!selStart.current) return;
 
-        const selBox = selectionRectRef.current!.getClientRect();
+        const selBox = selRectRef.current!.getClientRect();
 
-        const layer = layerRef.current!;
-        const candidateNodes = layer.find<Konva.Image>('Image');
+        const layer = refs.layerRef.current!;
+        const candidateNodes = layer.find<Konva.Image>('Image, Group, Text');
         const selectedNodes = candidateNodes.filter((n) => {
             const nodeBox = n.getClientRect();
             return Konva.Util.haveIntersection(selBox, nodeBox);
         });
 
-        if (trRef.current) {
-            trRef.current.nodes(selectedNodes);
-            trRef.current.moveToTop();
-            trRef.current.getLayer()?.batchDraw();
+        const filteredNodes = selectedNodes.filter((n) => n.getParent() === layer);
+
+        if (refs.tfRef.current) {
+            refs.tfRef.current.nodes(filteredNodes);
+            refs.tfRef.current.moveToTop();
+            refs.tfRef.current.getLayer()?.batchDraw();
         }
 
-        selectionStart.current = null;
-        selectionRectRef.current!.visible(false);
-        selectionRectRef.current!.getLayer()?.batchDraw();
+        selStart.current = null;
+        selRectRef.current!.visible(false);
+        selRectRef.current!.getLayer()?.batchDraw();
     };
 
-    console.log("rendered")
+    const handleContextMenu = (e: KonvaMouseEvent) => {
+        if (e.target.getClassName() === "Stage") {
+            e.evt.preventDefault();
+        }
+    }
+
+    // React.useEffect(() => {
+    //     emitSceneChanged(0);
+    // }, []);
+
+    // whenever your canonical content arrays change (add/remove/update)
+    // React.useEffect(() => {
+    //     emitSceneChanged();
+    // }, [texts, images, groups]);
 
     return (
-        <div className="padding-top relative bg-accent/40">
-            <ContextMenu>
-                <ContextMenuTrigger>
+        <div className="relative bg-accent/40">
+            <ContextMenu >
+                <ContextMenuTrigger >
                     <Stage
-                        ref={stageRef}
+                        ref={refs.stageRef}
                         draggable={false}
                         onWheel={onWheel}
                         width={window.width}
@@ -136,29 +133,35 @@ export default function CanvasPage() {
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
-                        onContextMenu={(e) => {
-                            if (e.target.getType() === "Shape") {
-                                imageCtxMenu(e);
-                                return;
-                            }
-                            e.evt.preventDefault();
-                        }}
-                    >
-                        <Layer ref={layerRef}>
-                            {images.map((item) => <URLImage item={item} key={item.id} />)}
+                        onContextMenu={handleContextMenu}>
+                        <Layer ref={refs.layerRef} layerName="content">
+                            {texts.map((t) => (
+                                <KonvaText key={t.id} data={t} />
+                            ))}
+                            {groups.map((g) => (
+                                <GroupNode key={g.id} group={g}>
+                                    {images.filter((img) => img.parentId === g.id)
+                                        .map((item) => <URLImage item={item} key={item.id} />)}
+                                </GroupNode>
+                            ))}
+                            {images.filter((img) => !img.parentId)
+                                .map((item) => <URLImage item={item} key={item.id} />)}
+                        </Layer>
+                        <Layer layerName="transformer">
+                            <Transformer ref={refs.tfRef} {...tfConfig} />
+                        </Layer>
+                        <Layer layerName="selection">
+                            <Rect ref={selRectRef} fill="rgba(0,0,255,0.2)" visible={false} />
                         </Layer>
 
-                        <Layer>
-                            <Transformer ref={trRef} {...trConfig} />
-                        </Layer>
-                        <Layer>
-                            <Rect ref={selectionRectRef} fill="rgba(0,0,255,0.2)" visible={false} />
-                        </Layer>
                     </Stage>
                 </ContextMenuTrigger>
-                {openImageMenu && <ImageMenu />}
+                {ctxMenu.open && ctxMenu.kind === 'image' && <ImageMenu />}
+                {ctxMenu.open && ctxMenu.kind === 'group' && <GroupMenu />}
                 <Toolbar />
             </ContextMenu>
+
+            {selectedGroup && <GroupEditor group={selectedGroup} />}
         </div >
     );
 }

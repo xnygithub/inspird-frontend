@@ -1,4 +1,5 @@
 import { Post, SavedItems } from "@/app/generated/prisma";
+import { GroupItem, TextItem } from "@/app/[username]/canvas/[canvas]/types";
 
 export type ImgItem = {
     id: string;
@@ -11,6 +12,7 @@ export type ImgItem = {
     rotation: number;
     width: number;
     height: number;
+    parentId?: string | null;
 };
 
 
@@ -22,6 +24,8 @@ export type CanvasData = {
         y: number;
     };
     images: ImgItem[];
+    groups: GroupItem[];
+    texts: TextItem[];
 }
 
 export interface CanvasType {

@@ -1,57 +1,55 @@
 "use client";
+import type Konva from 'konva';
 import React from 'react'
-import { ContextMenuContent, ContextMenuSeparator } from '@radix-ui/react-context-menu';
+import { ContextMenuContent } from '@radix-ui/react-context-menu';
 import { cn } from '@/lib/utils';
-import { ContextMenuItem, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from '@/components/ui/context-menu';
+import { ContextMenuItem, ContextMenuSub, ContextMenuSeparator, ContextMenuSubTrigger, ContextMenuSubContent } from '@/components/ui/context-menu';
 import { useCanvas } from '../provider';
 
 const ImageMenu = () => {
-    const { refs: { imgRef, trRef }, removeImage } = useCanvas();
+    const { refs: { tfRef }, GroupSelection, removeItemFromGroup, ctxMenu } = useCanvas();
+    const selectedNodes = tfRef.current?.nodes();
+
+    if (!ctxMenu.ref) return null;
+    const ref = ctxMenu.ref as Konva.Image;
 
     function openNewTab() {
-        if (!imgRef.current) return;
-
-        const imageElement = imgRef.current.image(); // HTMLImageElement
-        //@ts-expect-error - fix later
-        const imageSrc = imageElement?.src; // string | undefined
-
-        if (!imageSrc) return;
-        window.open(imageSrc, "_blank");
+        const src = ref.getAttr('src');
+        if (!src) return;
+        window.open(src, "_blank");
 
     }
 
     function viewSource() {
-        if (!imgRef.current) return;
-
-        const postId = imgRef.current.getAttr('postId');
+        const postId = ref.getAttr('postId');
         if (!postId) return;
         window.open(`/posts/${postId}`, "_blank");
     }
 
-    function rotate(direction: 'left' | 'right') {
-        if (!imgRef.current) return;
-        imgRef.current.rotate(direction === 'left' ? -90 : 90);
-        imgRef.current.getLayer()?.batchDraw();
+    function rotate(dir: 'left' | 'right') {
+        ref.rotate((dir === 'left' ? -90 : 90));
     }
 
-    function flip(direction: 'horizontal' | 'vertical') {
-        if (!imgRef.current) return;
-
-        const currentScale = imgRef.current.scaleX();
-        if (direction === 'horizontal') {
-            imgRef.current.scaleX(-currentScale);
-        } else {
-            imgRef.current.scaleY(-imgRef.current.scaleY());
+    function flip(dir: 'horizontal' | 'vertical') {
+        if (dir === 'horizontal') {
+            ref.scaleX(-ref.scaleX());
         }
-        imgRef.current.getLayer()?.batchDraw();
+        if (dir === 'vertical') {
+            ref.scaleY(-ref.scaleY());
+        }
+
     }
 
     function deleteImage() {
-        if (!imgRef.current) return;
-        removeImage(imgRef.current.id());
-        if (trRef.current) {
-            trRef.current.nodes([]);
-            trRef.current.getLayer()?.batchDraw();
+        ref.destroy();
+    }
+
+    function removeFromGroup() {
+        const id = ref.getAttr('id');
+        if (!id) return;
+        removeItemFromGroup(id);
+        if (tfRef.current && tfRef.current.nodes().includes(ref)) {
+            tfRef.current.nodes(tfRef.current.nodes().filter(node => node !== ref));
         }
     }
 
@@ -67,7 +65,26 @@ const ImageMenu = () => {
         )}>
             <ContextMenuItem onClick={openNewTab}>Open in new tab</ContextMenuItem>
             <ContextMenuItem onClick={viewSource}>View source</ContextMenuItem>
-            <ContextMenuItem>Duplicate</ContextMenuItem>
+            <ContextMenuSeparator />
+
+            <ContextMenuSub>
+                <ContextMenuSubTrigger>
+                    Group
+                </ContextMenuSubTrigger>
+                <ContextMenuSubContent >
+                    <ContextMenuItem
+                        onClick={GroupSelection}
+                        disabled={selectedNodes && selectedNodes.length < 2}>
+                        Create Group
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                        onClick={removeFromGroup}
+                        disabled={ref.getParent()?.getClassName() !== "Group"}
+                    >
+                        Remove from Group
+                    </ContextMenuItem>
+                </ContextMenuSubContent>
+            </ContextMenuSub>
             <ContextMenuSub>
                 <ContextMenuSubTrigger>
                     Transform
@@ -79,7 +96,7 @@ const ImageMenu = () => {
                     <ContextMenuItem onClick={() => flip('vertical')}>Flip Vertical</ContextMenuItem>
                 </ContextMenuSubContent>
                 <ContextMenuSeparator />
-                <ContextMenuItem variant="destructive" onClick={() => deleteImage()}>Delete</ContextMenuItem>
+                <ContextMenuItem variant="destructive" onClick={deleteImage}>Delete</ContextMenuItem>
             </ContextMenuSub>
         </ContextMenuContent >
     )
