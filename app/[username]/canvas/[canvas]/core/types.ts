@@ -4,4 +4,7 @@ export type CanvasServiceAPI = {
     getStage: () => Konva.Stage | null;
     getContentLayer: () => Konva.Layer | null;
     getSelectedNodes: () => Konva.Node[] | null;
+    getTransformer: () => Konva.Transformer | null;
 };
+
+export type GroupWithUpdate = Konva.Group & { updateBg: () => void };

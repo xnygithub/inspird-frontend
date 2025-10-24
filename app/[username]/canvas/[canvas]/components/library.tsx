@@ -1,30 +1,25 @@
 
 "use client";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useOffsetInfiniteScrollQuery, useQuery } from '@supabase-cache-helpers/postgrest-swr';
 import { useInView } from "react-intersection-observer";
 import { ProfilePostsType } from "@/types/posts";
-import { useCanvas } from "@/app/[username]/canvas/[canvas]/provider";
 import { getMediaUrl } from "@/utils/urls";
-import Image from "next/image";
 import Masonry from "react-responsive-masonry"
 import { Button } from "@/components/ui/button";
 import { getPosts } from "@/lib/queries/posts";
 import { getFoldersSimpleQuery } from "@/lib/queries/folders";
 
-
-
-
-export default function UsersPostsLibrary() {
+export default function Library({ id }: { id: string }) {
     const supabase = createClient();
-    const { canvas, addPost } = useCanvas();
     const [selectedPosts, setSelectedPosts] = useState<ProfilePostsType[]>([]);
     const { ref, inView } = useInView({ threshold: 0 });
 
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getPosts(supabase, canvas.owner.id),
+            () => getPosts(supabase, id),
             { pageSize: 15 }
         );
 
@@ -35,7 +30,7 @@ export default function UsersPostsLibrary() {
     const items = data ?? [];
 
     const { data: foldersData } = useQuery(
-        getFoldersSimpleQuery(supabase, canvas.owner.id)
+        getFoldersSimpleQuery(supabase, id)
     );
 
     function selectPost(post: ProfilePostsType) {
@@ -47,7 +42,7 @@ export default function UsersPostsLibrary() {
     }
 
     function addPosts() {
-        addPost(selectedPosts);
+        console.log(selectedPosts);
         setSelectedPosts([])
     }
 

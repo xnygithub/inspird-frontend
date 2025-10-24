@@ -1,54 +1,60 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import KonvaCanvas, { KonvaCanvasHandle } from "./KonvaCanvas";
 import { useWindowSize } from "../hooks/useWindowSize";
-import { Button } from "@/components/ui/button";
-import { KonvaGroup } from "../features/groups/service";
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";
+import ImageMenu from "../features/menu/image";
+import StageMenu from "../features/menu/stage";
+import Konva from "konva";
+type MenuType = "image" | "stage";
 
 export default function Canvas() {
+    const [menuType, setMenuType] = useState<MenuType>("stage");
+    const [menuTarget, setMenuTarget] = useState<Konva.Node | null>(null);
     const canvasRef = useRef<KonvaCanvasHandle>(null);
-    const [hydrated, setHydrated] = useState(false);
     const { width, height } = useWindowSize();
 
-    useEffect(() => {
-        setHydrated(true);
-    }, []);
-
-    const addRandom = async () => {
-        await canvasRef.current?.images.addImage("https://picsum.photos/320/200", {
-            x: Math.random() * 500,
-            y: Math.random() * 300,
-        });
-    };
-    if (!hydrated) return null;
-
-    const handleGetSelectedNodes = () => {
-        const selectedNodes = canvasRef.current?.getSelectedNodes();
-        console.log("selectedNodes", selectedNodes);
-    };
-
-    const handleCreateGroup = () => {
-        const selectedNodes = canvasRef.current?.getSelectedNodes();
-        if (!selectedNodes) return;
-        const layer = canvasRef.current?.getContentLayer();
-        if (!layer) return;
-        KonvaGroup(layer, selectedNodes);
-    };
 
     return (
         <div className="padding-top">
-            <KonvaCanvas
-                ref={canvasRef}
-                width={width}
-                height={height}
-                className="bg-gray-500/20"
-            />
-            <div className="right-1/2 bottom-4 absolute flex gap-2 bg-red-500 -translate-x-1/2">
-                <Button onClick={addRandom}>Add Image</Button>
-                <Button onClick={() => canvasRef.current?.clear()}>Clear</Button>
-                <Button onClick={handleGetSelectedNodes}>Get Selected Nodes</Button>
-                <Button onClick={handleCreateGroup}>Create Group</Button>
-            </div>
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <div onContextMenuCapture={(e) => {
+                        const stage = canvasRef.current?.getStage();
+                        if (!stage) return;
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        stage.setPointersPositions(e.nativeEvent as any);
+                        const p = stage.getPointerPosition();
+                        const hit = p ? stage.getIntersection(p) : null;
+
+                        setMenuType(hit && (hit.hasName("image") || hit.getClassName() === "Image")
+                            ? "image"
+                            : "stage");
+                        setMenuTarget(hit as Konva.Node);
+                    }}
+                    >
+                        <KonvaCanvas
+                            ref={canvasRef}
+                            width={width}
+                            height={height}
+                            className="bg-gray-500/20"
+                        />
+                    </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="!animate-none">
+                    {menuType === "stage" &&
+                        <StageMenu
+                            menuType={menuType}
+                            canvasRef={canvasRef}
+                        />}
+                    {menuType === "image" &&
+                        <ImageMenu
+                            menuType={menuType}
+                            canvasRef={canvasRef}
+                            menuTarget={menuTarget}
+                        />}
+                </ContextMenuContent>
+            </ContextMenu>
         </div>
     );
 }

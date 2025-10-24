@@ -1,26 +1,30 @@
 // features/groups/service.ts
 import Konva from "konva";
+import { zoomToFit } from "../../core/utils";
+import { IRect } from "konva/lib/types";
+import { GROUP_CONFIG, GROUP_PADDING } from "../../core/config";
+import { GroupWithUpdate } from "../../core/types";
+
+const pad = (rect: IRect, padding: number = GROUP_PADDING) => {
+    return {
+        x: rect.x - padding,
+        y: rect.y - padding,
+        width: rect.width + padding * 2,
+        height: rect.height + padding * 2,
+    }
+}
 
 export function KonvaGroup(
     layer: Konva.Layer,
-    nodes: Konva.Node[]
+    nodes: Konva.Node[],
+    transformer?: Konva.Transformer
 ) {
-    // create group & add to layer first (so relativeTo works)
     const outer = new Konva.Group({ draggable: true, name: "group-outer" });
-    const inner = new Konva.Group({ name: "group-inner" });
+    const inner = new Konva.Group({ name: "group-inner" }) as GroupWithUpdate;
     layer.add(outer);
     outer.add(inner);
 
-    // background rect lives inside the group, non-interactive
-    const bg = new Konva.Rect({
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        fill: "rgba(0,0,0,0.5)",
-        listening: true,
-        name: "group-bg",
-    });
+    const bg = new Konva.Rect(GROUP_CONFIG);
     outer.add(bg);
 
     nodes.forEach((n) => {
@@ -31,23 +35,22 @@ export function KonvaGroup(
     });
 
     const updateBg = () => {
-        const r = inner.getClientRect({
-            relativeTo: outer,
-            skipStroke: true,
-            skipShadow: true,
-        });
-        const pad = 10;
-        bg.setAttrs({
-            x: r.x - pad,
-            y: r.y - pad,
-            width: r.width + pad * 2,
-            height: r.height + pad * 2,
-        });
+        const border = inner.getClientRect({ relativeTo: outer });
+        const padded = pad(border);
+        bg.setAttrs(padded);
         bg.zIndex(0);
         layer.batchDraw();
     };
+
+    outer.on("dblclick", (e) => {
+        if (e.evt.button !== 0) return;
+        const stage = layer.getStage();
+        zoomToFit(e, stage);
+    });
+
     updateBg();
-    inner.on("dragmove dragend", updateBg);
+    inner.updateBg = updateBg;
+    inner.on("dragmove dragend add remove", updateBg);
 
     return outer;
 }

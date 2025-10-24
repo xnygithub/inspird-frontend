@@ -2,7 +2,7 @@ import Konva from "konva";
 
 export function zoomToFit(
     e: Konva.KonvaEventObject<MouseEvent>,
-    stage: Konva.Stage
+    stage: Konva.Stage | Konva.Layer
 ) {
     const evt = e.evt as MouseEvent;
     if (evt.button !== 0) return;
@@ -11,7 +11,7 @@ export function zoomToFit(
     // https://codepen.io/spark25/pen/VwXvZpp
     const bound = e.target.getClientRect({ relativeTo: stage });
     if (!bound) return;
-    const zoomFactor = 0.6;
+    const zoomFactor = 0.2;
     const stageWidth = stage.width();
     const stageHeight = stage.height();
     const scale = Math.min(

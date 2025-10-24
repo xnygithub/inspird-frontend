@@ -56,6 +56,7 @@ const KonvaCanvas = forwardRef<KonvaCanvasHandle, Props>(
             getStage: () => stageRef.current?.getStage() ?? null,
             getContentLayer: () => stageRef.current?.getContentLayer() ?? null,
             getSelectedNodes: () => stageRef.current?.getSelectedNodes() ?? null,
+            getTransformer: () => stageRef.current?.getTransformer() ?? null,
             clear,
             images: {
                 addImage: (url, opts) => imageSvcRef.current!.addImage(url, opts),
