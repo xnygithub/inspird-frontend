@@ -8,7 +8,7 @@ export function useWindowSize() {
         const apply = () =>
             setSize({
                 width: window.innerWidth,
-                height: window.innerHeight
+                height: window.innerHeight - 64
             });
         apply();
         window.addEventListener("resize", apply);
