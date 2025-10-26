@@ -11,8 +11,15 @@ import Masonry from "react-responsive-masonry"
 import { Button } from "@/components/ui/button";
 import { getPosts } from "@/lib/queries/posts";
 import { getFoldersSimpleQuery } from "@/lib/queries/folders";
+import { addImage } from "../features/image";
+import { KonvaCanvasHandle } from "../features/KonvaCanvas";
 
-export default function Library({ id }: { id: string }) {
+
+interface Props {
+    id: string;
+    canvasRef: React.RefObject<KonvaCanvasHandle | null>;
+}
+export default function Library({ id, canvasRef }: Props) {
     const supabase = createClient();
     const [selectedPosts, setSelectedPosts] = useState<ProfilePostsType[]>([]);
     const { ref, inView } = useInView({ threshold: 0 });
@@ -42,7 +49,12 @@ export default function Library({ id }: { id: string }) {
     }
 
     function addPosts() {
-        console.log(selectedPosts);
+        const layer = canvasRef.current?.getContentLayer();
+        const transformer = canvasRef.current?.getTransformer();
+        if (!layer || !transformer) return;
+        selectedPosts.forEach(async (post) => {
+            await addImage(layer, transformer, getMediaUrl(post.mediaUrl));
+        });
         setSelectedPosts([])
     }
 

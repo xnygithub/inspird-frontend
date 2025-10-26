@@ -2,8 +2,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import Library from "@/app/[username]/canvas/[canvas]/components/library";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from 'lucide-react';
+import { KonvaCanvasHandle } from "../features/KonvaCanvas";
 
-export default function ImportPosts({ id }: { id: string }) {
+
+interface Props {
+    canvasRef: React.RefObject<KonvaCanvasHandle | null>;
+}
+export default function ImportPosts({ canvasRef }: Props) {
+    const id = "f4bfd097-7b65-491f-9a9c-71e2f71c05c0"
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -15,7 +21,7 @@ export default function ImportPosts({ id }: { id: string }) {
                 <DialogHeader hidden>
                     <DialogTitle className="text-center">Add pins to your canvas</DialogTitle>
                 </DialogHeader>
-                <Library id={id} />
+                <Library id={id} canvasRef={canvasRef} />
             </DialogContent>
         </Dialog>
     );

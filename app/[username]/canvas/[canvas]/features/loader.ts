@@ -1,4 +1,3 @@
-// Small cached image loader to avoid re-downloading the same URL
 const cache = new Map<string, Promise<HTMLImageElement>>();
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
