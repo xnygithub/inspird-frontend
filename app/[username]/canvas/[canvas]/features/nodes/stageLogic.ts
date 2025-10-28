@@ -1,23 +1,36 @@
 import Konva from "konva";
+import { useCanvasStore } from "../store";
+import { filterIntersecting } from "../functions/utils";
 
-type MenuType = "image" | "group" | "stage";
-type MenuNode = Konva.Image | Konva.Group | null;
 
-export function attachInteractions(
-    stage: Konva.Stage,
-    mainLayer: Konva.Layer,
-    transformer: Konva.Transformer,
-    tfLayer: Konva.Layer,
-    selectionRect: Konva.Rect,
-    selectedNodes: Konva.Node[],
-    setMenu: (type: MenuType, node: MenuNode) => void
-) {
-    stage.off(".pan .select .menu .zoom wheel contextmenu");
+export const attachLogic = ({
+    stage,
+    mainLayer,
+    transformer,
+    tfLayer,
+    selectionRect,
+}: {
+    stage: Konva.Stage;
+    mainLayer: Konva.Layer;
+    transformer: Konva.Transformer;
+    tfLayer: Konva.Layer;
+    selectionRect: Konva.Rect;
+}) => {
+    const { setMenu, setSelectedNodes } = useCanvasStore.getState();
+
+    stage.off(".pan .select .menu .zoom .scale .menu .node");
 
     let x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
     let isPanning = false;
     let lastPointerPosition: { x: number, y: number } | null = null;
+
+    const CLICK_TOLERANCE = 3; // px
+    let downPos: { x: number; y: number } | null = null;
+    let movedBeyondTolerance = false;
+
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+        Math.hypot(a.x - b.x, a.y - b.y);
 
     stage.on('mousedown.pan', (e) => {
         if (e.evt.button !== 1) return;
@@ -53,17 +66,25 @@ export function attachInteractions(
 
     stage.on('mouseup.pan', stopPan);
     stage.on('mouseleave.pan', stopPan);
+    stage.on("click.node", (e) => {
+        if (movedBeyondTolerance) {
+            e.cancelBubble = true;
+            return;
+        }
+        setSelectedNodes([]);
+        transformer.nodes([]);
+        tfLayer.batchDraw();
+        console.log("clicked on stage");
+    });
 
     stage.on("mousedown.select", (e) => {
         if (e.target !== stage) return;
-
-        if (e.target instanceof Konva.Group) {
-            return;
-        }
-
+        if (e.target instanceof Konva.Group) return;
         if (e.evt.button !== 0) return;
 
         const p = stage.getRelativePointerPosition(); if (!p) return;
+        downPos = { x: p.x, y: p.y };
+        movedBeyondTolerance = false;
         x1 = x2 = p.x; y1 = y2 = p.y;
         selectionRect?.setAttrs({ x: x1, y: y1, width: 0, height: 0, visible: true });
         tfLayer.batchDraw();
@@ -72,6 +93,11 @@ export function attachInteractions(
     stage.on("mousemove.select", () => {
         if (!selectionRect?.visible()) return;
         const p = stage.getRelativePointerPosition(); if (!p) return;
+
+        if (downPos && !movedBeyondTolerance && dist(downPos, p) > CLICK_TOLERANCE) {
+            movedBeyondTolerance = true;
+        }
+
         x2 = p.x; y2 = p.y;
         selectionRect?.setAttrs({
             x: Math.min(x1, x2),
@@ -83,37 +109,32 @@ export function attachInteractions(
     });
 
     stage.on("mouseup.select", () => {
-        if (!selectionRect?.visible()) return;
+        if (!selectionRect?.visible()) {
+            downPos = null;
+            return;
+        }
         const box = selectionRect?.getClientRect();
         selectionRect?.visible(false);
         tfLayer.batchDraw();
 
-        const selected = mainLayer.find((n: Konva.Node) =>
-            n.getAttr("_selectable") === true).filter((n: Konva.Node) =>
-                Konva.Util.haveIntersection(box, n.getClientRect()));
-        selectedNodes = selected
-        transformer.nodes(selectedNodes);
+        const nodes = mainLayer.find(".image-node, .group-wrapper")
+        const selected = filterIntersecting(nodes, box);
+        console.log("selected", selected);
+
+        setSelectedNodes(selected);
+        transformer.nodes(selected);
         tfLayer.batchDraw();
+        downPos = null;
     });
 
-    stage.on("contextmenu", (e) => {
+    stage.on("contextmenu.menu", (e) => {
         if (e.target.name() === "stage") {
             setMenu("stage", null);
             return;
         }
-        if (["image-node", "group-image-node"].includes(e.target.name())) {
-            setMenu("image", e.target as Konva.Image);
-            return;
-        }
-        if (e.target.name() === "group-background") {
-            setMenu("group", e.target.getParent() as Konva.Group);
-            return;
-        }
-        e.evt.preventDefault();
-        e.cancelBubble = true;
     });
 
-    stage.on('wheel', (e) => {
+    stage.on('wheel.scale', (e) => {
         e.evt.preventDefault();
 
         const oldScale = stage.scaleX();
@@ -152,7 +173,6 @@ export function attachInteractions(
         getStage: () => stage,
         getContentLayer: () => mainLayer,
         getTransformer: () => transformer,
-        getSelectedNodes: () => selectedNodes,
         destroy: () => stage.destroy(),
         clear: () => mainLayer.removeChildren(),
     }

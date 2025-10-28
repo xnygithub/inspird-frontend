@@ -1,5 +1,7 @@
 import Konva from "konva";
+import { IRect } from "konva/lib/types";
 import type { GroupWithUpdate } from "../types";
+import { GROUP_PADDING, GROUP_TITLE_PADDING } from "../config";
 
 export function zoomToNode(
     e: Konva.KonvaEventObject<MouseEvent>,
@@ -50,6 +52,12 @@ export function demoteImage(node: Konva.Node) {
     });
 }
 
+export function groupableBoards(
+    layer: Konva.Layer
+) {
+    return layer.find(".group-content") as GroupWithUpdate[];
+}
+
 export function addableBoards(
     node: Konva.Image,
     layer: Konva.Layer
@@ -66,7 +74,29 @@ export function addableBoards(
 
 export function filterNodes(
     nodes: Konva.Node[],
-    types: string[] = ["image-node"]
+    types: string[]
 ): Konva.Image[] {
     return nodes.filter((node) => types.includes(node.name())) as Konva.Image[];
+}
+
+
+export function padBackground(
+    rect: IRect,
+    padding: number = GROUP_PADDING,
+    titlePadding: number = GROUP_TITLE_PADDING
+) {
+    return {
+        x: rect.x - padding,
+        y: rect.y - padding - titlePadding,
+        width: rect.width + padding * 2,
+        height: rect.height + padding * 2 + titlePadding,
+    }
+}
+
+export function filterIntersecting(
+    nodes: Konva.Node[],
+    box: IRect
+) {
+    return nodes.filter((node) =>
+        Konva.Util.haveIntersection(box, node.getClientRect()));
 }

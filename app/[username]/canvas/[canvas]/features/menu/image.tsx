@@ -1,41 +1,43 @@
-import { ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from '@/components/ui/context-menu'
+import { ContextMenuItem, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from '@/components/ui/context-menu'
 import { KonvaCanvasHandle } from '@/app/[username]/canvas/[canvas]/features/KonvaCanvas'
 import React from 'react'
 import Konva from 'konva';
-import { createGroup } from '../group';
+import { createGroup } from '../nodes/group';
 import type { GroupWithUpdate } from '../types';
 import { addableBoards, filterNodes } from '@/app/[username]/canvas/[canvas]/features/functions/utils';
+import { useCanvasStore } from '../store';
 
 interface Props {
     canvasRef: React.RefObject<KonvaCanvasHandle | null>;
-    node: Konva.Image;
 }
 const ImageMenu = ({
     canvasRef,
-    node
 }: Props) => {
+    const { menu, selectedNodes } = useCanvasStore();
+    if (!menu.object || !(menu.object instanceof Konva.Image)) return;
+    const node = menu.object as Konva.Image;
 
     const layer = canvasRef.current?.getContentLayer();
     const transformer = canvasRef.current?.getTransformer();
-    const selectedNodes = canvasRef.current?.getSelectedNodes();
     if (!layer || !transformer || !node) return;
 
-    const boards = addableBoards(node, layer);
-    const parent = node.getParent() as Konva.Group | Konva.Layer;
+    const boards: GroupWithUpdate[] = addableBoards(node, layer);
+    const parent: GroupWithUpdate = node.getParent() as GroupWithUpdate;
     const isGrouped = parent.name() === "group-content";
 
-    const deleteImage = () => {
+    const deleteNode = () => {
         node.destroy();
         if (isGrouped) {
-            // @ts-expect-error - parent has this func
             parent.updateBackground();
         }
         transformer.nodes([]);
         layer.batchDraw();
     };
 
-    const sourceImage = () => {
-        window.open(node.getAttr('src') as string, "_blank");
+    const openInNewTab = () => {
+        const src = node.getAttr('src') as string;
+        if (!src) return;
+        window.open(src, "_blank");
     };
 
     const groupImage = () => {
@@ -49,7 +51,6 @@ const ImageMenu = ({
     const rotate = (dir: 'l' | 'r') => {
         node.rotate((dir === 'l' ? -90 : 90));
         if (isGrouped) {
-            // @ts-expect-error - parent has this func
             parent.updateBackground();
         }
     };
@@ -70,15 +71,13 @@ const ImageMenu = ({
 
     const removeFromGroup = () => {
         if (!isGrouped) return;
-        // @ts-expect-error - parent has this func
         parent.removeNodes([node as Konva.Image]);
         layer.batchDraw();
     };
 
     return (
         <>
-
-            <ContextMenuItem className="text-xs" onClick={sourceImage}>Open in new tab</ContextMenuItem>
+            <ContextMenuItem className="text-xs" onClick={openInNewTab}>Open in new tab</ContextMenuItem>
             <ContextMenuItem disabled={true}>View post</ContextMenuItem>
             <ContextMenuItem
                 onClick={groupImage}
@@ -103,9 +102,9 @@ const ImageMenu = ({
                 <ContextMenuSubContent>
                     {boards.map((board) => (
                         <ContextMenuItem
-                            key={board.id()} // TODO: Fix this, its undefined atm
+                            key={board.id()}
                             onClick={() => addToGroup(board)}>
-                            {board.getGroupName()}
+                            {board.getParent()?.getGroupName()}
                         </ContextMenuItem>
                     ))}
                 </ContextMenuSubContent>
@@ -116,7 +115,7 @@ const ImageMenu = ({
                 disabled={!isGrouped}>
                 Remove from group
             </ContextMenuItem>}
-            <ContextMenuItem variant="destructive" onClick={deleteImage}>Delete</ContextMenuItem>
+            <ContextMenuItem variant="destructive" onClick={deleteNode}>Delete</ContextMenuItem>
         </>
     )
 }

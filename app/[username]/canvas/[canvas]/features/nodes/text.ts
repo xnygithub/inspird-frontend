@@ -1,7 +1,7 @@
 import Konva from "konva";
-import { KONVA_TEXT_CONFIG } from "./config";
-import { getCenter } from "./functions/utils";
-import { attachLogic } from "./text.interactions";
+import { KONVA_TEXT_CONFIG } from "../config";
+import { getCenter } from "../functions/utils";
+import { attachLogic } from "./textLogic";
 
 
 export function KonvaText(layer: Konva.Layer) {
@@ -16,7 +16,5 @@ export function KonvaText(layer: Konva.Layer) {
     });
 
     attachLogic(textNode, layer, stage);
-
-
     return textNode;
 }

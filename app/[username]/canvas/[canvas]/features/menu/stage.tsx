@@ -1,17 +1,18 @@
-import { ContextMenuItem, ContextMenuLabel } from '@/components/ui/context-menu'
+import { ContextMenuItem } from '@/components/ui/context-menu'
 import { KonvaCanvasHandle } from '@/app/[username]/canvas/[canvas]/features/KonvaCanvas'
-import { addImage } from '../image';
+import { addImage } from '../nodes/image';
 import React from 'react'
-import { KonvaText } from '../text';
+import { KonvaText } from '../nodes/text';
 import { saveToLocalStorage } from '../functions/saveLoadToJson';
+import { useCanvasStore } from '../store';
 
 const StageMenu = ({
-    menuType,
     canvasRef
 }: {
-    menuType: string,
     canvasRef: React.RefObject<KonvaCanvasHandle | null>
 }) => {
+    const { menu } = useCanvasStore();
+    if (menu.object) return;
     const api = canvasRef.current
     if (!api) return;
 
@@ -36,15 +37,12 @@ const StageMenu = ({
 
     const saveCanvas = () => {
         const canvas = api.getStage();
-        console.log("saving canvas");
         if (!canvas) return;
-        console.log(canvas);
         saveToLocalStorage(canvas);
     }
 
     return (
         <>
-            <ContextMenuLabel>{menuType}</ContextMenuLabel>
             <ContextMenuItem
                 onClick={saveGroup}>
                 Save Canvas

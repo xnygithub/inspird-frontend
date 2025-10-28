@@ -20,36 +20,37 @@ export const SELECTION_RECT_CONFIG: Partial<Konva.RectConfig> = {
 }
 
 /* Core Group Configuration */
-export const GROUP_PADDING = 10;
+export const GROUP_PADDING = 30;
+export const GROUP_TITLE_PADDING = 30;
 
-export const BACKGROUND_CONFIG: Konva.RectConfig = {
+export const BACKGROUND_CONFIG: Partial<Konva.RectConfig> = {
     fill: "#222222",
     listening: true,
     name: "group-background",
 }
 
-export const INNER_GROUP_CONFIG: Konva.GroupConfig = {
+export const INNER_GROUP_CONFIG: Partial<Konva.GroupConfig> = {
     id: crypto.randomUUID() as string,
     draggable: true,
     name: "group-content",
 }
 
-export const OUTER_GROUP_CONFIG: Konva.GroupConfig = {
+export const OUTER_GROUP_CONFIG: Partial<Konva.GroupConfig> = {
     draggable: true,
     name: "group-wrapper",
     _selectable: true,
 }
 
-export const GROUP_TITLE_CONFIG: Konva.TextConfig = {
+export const GROUP_TITLE_CONFIG: Partial<Konva.TextConfig> = {
     text: "Group",
-    fontSize: 16,
+    fontSize: 28,
     fill: "white",
     name: "group-title",
 }
 
 /*  Text Configuration: https://konvajs.org/api/Konva.Text.html */
 
-export const KONVA_TEXT_CONFIG: Konva.TextConfig = {
+export const KONVA_TEXT_CONFIG: Partial<Konva.TextConfig> = {
     text: "Text",
     fontSize: 40,
     fill: "white",
@@ -58,7 +59,7 @@ export const KONVA_TEXT_CONFIG: Konva.TextConfig = {
     name: "text-node",
 }
 
-export const TEXT_AREA_CONFIG: React.ComponentProps<"textarea"> = {
+export const TEXT_AREA_CONFIG: Partial<React.ComponentProps<"textarea">> = {
     style: {
         width: "100%",
         height: "100%",
@@ -67,7 +68,7 @@ export const TEXT_AREA_CONFIG: React.ComponentProps<"textarea"> = {
     },
 }
 
-export const TEXT_AREA_EDITING_CONFIG: React.ComponentProps<"textarea"> = {
+export const TEXT_AREA_EDITING_CONFIG: Partial<React.ComponentProps<"textarea">> = {
     style: {
         position: "absolute",
         padding: "0",

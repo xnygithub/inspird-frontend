@@ -1,8 +1,8 @@
 "use client";
-import ImageMenu from "./ctx-menu/imageMenu";
-import StageMenu from "./ctx-menu/stageMenu";
-import GroupMenu from "./ctx-menu/groupMenu";
-import React, { useRef, useState } from "react";
+import ImageMenu from "./menu/image";
+import StageMenu from "./menu/stage";
+import GroupMenu from "./menu/group";
+import React, { useRef } from "react";
 import ToolbarContainer from "./toolbar/container";
 import KonvaCanvas, { KonvaCanvasHandle } from "./KonvaCanvas";
 import {
@@ -10,47 +10,27 @@ import {
     ContextMenuContent,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import type { MenuType, MenuNode } from "./types";
+import GroupEditor from "./nodes/groupEditor";
+import { useCanvasStore } from "./store";
 
 
 export default function Canvas() {
-    const [menuType, setMenuType] = useState<MenuType>("stage");
-    const [menuNode, setMenuNode] = useState<MenuNode>(null);
     const canvasRef = useRef<KonvaCanvasHandle>(null);
-
-    const setMenu = (type: MenuType, node: MenuNode) => {
-        setMenuType(type);
-        setMenuNode(node);
-    };
-
+    const { editorOpen, menu } = useCanvasStore();
     return (
         <div className="padding-top">
             <ContextMenu>
                 <ContextMenuTrigger>
-                    <KonvaCanvas
-                        ref={canvasRef}
-                        setMenu={setMenu}
-                    />
+                    <KonvaCanvas ref={canvasRef} />
                 </ContextMenuTrigger>
                 <ContextMenuContent className="[&_*]:text-xs !animate-none no-scrollbar">
-                    {menuType === "stage" &&
-                        <StageMenu
-                            menuType={menuType}
-                            canvasRef={canvasRef}
-                        />}
-                    {menuType === "image" &&
-                        <ImageMenu
-                            canvasRef={canvasRef}
-                            node={menuNode}
-                        />}
-                    {menuType === "group" &&
-                        <GroupMenu
-                            canvasRef={canvasRef}
-                            node={menuNode}
-                        />}
+                    {menu.type === "stage" && <StageMenu canvasRef={canvasRef} />}
+                    {menu.type === "image" && <ImageMenu canvasRef={canvasRef} />}
+                    {menu.type === "group" && <GroupMenu canvasRef={canvasRef} />}
                 </ContextMenuContent>
             </ContextMenu>
-            <ToolbarContainer canvasRef={canvasRef} />
+            {canvasRef.current && <ToolbarContainer apiRef={canvasRef} />}
+            {editorOpen && <GroupEditor />}
         </div>
     );
 }

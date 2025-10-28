@@ -27,6 +27,8 @@ const buttonVariants = cva(
           "absolute bottom-[.5rem] right-[.5rem] bg-primary text-primary-foreground rounded-[0.8rem] cursor-pointer p-0",
         icon:
           "rounded-full hover:bg-accent active:scale-85 cursor-pointer",
+        destructiveIcon:
+          "disabled:opacity-50 rounded-full hover:bg-destructive/30 active:scale-85 cursor-pointer",
         link:
           "text-primary underline-offset-4 hover:underline",
         followButton:

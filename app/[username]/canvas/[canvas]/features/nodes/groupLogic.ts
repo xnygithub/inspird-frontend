@@ -1,27 +1,26 @@
 import Konva from "konva";
-import { demoteImage, promoteImage, zoomToNode } from "./functions/utils";
-import { GroupWithUpdate as InnerGroup, OuterGroup } from "./types";
-import { IRect } from "konva/lib/types";
-import { GROUP_PADDING } from "./config";
-
-export function padBackground(rect: IRect, padding: number = GROUP_PADDING) {
-    return {
-        x: rect.x - padding,
-        y: rect.y - padding - 20,
-        width: rect.width + padding * 2,
-        height: rect.height + padding * 2 + 20,
-    }
-}
+import {
+    demoteImage,
+    padBackground,
+    promoteImage,
+    zoomToNode
+} from "../functions/utils";
+import { GroupWithUpdate as InnerGroup, OuterGroup } from "../types";
+import { useCanvasStore } from "../store";
 
 export function attachLogic(
     innerNode: InnerGroup,
     outerNode: OuterGroup,
     titleNode: Konva.Text,
-    bRectNode: Konva.Rect,
+    backGNode: Konva.Rect,
     layer: Konva.Layer,
     transformer: Konva.Transformer,
 ) {
-    innerNode.off("dblclick.group click.group dragstart.group");
+    innerNode.off(".group");
+    backGNode.off(".group");
+    outerNode.off(".group");
+
+    const { setEditorOpen, setGroup, setMenu } = useCanvasStore.getState();
 
     const updateBackground = () => {
         if (innerNode.getChildren().length === 0) {
@@ -31,8 +30,8 @@ export function attachLogic(
 
         const border = innerNode.getClientRect({ relativeTo: outerNode });
         const padded = padBackground(border);
-        bRectNode.setAttrs(padded);
-        bRectNode.zIndex(0);
+        backGNode.setAttrs(padded);
+        backGNode.zIndex(0);
 
         const margin = 8;
         titleNode.position({
@@ -40,6 +39,7 @@ export function attachLogic(
             y: padded.y + margin,
         });
         layer.batchDraw();
+        transformer.nodes([]);
     };
 
     const addNodes = (nodes: Konva.Image[]) => {
@@ -67,16 +67,23 @@ export function attachLogic(
         layer.batchDraw();
     };
 
-    bRectNode.on("dblclick.group", (e) => {
+    backGNode.on("dblclick.group", (e) => {
         if (e.evt.button !== 0 || e.target === titleNode) return;
         const stage = layer.getStage();
         zoomToNode(e, stage);
     });
 
-    bRectNode.on("click.group", (e) => {
+    backGNode.on("click.group", (e) => {
         outerNode.moveToTop();
+        setGroup(outerNode);
+        setEditorOpen(true);
         if (e.evt.button !== 0) return;
         transformer.nodes([outerNode]);
+    });
+
+    backGNode.on("contextmenu.group", (e) => {
+        setMenu("group", outerNode);
+        e.cancelBubble = true;
     });
 
     outerNode.on("dragstart.group", () => {
@@ -88,12 +95,16 @@ export function attachLogic(
     };
 
     const getText = () => titleNode.text();
+    const getColor = () => backGNode.getAttr('fill') as string;
+    const setColor = (color: string) => backGNode.setAttr('fill', color);
 
     innerNode.updateBackground = updateBackground;
     innerNode.addNodes = addNodes;
     innerNode.removeNodes = removeNodes;
-    innerNode.updateText = updateText;
-    innerNode.getGroupName = getText;
+    outerNode.updateText = updateText;
+    outerNode.getGroupName = getText;
     outerNode.deleteGroup = deleteGroup;
+    outerNode.getColor = getColor;
+    outerNode.setColor = setColor;
     innerNode.on("dragmove.group dragend.group", updateBackground);
 }

@@ -1,16 +1,18 @@
 import React from 'react'
 import { ContextMenuItem } from '@/components/ui/context-menu'
 import { KonvaCanvasHandle } from '@/app/[username]/canvas/[canvas]/features/KonvaCanvas'
-import { OuterGroup } from '../types';
+import type { OuterGroup } from '../types';
+import Konva from 'konva';
+import { useCanvasStore } from '../store';
 
 const GroupMenu = ({
-    node,
     canvasRef,
 }: {
-    node: OuterGroup;
     canvasRef: React.RefObject<KonvaCanvasHandle | null>;
 }) => {
-
+    const { menu } = useCanvasStore();
+    if (!menu.object || !(menu.object instanceof Konva.Group)) return;
+    const node = menu.object as OuterGroup;
     const deleteGroup = () => node.deleteGroup();
     const editGroup = () => { }
 
@@ -25,8 +27,6 @@ const GroupMenu = ({
                 onClick={deleteGroup}>
                 Delete group
             </ContextMenuItem>
-
-
         </>
     )
 }

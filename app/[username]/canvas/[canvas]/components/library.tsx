@@ -11,7 +11,7 @@ import Masonry from "react-responsive-masonry"
 import { Button } from "@/components/ui/button";
 import { getPosts } from "@/lib/queries/posts";
 import { getFoldersSimpleQuery } from "@/lib/queries/folders";
-import { addImage } from "../features/image";
+import { addImage } from "../features/nodes/image";
 import { KonvaCanvasHandle } from "../features/KonvaCanvas";
 
 

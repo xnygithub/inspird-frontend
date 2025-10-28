@@ -1,8 +1,8 @@
 import Konva from "konva";
-import { loadImage } from "./loader";
-import { attachImageInteractions } from "./image.interactions";
+import { loadImage } from "../functions/imageLoader";
+import { attachLogic } from "./imageLogic";
 import { v4 as uuidv4 } from 'uuid';
-import { getCenter } from "./functions/utils";
+import { getCenter } from "../functions/utils";
 
 export async function addImage(
     layer: Konva.Layer,
@@ -35,7 +35,7 @@ export async function addImage(
     });
 
     layer.add(node);
-    attachImageInteractions(node, transformer);
+    attachLogic(node, transformer);
     layer.batchDraw();
     return node;
 }

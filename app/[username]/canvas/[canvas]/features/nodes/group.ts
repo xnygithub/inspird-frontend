@@ -4,9 +4,9 @@ import {
     GROUP_TITLE_CONFIG,
     INNER_GROUP_CONFIG,
     OUTER_GROUP_CONFIG
-} from "./config";
-import { GroupWithUpdate, OuterGroup } from "./types";
-import { attachLogic } from "./group.interactions";
+} from "../config";
+import { GroupWithUpdate, OuterGroup } from "../types";
+import { attachLogic } from "./groupLogic";
 
 export function createGroup(
     layer: Konva.Layer,

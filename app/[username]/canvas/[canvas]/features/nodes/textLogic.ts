@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { TEXT_AREA_EDITING_CONFIG } from "./config";
+import { TEXT_AREA_EDITING_CONFIG } from "../config";
 
 
 export function attachLogic(

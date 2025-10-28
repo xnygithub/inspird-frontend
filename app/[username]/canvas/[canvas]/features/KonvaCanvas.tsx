@@ -1,10 +1,9 @@
 // KonvaCanvas.tsx
-import React, { useEffect, useImperativeHandle, useRef, forwardRef } from "react";
+import { createStage } from "./nodes/stage";
+import type { CanvasServiceAPI } from "./nodes/stage";
 import { useWindowSize } from "../hooks/useWindowSize";
-import { CanvasServiceAPI } from "./canvas";
-import { initCanvas } from "./stage";
 import { loadFromLocalStorage } from "./functions/saveLoadToJson";
-import type { MenuType, MenuNode } from "./types";
+import React, { useEffect, useImperativeHandle, useRef, forwardRef } from "react";
 
 
 export type KonvaCanvasHandle = CanvasServiceAPI & {
@@ -12,12 +11,10 @@ export type KonvaCanvasHandle = CanvasServiceAPI & {
     saveCanvas: () => string | null
 };
 
-type Props = {
-    setMenu: (type: MenuType, node: MenuNode) => void;
-};
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const KonvaCanvas = forwardRef<KonvaCanvasHandle, any>(
+    function KonvaCanvas(props, ref) {
 
-const KonvaCanvas = forwardRef<KonvaCanvasHandle, Props>(
-    function KonvaCanvas({ setMenu }, ref) {
         const size = useWindowSize();
         const containerRef = useRef<HTMLDivElement | null>(null);
         const serviceRef = useRef<CanvasServiceAPI | null>(null);
@@ -26,12 +23,11 @@ const KonvaCanvas = forwardRef<KonvaCanvasHandle, Props>(
             const data = loadFromLocalStorage();
             if (!containerRef.current) throw new Error("ContainerRef not provided");
 
-            serviceRef.current = initCanvas({
+            serviceRef.current = createStage({
                 container: containerRef.current,
                 height: size.height,
                 width: size.width,
                 data,
-                setMenu,
             });
 
             return () => {
@@ -39,12 +35,22 @@ const KonvaCanvas = forwardRef<KonvaCanvasHandle, Props>(
                 serviceRef.current = null;
             };
             // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+
+        useEffect(() => {
+            if (!serviceRef.current) return;
+            if (size.width === 0 || size.height === 0) return;
+
+            const stage = serviceRef.current.getStage();
+            if (stage) {
+                stage.size({ width: size.width, height: size.height });
+            }
+
         }, [size]);
 
         useImperativeHandle(ref, () => ({
             getStage: () => serviceRef.current?.getStage() ?? null,
             getContentLayer: () => serviceRef.current?.getContentLayer() ?? null,
-            getSelectedNodes: () => serviceRef.current?.getSelectedNodes() ?? [],
             getTransformer: () => serviceRef.current?.getTransformer() ?? null,
             destroy: () => serviceRef.current?.destroy(),
             clear: () => serviceRef.current?.clear(),

@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { attachLogic } from "../text.interactions";
+import { attachLogic } from "../nodes/textLogic";
 
 
 export async function hydrateTexts(stage: Konva.Stage): Promise<void> {
