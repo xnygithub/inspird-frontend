@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import Library from "@/app/[username]/canvas/[canvas]/components/library";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from 'lucide-react';
-import { KonvaCanvasHandle } from "../features/KonvaCanvas";
+import { KonvaCanvasHandle } from "../features/canvas";
 
 interface Props {
     canvasRef: React.RefObject<KonvaCanvasHandle | null>;

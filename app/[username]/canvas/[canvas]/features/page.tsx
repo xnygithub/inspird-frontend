@@ -1,35 +1,35 @@
 "use client";
-import ImageMenu from "./menu/image";
-import StageMenu from "./menu/stage";
-import GroupMenu from "./menu/group";
+import ImageMenu from "../components/menu/image";
+import StageMenu from "../components/menu/stage";
+import GroupMenu from "../components/menu/group";
 import React, { useRef } from "react";
-import ToolbarContainer from "./toolbar/container";
-import KonvaCanvas, { KonvaCanvasHandle } from "./KonvaCanvas";
+import ToolbarContainer from "../components/toolbar";
+import KonvaCanvas, { KonvaCanvasHandle } from "./canvas";
 import {
     ContextMenu,
     ContextMenuContent,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import GroupEditor from "./nodes/groupEditor";
+import GroupEditor from "../components/editors/group";
 import { useCanvasStore } from "./store";
 
-
-export default function Canvas() {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export default function Canvas({ data }: { data: any }) {
     const canvasRef = useRef<KonvaCanvasHandle>(null);
-    const { editorOpen, menu } = useCanvasStore();
+    const { editorOpen, menu, initialized } = useCanvasStore();
     return (
         <div className="padding-top">
             <ContextMenu>
                 <ContextMenuTrigger>
-                    <KonvaCanvas ref={canvasRef} />
+                    <KonvaCanvas ref={canvasRef} data={data} />
                 </ContextMenuTrigger>
                 <ContextMenuContent className="[&_*]:text-xs !animate-none no-scrollbar">
                     {menu.type === "stage" && <StageMenu canvasRef={canvasRef} />}
                     {menu.type === "image" && <ImageMenu canvasRef={canvasRef} />}
-                    {menu.type === "group" && <GroupMenu canvasRef={canvasRef} />}
+                    {menu.type === "group" && <GroupMenu />}
                 </ContextMenuContent>
             </ContextMenu>
-            {canvasRef.current && <ToolbarContainer apiRef={canvasRef} />}
+            {initialized && <ToolbarContainer apiRef={canvasRef} />}
             {editorOpen && <GroupEditor />}
         </div>
     );

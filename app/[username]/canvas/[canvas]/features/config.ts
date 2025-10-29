@@ -82,3 +82,18 @@ export const TEXT_AREA_EDITING_CONFIG: Partial<React.ComponentProps<"textarea">>
     },
 }
 
+/* Arrow Configuration */
+export const ARROW_HANDLE_CONFIG = {
+    radius: 10,
+    fill: "white",
+    stroke: 'black',
+    strokeWidth: 2,
+    draggable: true,
+    visible: true,
+}
+
+export const ARROW_GROUP_CONFIG: Partial<Konva.GroupConfig> = {
+    x: 0, y: 0,
+    draggable: true,
+    name: "arrow-group-node"
+}

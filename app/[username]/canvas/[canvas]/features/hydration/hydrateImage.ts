@@ -1,11 +1,12 @@
 // utils/hydrateImages.ts
 import Konva from "konva";
 import { loadImage } from "../functions/imageLoader"; // your existing loader
-import { attachLogic } from "../nodes/imageLogic";
+import { attachImageLogic } from "../nodes/image";
 
-export async function hydrateImages(root: Konva.Stage): Promise<void> {
-    const images = root.find<Konva.Image>("Image");
-    const transformer = root.find<Konva.Transformer>("Transformer")[0];
+export async function hydrateImages(stage: Konva.Stage): Promise<void> {
+    const images = stage.find<Konva.Image>("Image");
+    const transformer = stage.findOne<Konva.Transformer>("Transformer");
+    if (!transformer) throw new Error("Transformer not found");
 
     await Promise.all(
         images.map(async (node: Konva.Image) => {
@@ -15,7 +16,7 @@ export async function hydrateImages(root: Konva.Stage): Promise<void> {
             try {
                 const imgEl = await loadImage(src);
                 node.image(imgEl);
-                attachLogic(node, transformer);
+                attachImageLogic(node, transformer);
             } catch (e) {
                 console.warn('Failed to load image src:', src, e);
             }

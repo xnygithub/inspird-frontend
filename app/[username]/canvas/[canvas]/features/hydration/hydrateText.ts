@@ -1,14 +1,13 @@
 import Konva from "konva";
-import { attachLogic } from "../nodes/textLogic";
+import { attachTextLogic } from "../nodes/text";
 
 
 export async function hydrateTexts(stage: Konva.Stage): Promise<void> {
 
-    let texts: Konva.Text[] = [];
-    texts = stage.find<Konva.Text>("Text");
-    texts = texts.filter((t: Konva.Text) => t.name() === 'text-node');
-    const layer = stage.getChildren(n => n.name() === 'main-layer')[0] as Konva.Layer;
+    const texts = stage.find<Konva.Text>(".text-node");
+    const layer = stage.findOne<Konva.Layer>(".main-layer");
+    if (!layer) throw new Error("Layer not found");
     for (const text of texts) {
-        attachLogic(text, layer, stage);
+        attachTextLogic(text, layer, stage);
     }
 }

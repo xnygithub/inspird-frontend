@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
     domains: [
       "i.pinimg.com",
       "xtuvouuyblwehrqsmhqb.supabase.co",
-      "images.squarespace-cdn.com"
+      "images.squarespace-cdn.com",
+      "picsum.photos"
     ],
   },
   /* config options here */

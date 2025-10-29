@@ -1,18 +1,20 @@
 import Konva from "konva";
-import { type ArrowGroup, attachLogic } from "../nodes/arrow";
+import { attachArrowLogic } from "../nodes/arrow";
 
-function hydrateArrows(root: Konva.Stage) {
-    const groups = root.find<Konva.Group>("Group");
-    const arrows = groups.filter(group => group.name() === "arrow-group-node") as ArrowGroup[];
-    const layer = root.getChildren(n => n.name() === "main-layer")[0] as Konva.Layer;
+function hydrateArrows(stage: Konva.Stage) {
+    const arrows = stage.find<Konva.Group>(".arrow-group-node");
+    const layer = stage.findOne<Konva.Layer>(".main-layer");
+    if (!layer) throw new Error("Layer not found");
 
     for (const group of arrows) {
-        const startHandle = group.getChildren(n => n.name()?.includes('start-handle'))[0] as Konva.Circle;
-        const endHandle = group.getChildren(n => n.name()?.includes('end-handle'))[0] as Konva.Circle;
-        const arrow = group.getChildren(n => n.name()?.includes('arrow-node'))[0] as Konva.Arrow;
+        const startHandle = group.findOne<Konva.Circle>(".start-handle");
+        const endHandle = group.findOne<Konva.Circle>(".end-handle");
+        const arrow = group.findOne<Konva.Arrow>(".arrow-node");
 
-        if (!startHandle || !endHandle || !arrow) continue
-        attachLogic(layer, group, arrow, startHandle, endHandle);
+        if (!startHandle || !endHandle || !arrow) {
+            throw new Error("Failed to hydrate arrows");
+        }
+        attachArrowLogic(layer, group, arrow, startHandle, endHandle);
     }
 }
 

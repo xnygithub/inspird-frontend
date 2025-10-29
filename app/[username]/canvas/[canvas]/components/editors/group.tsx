@@ -1,25 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Input } from '@/components/ui/input';
-import { useCanvasStore } from '../store';
+import { useCanvasStore } from '../../features/store';
 import { HexColorPicker } from 'react-colorful';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const GroupEditor = () => {
-    const [name, setName] = useState('');
-    const [color, setColor] = useState('#000000');
-    const { group, setEditorOpen } = useCanvasStore();
-
-    useEffect(() => {
-        setName(group?.getGroupName() || '');
-        setColor(group?.getColor() || '#000000');
-    }, [group]);
+    const { setEditorOpen, group } = useCanvasStore();
+    const [name, setName] = useState(group?.getGroupName() || '');
 
     const onChange = (text: string) => setName(text);
     const onSubmit = () => group?.updateText(name);
-    const onColor = (color: string) => group?.setColor(color);
     const onClose = () => setEditorOpen(false);
-
+    const onColorChange = (color: string) => group?.setColor(color);
 
     if (!group) return null;
 
@@ -40,14 +33,16 @@ const GroupEditor = () => {
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
+                        if (name.trim() === '') return;
+                        e.preventDefault();
                         onSubmit();
                     }
                 }}
             />
             <div className="flex justify-center w-full h-full">
                 <HexColorPicker
-                    color={color}
-                    onChange={onColor}
+                    color={group?.getColor() || '#000000'}
+                    onChange={(color) => onColorChange(color)}
                     className="p-2 h-full"
                 />
             </div>

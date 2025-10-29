@@ -1,18 +1,20 @@
 import type Konva from 'konva';
 import { create } from 'zustand';
-import { OuterGroup } from './types';
-
-
-type MenuType = "image" | "stage" | "group";
+import { GroupWrapper, MenuType } from './types';
 
 type CanvasState = {
     /* Selected Nodes Properties */
     selectedNodes: Konva.Node[];
     setSelectedNodes: (nodes: Konva.Node[]) => void;
+    appendSelectedNodes: (nodes: Konva.Node[]) => void;
+
+    /* Whether the canvas has been initialized */
+    initialized: boolean;
+    setInitialized: (initialized: boolean) => void;
 
     /* Editor Properties */
-    group: OuterGroup | null;
-    setGroup: (group: OuterGroup | null) => void;
+    group: GroupWrapper | null;
+    setGroup: (group: GroupWrapper | null) => void;
     editorOpen: boolean;
     setEditorOpen: (open: boolean) => void;
 
@@ -22,6 +24,10 @@ type CanvasState = {
 };
 
 export const useCanvasStore = create<CanvasState>((set) => ({
+
+    /* Whether the canvas has been initialized */
+    initialized: false,
+    setInitialized: (initialized: boolean) => set({ initialized }),
 
     /* Editor Properties */
     group: null,
@@ -39,6 +45,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
     /* Selected Nodes Properties */
     selectedNodes: [],
     setSelectedNodes: (nodes) => set({ selectedNodes: nodes }),
+    appendSelectedNodes: (nodes) => set((state) => ({ selectedNodes: [...state.selectedNodes, ...nodes] })),
 }));
 
 

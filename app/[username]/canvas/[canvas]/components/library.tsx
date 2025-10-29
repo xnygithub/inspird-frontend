@@ -7,18 +7,19 @@ import { useOffsetInfiniteScrollQuery, useQuery } from '@supabase-cache-helpers/
 import { useInView } from "react-intersection-observer";
 import { ProfilePostsType } from "@/types/posts";
 import { getMediaUrl } from "@/utils/urls";
-import Masonry from "react-responsive-masonry"
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { Button } from "@/components/ui/button";
 import { getPosts } from "@/lib/queries/posts";
 import { getFoldersSimpleQuery } from "@/lib/queries/folders";
 import { addImage } from "../features/nodes/image";
-import { KonvaCanvasHandle } from "../features/KonvaCanvas";
+import { KonvaCanvasHandle } from "../features/canvas";
 
 
 interface Props {
     id: string;
     canvasRef: React.RefObject<KonvaCanvasHandle | null>;
 }
+
 export default function Library({ id, canvasRef }: Props) {
     const supabase = createClient();
     const [selectedPosts, setSelectedPosts] = useState<ProfilePostsType[]>([]);
@@ -65,7 +66,7 @@ export default function Library({ id, canvasRef }: Props) {
 
 
     return (
-        < >
+        <div className="flex flex-row bg-amber-800 w-full h-full">
             <div className="space-y-2 w-[10%] font-sans">
                 <h3 className="font-bold text-base">Your Folders</h3>
                 <div className="space-y-0 opacity-80 text-sm">
@@ -75,28 +76,30 @@ export default function Library({ id, canvasRef }: Props) {
                 </div>
             </div>
             <div className="flex flex-col p-2 w-[70%] overflow-y-auto no-scrollbar">
-                <Masonry columnsCount={6} gutter="15px">
-                    {items.map((item) => (
-                        <div
-                            key={item.id}
-                            className={`relative w-full 
+                <ResponsiveMasonry columnsCountBreakPoints={{ 500: 1, 750: 2, 900: 3, 1200: 4, 1500: 5 }}>
+                    <Masonry >
+                        {items.map((item) => (
+                            <div
+                                key={item.id}
+                                className={`relative w-full 
                                 ${selectedPosts.includes(item) ? 'outline-4 outline-blue-500' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); selectPost(item) }}
-                        >
-                            <Image
-                                className="object-cover"
-                                alt={item.mediaAltText || ''}
-                                src={getMediaUrl(item.mediaUrl)}
-                                width={item.mediaWidth}
-                                height={item.mediaHeight}
-                                style={{ width: '100%', height: 'auto' }}
-                            />
-                        </div>
-                    ))}
-                </Masonry>
+                                onClick={() => selectPost(item)}
+                            >
+                                <Image
+                                    className="object-cover"
+                                    alt={item.mediaAltText || ''}
+                                    src={getMediaUrl(item.mediaUrl)}
+                                    width={item.mediaWidth}
+                                    height={item.mediaHeight}
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                            </div>
+                        ))}
+                    </Masonry>
+                </ResponsiveMasonry>
                 {!isValidating && loadMore && <div ref={ref} className="h-[1px]"></div>}
-            </div>
-            <div className="relative w-[20%]">
+            </div >
+            <div className="relative bg-amber-200 w-[20%] h-[100%]">
                 <div className="text-center">
                     <span className="inline-block mb-2 font-bold text-sm">Selected Posts</span>
                     <Masonry columnsCount={2} gutter="10px">
@@ -127,6 +130,6 @@ export default function Library({ id, canvasRef }: Props) {
                         </Button>
                     </div>}
             </div>
-        </>
+        </div>
     );
 }

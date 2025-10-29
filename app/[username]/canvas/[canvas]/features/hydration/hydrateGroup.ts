@@ -1,23 +1,20 @@
-import Konva from "konva";
-import { attachLogic } from "../nodes/groupLogic";
-import { GroupWithUpdate, OuterGroup } from "../types";
+import type Konva from "konva";
+import { attachGroupLogic } from "../nodes/group";
+import { GroupWrapper } from "../types";
 
-export async function hydrateGroups(root: Konva.Stage): Promise<void> {
-    const allGroups = root.find<Konva.Group>("Group");
+export async function hydrateGroups(stage: Konva.Stage): Promise<void> {
+    const groups = stage.find<GroupWrapper>(".group-wrapper");
+    const transformer = stage.findOne<Konva.Transformer>(".transformer");
 
-    const groups = allGroups.filter(
-        (g: Konva.Group) => g.name() === 'group-wrapper') as OuterGroup[];
-    const transformer = root.find<Konva.Transformer>("Transformer")[0];
-
-    for (const outerNode of groups) {
-        const innerNode = outerNode.getChildren(n => n.name()?.includes('group-content'))[0] as GroupWithUpdate;
-        const titleNode = outerNode.getChildren(n => n.name()?.includes('group-title'))[0] as Konva.Text;
-        const backGNode = outerNode.getChildren(n => n.name()?.includes('group-background'))[0] as Konva.Rect | undefined;
-        const parentLayer = outerNode.getLayer() as Konva.Layer;
+    for (const group of groups) {
+        const innerNode = group.findOne<Konva.Group>('.group-content');
+        const titleNode = group.findOne<Konva.Text>('.group-title');
+        const backGNode = group.findOne<Konva.Rect>('.group-background');
+        const parentLayer = group.getLayer() as Konva.Layer;
 
         if (!innerNode || !titleNode || !backGNode || !parentLayer || !transformer)
             throw new Error("Group nodes not found");
-        attachLogic(innerNode, outerNode, titleNode, backGNode, parentLayer, transformer);
+        attachGroupLogic(innerNode, group, titleNode, backGNode, parentLayer, transformer);
 
     };
 }

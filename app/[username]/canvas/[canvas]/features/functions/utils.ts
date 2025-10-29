@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { IRect } from "konva/lib/types";
-import type { GroupWithUpdate } from "../types";
+import type { GroupContent } from "../types";
 import { GROUP_PADDING, GROUP_TITLE_PADDING } from "../config";
 
 export function zoomToNode(
@@ -54,18 +54,18 @@ export function demoteImage(node: Konva.Node) {
 
 export function groupableBoards(
     layer: Konva.Layer
-) {
-    return layer.find(".group-content") as GroupWithUpdate[];
+): GroupContent[] {
+    return layer.find<GroupContent>(".group-content") ?? [];
 }
 
 export function addableBoards(
     node: Konva.Image,
     layer: Konva.Layer
-) {
+): GroupContent[] {
     // Function to find boards that an image can be added to
-    let boards: GroupWithUpdate[] = [];
+    let boards: GroupContent[] = [];
 
-    boards = layer.find(".group-content") as GroupWithUpdate[];
+    boards = layer.find(".group-content") as GroupContent[];
     if (!boards) return [];
 
     boards = boards.filter((board) => !board.children.includes(node));
@@ -77,6 +77,12 @@ export function filterNodes(
     types: string[]
 ): Konva.Image[] {
     return nodes.filter((node) => types.includes(node.name())) as Konva.Image[];
+}
+
+export function filterImagesNodes(
+    nodes: Konva.Node[],
+) {
+    return nodes.filter((node) => ["image-node"].includes(node.name())) as Konva.Image[];
 }
 
 

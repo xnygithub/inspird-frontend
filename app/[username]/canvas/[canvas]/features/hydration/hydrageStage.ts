@@ -1,20 +1,16 @@
 import Konva from "konva";
-import { attachLogic } from "../nodes/stageLogic";
+import { attachStageLogic } from "../nodes/stage";
 
-function hydrateStage({
-    stage,
-}: {
-    stage: Konva.Stage;
-}) {
-    const mainLayer = stage.getChildren(n => n.name() === ('main-layer'))[0] as Konva.Layer
-    const tfLayer = stage.getChildren(n => n.name() === ('transformer-layer'))[0] as Konva.Layer
-    const selectionRect = tfLayer.getChildren(n => n.name() === ('selection-rect'))[0] as Konva.Rect
-    const transformer = tfLayer.getChildren(n => n.name() === ('transformer'))[0] as Konva.Transformer
+function hydrateStage(stage: Konva.Stage) {
+    const contentLayer = stage.findOne<Konva.Layer>(".main-layer");
+    const transformerLayer = stage.findOne<Konva.Layer>(".transformer-layer");
+    const selectionBox = stage.findOne<Konva.Rect>(".selection-rect");
+    const transformer = stage.findOne<Konva.Transformer>(".transformer");
 
-    if (!mainLayer || !tfLayer || !selectionRect || !transformer)
+    if (!contentLayer || !transformerLayer || !selectionBox || !transformer)
         throw new Error("Layers not found");
 
-    return attachLogic({ stage, mainLayer, transformer, tfLayer, selectionRect });
+    return attachStageLogic(stage, contentLayer, transformer, transformerLayer, selectionBox);
 
 }
 
