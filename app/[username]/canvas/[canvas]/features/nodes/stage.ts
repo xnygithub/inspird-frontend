@@ -5,32 +5,28 @@ import { hydrateGroups } from "../hydration/hydrateGroup";
 import { hydrateStage } from "../hydration/hydrageStage";
 import { hydrateTexts } from "../hydration/hydrateText";
 import { hydrateArrows } from "../hydration/hydrateArrow";
-import { useCanvasStore } from "../store";
+import { useStore } from "../store";
 import { filterIntersecting } from "../functions/utils";
-
-
 
 function createStage(
     container: HTMLDivElement,
-    height: number,
-    width: number,
+    size: { height: number, width: number },
     data?: any, // eslint-disable-line
 ) {
-    const setInitialized = useCanvasStore.getState().setInitialized;
 
     let stage: Konva.Stage | null = null;
-    if (data) {
-        data = JSON.parse(data.data);
-    }
 
-    if (data) {
+    data = JSON.parse(data.data);
+    const isEmpty = Object.keys(data).length === 0;
+
+    if (!isEmpty) {
         stage = Konva.Node.create(data, container) as Konva.Stage;
         hydrateImages(stage);
         hydrateGroups(stage);
         hydrateTexts(stage);
         hydrateArrows(stage);
-        setInitialized(true);
-        return hydrateStage(stage);
+        hydrateStage(stage);
+        return stage;
     }
 
     let mainContentLayer: Konva.Layer | null = null;
@@ -38,7 +34,12 @@ function createStage(
     let selectionBox: Konva.Rect | null = null;
     let kTransformer: Konva.Transformer | null = null;
 
-    stage = new Konva.Stage({ name: "stage", container, width, height });
+    stage = new Konva.Stage({
+        name: "stage",
+        container: container,
+        width: size.width,
+        height: size.height
+    });
     mainContentLayer = new Konva.Layer({ name: "main-layer" });
     transformerLayer = new Konva.Layer({ name: "transformer-layer" });
     selectionBox = new Konva.Rect({ name: "selection-rect", ...SELECTION_RECT_CONFIG });
@@ -48,8 +49,8 @@ function createStage(
     stage.add(transformerLayer);
     transformerLayer.add(kTransformer);
     transformerLayer.add(selectionBox);
-    setInitialized(true);
-    return hydrateStage(stage);
+    hydrateStage(stage);
+    return stage;
 }
 
 
@@ -60,7 +61,7 @@ function attachStageLogic(
     tfLayer: Konva.Layer,
     selectionRect: Konva.Rect,
 ) {
-    const { setMenu, setSelectedNodes } = useCanvasStore.getState();
+    const { setMenu, setSelectedNodes } = useStore.getState();
 
     stage.off(".pan .select .menu .zoom .scale .menu .node");
 
@@ -78,6 +79,8 @@ function attachStageLogic(
 
     stage.on('mousedown.pan', (e) => {
         if (e.evt.button !== 1) return;
+        e.cancelBubble = true;
+        if (!(e.target instanceof Konva.Stage)) return;
 
         isPanning = true;
         lastPointerPosition = stage.getPointerPosition();
@@ -163,9 +166,10 @@ function attachStageLogic(
         selectionRect?.visible(false);
         tfLayer.batchDraw();
 
-        const nodes = mainLayer.find(".image-node, .group-wrapper")
+        const nodes = mainLayer.find(".image-node, .group-wrapper, .arrow-group-node, .text-node")
+        console.info("nodes", nodes);
         const selected = filterIntersecting(nodes, box);
-        console.log("selected", selected);
+        console.info("selected nodes", selected.length);
 
         setSelectedNodes(selected);
         transformer.nodes(selected);
@@ -214,14 +218,6 @@ function attachStageLogic(
         stage.position(newPos);
         stage.batchDraw();
     });
-
-    return {
-        getStage: () => stage,
-        getContentLayer: () => mainLayer,
-        getTransformer: () => transformer,
-        destroy: () => stage.destroy(),
-        clear: () => mainLayer.removeChildren(),
-    }
 
 }
 export default createStage;

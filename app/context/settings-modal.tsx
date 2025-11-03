@@ -49,7 +49,10 @@ export function SettingsModalProvider({ children }: { children: ReactNode }) {
     const openSettings = useCallback((tab?: SettingsTab) => {
         if (!open) {
             try {
-                previousUrlRef.current = window.location.pathname + window.location.search + window.location.hash;
+                previousUrlRef.current =
+                    window.location.pathname +
+                    window.location.search +
+                    window.location.hash;
             } catch {
                 previousUrlRef.current = "/";
             }

@@ -48,7 +48,7 @@ model CanvasDoc {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @default(dbgenerated("auth.uid()")) @db.Uuid
   title     String   @db.VarChar(255)
-  data      Json     @default("{ \"schemaVersion\": 1, \"stage\": { \"zoom\": 1, \"x\": 0, \"y\": 0 }, \"images\": [] }") @db.Json
+  data      Json     @default("{}") @db.Json
   isPrivate Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

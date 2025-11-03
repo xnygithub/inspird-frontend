@@ -9,7 +9,7 @@ export const getFoldersSimpleQuery = (
 ) => {
     return client
         .from("folders")
-        .select("id, name,isPrivate, updatedAt")
+        .select("id, name, isPrivate, updatedAt, slug")
         .eq("userId", userId)
         .order("createdAt", { ascending: false });
 }

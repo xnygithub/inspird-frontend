@@ -38,7 +38,6 @@ export const INNER_GROUP_CONFIG: Partial<Konva.GroupConfig> = {
 export const OUTER_GROUP_CONFIG: Partial<Konva.GroupConfig> = {
     draggable: true,
     name: "group-wrapper",
-    _selectable: true,
 }
 
 export const GROUP_TITLE_CONFIG: Partial<Konva.TextConfig> = {
@@ -55,7 +54,6 @@ export const KONVA_TEXT_CONFIG: Partial<Konva.TextConfig> = {
     fontSize: 40,
     fill: "white",
     draggable: true,
-    _selectable: true,
     name: "text-node",
 }
 

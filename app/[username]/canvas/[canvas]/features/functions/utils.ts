@@ -3,32 +3,7 @@ import { IRect } from "konva/lib/types";
 import type { GroupContent } from "../types";
 import { GROUP_PADDING, GROUP_TITLE_PADDING } from "../config";
 
-export function zoomToNode(
-    e: Konva.KonvaEventObject<MouseEvent>,
-    stage: Konva.Stage
-) {
-    if (e.evt.button !== 0) return;
-    if (!stage) return;
-    // https://stackoverflow.com/questions/68800557/zoom-to-specific-shape-in-konva-js
-    // https://codepen.io/spark25/pen/VwXvZpp
-    const bound = e.target.getClientRect({ relativeTo: stage });
-    const zoomFactor = 0.2;
-    const stageWidth = stage.width();
-    const stageHeight = stage.height();
-    const scale = Math.min(
-        stageWidth / bound.width,
-        stageHeight / bound.height) * zoomFactor;
 
-    const x = -bound.x * scale + (stageWidth - (bound.width * scale)) / 2;
-    const y = -bound.y * scale + (stageHeight - (bound.height * scale)) / 2;
-
-    stage.to({
-        x: x, y: y,
-        scaleX: scale, scaleY: scale,
-        duration: 1,
-        easing: Konva.Easings.StrongEaseOut,
-    });
-}
 
 export function getCenter(layer: Konva.Layer) {
     const stage = layer.getStage();
@@ -41,14 +16,12 @@ export function getCenter(layer: Konva.Layer) {
 export function promoteImage(node: Konva.Node) {
     node.setAttrs({
         name: "group-image-node",
-        _selectable: false,
     });
 }
 
 export function demoteImage(node: Konva.Node) {
     node.setAttrs({
         name: "image-node",
-        _selectable: true,
     });
 }
 

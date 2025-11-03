@@ -1,15 +1,20 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import Copy from "@/app/[username]/canvas/[canvas]/components/librarycopy";
+import { AddImagesView } from "@/app/[username]/canvas/[canvas]/components/addImagesView";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from 'lucide-react';
+import type { ProfilePostsType as Posts } from "@/types/posts";
 
-export default function Test() {
+interface Props {
+    addPost: (post: Posts) => void;
+}
+
+export const AddImagesDialog = ({ addPost }: Props) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant="icon">
                     <ImageIcon />
-                    Add Image
+                    Add Images
                 </Button>
             </DialogTrigger>
             <DialogContent
@@ -18,7 +23,7 @@ export default function Test() {
                 <DialogHeader hidden>
                     <DialogTitle>Test</DialogTitle>
                 </DialogHeader>
-                <Copy />
+                <AddImagesView addPost={addPost} />
             </DialogContent>
         </Dialog>
     );

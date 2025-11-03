@@ -15,6 +15,5 @@ export async function hydrateGroups(stage: Konva.Stage): Promise<void> {
         if (!innerNode || !titleNode || !backGNode || !parentLayer || !transformer)
             throw new Error("Group nodes not found");
         attachGroupLogic(innerNode, group, titleNode, backGNode, parentLayer, transformer);
-
     };
 }

@@ -2,14 +2,6 @@ import Konva from "konva";
 
 export type MenuType = "image" | "stage" | "group";
 
-export interface CanvasServiceAPI {
-    getStage: () => Konva.Stage | null;
-    getContentLayer: () => Konva.Layer | null;
-    getTransformer: () => Konva.Transformer | null;
-    clear: () => void;
-    destroy: () => void;
-}
-
 export type GroupContent = Konva.Group & {
     updateBackground: () => void,
     addNodes: (nodes: Konva.Image[]) => void,
@@ -18,8 +10,8 @@ export type GroupContent = Konva.Group & {
 };
 
 export type GroupWrapper = Konva.Group & {
-    updateText: (text: string) => void,
-    getGroupName: () => string,
+    setTitle: (text: string) => void,
+    getTitle: () => string,
     getColor: () => string,
     setColor: (color: string) => void,
     deleteGroup: () => void,
@@ -29,3 +21,11 @@ export type Arrow = Konva.Arrow & {
     hideHandle: () => void;
 }
 
+export type ImageNode = Konva.Image & {
+    destroyImage: () => void,
+    removeFromGroup: () => void,
+    isGrouped: () => boolean,
+    rotateImage: (dir: 'left' | 'right') => void,
+    flipImage: (dir: 'horizontal' | 'vertical') => void,
+    getAddableBoards: () => GroupContent[],
+};

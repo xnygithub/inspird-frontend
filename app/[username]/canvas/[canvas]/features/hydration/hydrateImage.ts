@@ -4,9 +4,11 @@ import { loadImage } from "../functions/imageLoader"; // your existing loader
 import { attachImageLogic } from "../nodes/image";
 
 export async function hydrateImages(stage: Konva.Stage): Promise<void> {
+
     const images = stage.find<Konva.Image>("Image");
     const transformer = stage.findOne<Konva.Transformer>("Transformer");
-    if (!transformer) throw new Error("Transformer not found");
+    const layer = stage.findOne<Konva.Layer>(".main-layer");
+    if (!transformer || !layer) throw new Error("Transformer or layer not found");
 
     await Promise.all(
         images.map(async (node: Konva.Image) => {
@@ -16,11 +18,12 @@ export async function hydrateImages(stage: Konva.Stage): Promise<void> {
             try {
                 const imgEl = await loadImage(src);
                 node.image(imgEl);
-                attachImageLogic(node, transformer);
+                attachImageLogic(node, transformer, layer);
             } catch (e) {
                 console.warn('Failed to load image src:', src, e);
             }
-            node.getLayer()?.batchDraw();
         })
-    );
+    ).then(() => {
+        console.info("images hydrated");
+    });
 }

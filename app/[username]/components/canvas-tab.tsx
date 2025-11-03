@@ -39,8 +39,8 @@ export const CanvasTab = () => {
             <div id="canvas-container" >
                 {data && data.map((canvasDoc) => (
                     <div key={canvasDoc.id}>
-                        <Link href={`/${canvasDoc.owner.username}/canvas/${canvasDoc.title}`}>
-                            <div className="bg-gray-200/30 w-full h-full"></div>
+                        <Link href={`/${canvasDoc.owner.username}/canvas/${canvasDoc.slug}`}>
+                            <div className="bg-gray-200/30 aspect-square"></div>
                             <h2>{canvasDoc.title}</h2>
                         </Link>
                         <DeleteButton canvasId={canvasDoc.id} />

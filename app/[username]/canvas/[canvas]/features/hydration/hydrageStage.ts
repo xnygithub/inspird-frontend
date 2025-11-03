@@ -1,7 +1,10 @@
 import Konva from "konva";
 import { attachStageLogic } from "../nodes/stage";
+import { useStore } from "../store";
 
 function hydrateStage(stage: Konva.Stage) {
+
+    const { setStage, setTransformer, setContentLayer } = useStore.getState();
     const contentLayer = stage.findOne<Konva.Layer>(".main-layer");
     const transformerLayer = stage.findOne<Konva.Layer>(".transformer-layer");
     const selectionBox = stage.findOne<Konva.Rect>(".selection-rect");
@@ -10,8 +13,11 @@ function hydrateStage(stage: Konva.Stage) {
     if (!contentLayer || !transformerLayer || !selectionBox || !transformer)
         throw new Error("Layers not found");
 
-    return attachStageLogic(stage, contentLayer, transformer, transformerLayer, selectionBox);
+    setStage(stage);
+    setTransformer(transformer);
+    setContentLayer(contentLayer);
 
+    attachStageLogic(stage, contentLayer, transformer, transformerLayer, selectionBox);
 }
 
 export { hydrateStage };

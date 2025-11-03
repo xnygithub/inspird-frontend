@@ -1,64 +1,57 @@
+import type Konva from "konva";
+import { useStore } from "./store";
 import createStage from "./nodes/stage";
-import type { CanvasServiceAPI } from "./types";
+import React, { useEffect, useRef } from "react";
 import { useWindowSize } from "../hooks/useWindowSize";
-import React, { useEffect, useImperativeHandle, useRef, forwardRef } from "react";
-
-
-export type KonvaCanvasHandle = CanvasServiceAPI & {
-    clear: () => void,
-};
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const KonvaCanvas = forwardRef<KonvaCanvasHandle, { data: any }>(
-    function KonvaCanvas({ data }, ref) {
+const KonvaCanvas = ({ data }: { data: any }) => {
 
-        const size = useWindowSize();
-        const containerRef = useRef<HTMLDivElement | null>(null);
-        const serviceRef = useRef<CanvasServiceAPI | null>(null);
+    const initialized = useStore((s) => s.initialized);
+    const setInitialized = useStore((s) => s.setInitialized);
+    const clearStore = useStore((s) => s.clearStore);
+    const divRef = useRef<HTMLDivElement | null>(null);
+    const stageRef = useRef<Konva.Stage | null>(null);
+    const size = useWindowSize();
 
-        useEffect(() => {
-            if (!containerRef.current) throw new Error("ContainerRef not provided");
+    useEffect(() => {
+        console.log("initialized", initialized);
+        if (initialized) return;
+        if (!divRef.current)
+            throw new Error("ContainerRef not provided");
 
-            serviceRef.current = createStage(
-                containerRef.current,
-                size.height,
-                size.width,
-                data,
-            );
 
-            return () => {
-                serviceRef.current?.destroy();
-                serviceRef.current = null;
-            };
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, []);
+        const stage = createStage(divRef.current, size, data);
+        if (!stage) return;
+        setInitialized(true);
 
-        useEffect(() => {
-            if (!serviceRef.current) return;
-            if (size.width === 0 || size.height === 0) return;
+        return () => {
+            // Cleanup on unmount
+            stage.destroy();
+            clearStore();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-            const stage = serviceRef.current.getStage();
-            if (stage) {
-                stage.size({ width: size.width, height: size.height });
-            }
+    useEffect(() => {
+        if (!stageRef.current) return;
+        if (size.width === 0 || size.height === 0) return;
+        stageRef.current.size({
+            width: size.width,
+            height: size.height
+        });
+    }, [size]);
 
-        }, [size]);
+    return (
+        <div
+            ref={divRef}
+            className="bg-[#1A1A1A]"
+            style={{
+                width: size.width,
+                height: size.height
+            }}
+        />
+    );
+};
 
-        useImperativeHandle(ref, () => ({
-            getStage: () => serviceRef.current?.getStage() ?? null,
-            getContentLayer: () => serviceRef.current?.getContentLayer() ?? null,
-            getTransformer: () => serviceRef.current?.getTransformer() ?? null,
-            destroy: () => serviceRef.current?.destroy(),
-            clear: () => serviceRef.current?.clear(),
-        }));
-
-        return (
-            <div
-                ref={containerRef}
-                className="bg-[#292a2a]"
-                style={{ width: size.width, height: size.height }}
-            />
-        );
-    });
-
-export default KonvaCanvas;
+export default React.memo(KonvaCanvas);

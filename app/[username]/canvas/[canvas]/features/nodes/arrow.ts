@@ -1,7 +1,8 @@
 import Konva from "konva";
-import { v4 as uuidv4 } from 'uuid';
-import { ARROW_HANDLE_CONFIG, ARROW_GROUP_CONFIG } from '../config';
 import { Arrow } from '../types';
+import { v4 as uuidv4 } from 'uuid';
+import { getCenter as getLayerCenter } from "../functions/utils";
+import { ARROW_HANDLE_CONFIG, ARROW_GROUP_CONFIG } from '../config';
 
 function getArrowConfig(
     coords: { x1: number, y1: number, x2: number, y2: number },
@@ -24,8 +25,15 @@ function getArrowConfig(
 
 function createArrow(
     layer: Konva.Layer,
-    coords: { x1: number, y1: number, x2: number, y2: number },
 ) {
+    const cords = getLayerCenter(layer);
+    const length = 300;
+    const coords = {
+        x1: cords.x - length / 2,
+        y1: cords.y,
+        x2: cords.x + length / 2,
+        y2: cords.y,
+    };
     const nodeId = uuidv4();
     const ARROW_NODE_CONFIG = getArrowConfig(coords);
     const arrow = new Konva.Arrow(ARROW_NODE_CONFIG).id(nodeId) as Arrow;
@@ -42,6 +50,7 @@ function createArrow(
     }).name('end-handle').id(nodeId);
 
     attachArrowLogic(layer, group, arrow, startHandle, endHandle);
+    return group;
 }
 
 function attachArrowLogic(
@@ -123,7 +132,6 @@ function attachArrowLogic(
     group.on('mousedown', () => group.moveToTop());
     group.on('click', () => shouldHandleStayVisible = true);
     aNode.hideHandle = hideHandlers;
-    layer.add(group);
 }
 
 export default createArrow;

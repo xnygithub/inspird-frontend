@@ -7,6 +7,7 @@ function createText(layer: Konva.Layer) {
     if (!stage || !layer) return;
 
     const layerCenter = getCenter(layer);
+
     const textNode = new Konva.Text({
         ...KONVA_TEXT_CONFIG,
         x: layerCenter.x,
@@ -23,6 +24,7 @@ function attachTextLogic(
     stage: Konva.Stage
 ) {
     textNode.off("dblclick.text dbltap.text");
+    textNode.name("text-node");
 
     const placeTextarea = (textarea: HTMLTextAreaElement) => {
 
@@ -130,8 +132,6 @@ function attachTextLogic(
             e.cancelBubble = true;
             startEditing();
         });
-
-
 }
 
 export default createText;
