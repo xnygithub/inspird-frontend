@@ -53,6 +53,8 @@ function attachGroupLogic(
     backGNode.off(".group");
     oNode.off(".group");
 
+    backGNode.name(backGNode.name() + ", object");
+
     const { setEditorOpen, setGroup, setMenu, addGroups } = useStore.getState();
     iNode.id(id);
     oNode.id(id);

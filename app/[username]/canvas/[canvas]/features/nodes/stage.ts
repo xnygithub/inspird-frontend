@@ -7,6 +7,7 @@ import { hydrateTexts } from "../hydration/hydrateText";
 import { hydrateArrows } from "../hydration/hydrateArrow";
 import { useStore } from "../store";
 import { filterIntersecting } from "../functions/utils";
+import { getObjectSnappingEdges, getGuides, drawGuides } from "../functions/snap";
 
 function createStage(
     container: HTMLDivElement,
@@ -54,6 +55,35 @@ function createStage(
 }
 
 
+function getLineGuideStops(
+    stage: Konva.Stage,
+    skipShape: Konva.Shape
+) {
+    // We can snap to stage borders and the center of the stage
+    const vertical: number[] = [];
+    const horizontal: number[] = [];
+
+    // and we snap over edges and center of each object on the canvas
+    stage.find('.object').forEach((item) => {
+
+        // Checks
+        if (item.name().includes("group-image-node")) return;
+        if (item === skipShape) return;
+
+        const box = item.getClientRect();
+        // and we can snap to all edges of shapes
+        vertical.push([box.x, box.x + box.width, box.x + box.width / 2]);
+        horizontal.push([box.y, box.y + box.height, box.y + box.height / 2]);
+    });
+    return {
+        vertical: vertical.flat(),
+        horizontal: horizontal.flat(),
+    };
+}
+
+
+
+
 function attachStageLogic(
     stage: Konva.Stage,
     mainLayer: Konva.Layer,
@@ -71,6 +101,7 @@ function attachStageLogic(
     let lastPointerPosition: { x: number, y: number } | null = null;
 
     const CLICK_TOLERANCE = 3; // px
+
     let downPos: { x: number; y: number } | null = null;
     let movedBeyondTolerance = false;
 
@@ -110,6 +141,47 @@ function attachStageLogic(
         lastPointerPosition = null;
         stage.container().style.cursor = 'default';
     };
+
+    stage.on('dragmove', (e) => {
+        // clear all previous lines on the screen
+        mainLayer.find('.guide-line').forEach((l) => l.destroy());
+
+        // find possible snapping lines
+        const lineGuideStops = getLineGuideStops(stage, e.target as Konva.Shape);
+        // find snapping points of current object
+        const itemBounds = getObjectSnappingEdges(e.target as Konva.Shape);
+
+        // now find where can we snap current object
+        const guides = getGuides(lineGuideStops, itemBounds);
+
+        // do nothing of no snapping
+        if (!guides.length) {
+            return;
+        }
+
+        drawGuides(mainLayer, guides);
+
+        const absPos = e.target.absolutePosition();
+        // now force object position
+        guides.forEach((lg) => {
+            switch (lg.orientation) {
+                case 'V': {
+                    absPos.x = lg.lineGuide + lg.offset;
+                    break;
+                }
+                case 'H': {
+                    absPos.y = lg.lineGuide + lg.offset;
+                    break;
+                }
+            }
+        });
+        e.target.absolutePosition(absPos);
+    });
+
+    stage.on('dragend', () => {
+        // clear all previous lines on the screen
+        mainLayer.find('.guide-line').forEach((l) => l.destroy());
+    });
 
     stage.on('mouseup.pan', stopPan);
     stage.on('mouseleave.pan', stopPan);
