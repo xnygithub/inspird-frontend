@@ -1,0 +1,1 @@
+export type Step = 'login' | 'signup' | 'change-password' | 'forgot-password'

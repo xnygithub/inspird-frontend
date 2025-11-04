@@ -1,6 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/login',
+        destination: '/login'
+      },
+      {
+        source: '/signup',
+        destination: '/login'
+      },
+      {
+        source: '/forgot-password',
+        destination: '/login'
+      }
+    ];
+  },
+
   images: {
     domains: [
       "i.pinimg.com",

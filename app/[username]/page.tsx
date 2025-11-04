@@ -14,6 +14,8 @@ export default async function ProfilePage(
     const supabase = await createClient()
     const { data: currentUser } = await supabase.auth.getUser()
     const { data, error } = await getProfileRPC(supabase, username)
+    console.log("data", data)
+    console.log("error", error)
 
     if (error || !data) return notFound()
 
