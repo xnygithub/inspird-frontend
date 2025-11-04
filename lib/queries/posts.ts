@@ -1,3 +1,4 @@
+import { Database } from "@/database.types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 interface CreatePostProps {
@@ -28,15 +29,11 @@ export const quickSavePost = (
         .single();
 }
 
-export const getUsersPosts = (
-    client: SupabaseClient,
+export const getPosts = (
+    client: SupabaseClient<Database>,
     userId: string
 ) => {
-    return client
-        .from("saved_items")
-        .select(`*, posts!inner(*, users:profiles(username, avatarUrl))`)
-        .eq("userId", userId)
-        .eq("posts.processingStatus", "not_started")
+    return client.rpc("get_posts", { user_uuid: userId }).select("*");
 }
 
 export const getSimilarPosts = (

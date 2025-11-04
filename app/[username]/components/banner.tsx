@@ -8,6 +8,7 @@ import { getCroppedImage } from '@/utils/crop'
 import { createClient } from '@/utils/supabase/client'
 import { getBannerUrl } from '@/utils/urls'
 import { useUserContext } from '@/components/userContext'
+import { useProfile } from '@/app/[username]/components/provider'
 
 type BannerProps = { url: string }
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png']
@@ -43,12 +44,15 @@ async function updateBanner(path: string, userId: string) {
     return data
 }
 
-export default function Banner({ url }: BannerProps) {
-    const containerRef = useRef<HTMLDivElement | null>(null)
+export default function Banner(
+    { url }: BannerProps
+) {
+    const { isMe } = useProfile()
     const { user } = useUserContext()
 
-    const [isCropping, setIsCropping] = useState(false)
+    const ref = useRef<HTMLDivElement | null>(null)
     const [bannerUrl, setBannerUrl] = useState(url)
+    const [isCropping, setIsCropping] = useState(false)
     const [cropArea, setCropArea] = useState<Area | null>(null)
 
     const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -90,16 +94,16 @@ export default function Banner({ url }: BannerProps) {
     }
 
     const onMediaLoaded = () => {
-        if (!lockSize && containerRef.current) {
-            const r = containerRef.current.getBoundingClientRect()
+        if (!lockSize && ref.current) {
+            const r = ref.current.getBoundingClientRect()
             setLockSize({ w: r.width, h: r.height })
         }
     }
 
     useEffect(() => {
         function update() {
-            if (!containerRef.current) return
-            const rect = containerRef.current.getBoundingClientRect()
+            if (!ref.current) return
+            const rect = ref.current.getBoundingClientRect()
             setContainerSize({ width: rect.width, height: rect.height })
 
         }
@@ -110,28 +114,25 @@ export default function Banner({ url }: BannerProps) {
 
 
     return (
-        <div ref={containerRef} className="w-full h-full">
+        <div ref={ref} className="w-full h-full">
             {!isCropping ? (
                 <div className="group relative w-full h-full">
-                    <Image fill alt="Banner" src={bannerUrl} className="brightness-80 group-hover:brightness-40 object-cover transition-brightness duration-300 select-none" sizes="100vw" />
-                    <div className="right-1/2 bottom-1/2 absolute flex items-center gap-2 translate-x-1/2 translate-y-1/2">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="flex flex-col items-center gap-1">
-                                <span className="opacity-90 font-medium text-lg">Replace Banner Image</span>
-                                <span className="opacity-80 font-semibold text-sm">Optimal dimensions: 1500x500</span>
-                                <Button variant="genericRounded" className="select-none"
-                                    onClick={() => document.getElementById('banner-input')?.click()}>
-                                    Replace Banner
-                                    <Input id="banner-input" type="file" hidden
-                                        accept={ACCEPTED_IMAGE_TYPES.join(',')}
-                                        onChange={handleChange} />
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    <Image fill alt="Banner" src={bannerUrl}
+                        className={`brightness-70 ${isMe ? 'group-hover:brightness-30' : ''} object-cover transition-brightness duration-300 select-none`} sizes="100vw" />
+                    {isMe && <div className="right-1/2 bottom-1/2 absolute flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-x-1/2 translate-y-1/2 duration-300">
+                        <span className="opacity-90 font-medium text-lg">Replace Banner Image</span>
+                        <span className="opacity-80 font-semibold text-sm">Optimal dimensions: 1500x500</span>
+                        <Button variant="genericRounded" className="select-none"
+                            onClick={() => document.getElementById('banner-input')?.click()}>
+                            Replace Banner
+                            <Input id="banner-input" type="file" hidden
+                                accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                                onChange={handleChange} />
+                        </Button>
+                    </div>}
                 </div>
             ) : (
-                <div ref={containerRef} style={lockSize ? { minWidth: lockSize.w } : undefined}
+                <div ref={ref} style={lockSize ? { minWidth: lockSize.w } : undefined}
                     className="left-1/2 absolute inset-0 w-full overflow-x-auto -translate-x-1/2">
                     <Cropper
                         crop={crop}

@@ -15,7 +15,6 @@ export default function Similar({ postId }: { postId: string }) {
     const handleGetSimilarPosts = useCallback(async () => {
         const { data: posts, error } = await getSimilarPosts(supabase, postId)
         if (error) throw new Error(error.message)
-        console.log(posts)
         setSimilarPosts(posts)
     }, [supabase, postId])
 

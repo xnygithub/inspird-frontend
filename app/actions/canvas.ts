@@ -1,6 +1,5 @@
 "use server"
 import { createClient } from "@/utils/supabase/server";
-import { CanvasData } from "@/types/canvas";
 import { createCanvasDoc } from "@/lib/queries/canvas";
 
 export async function createCanvas(formData: FormData) {
@@ -10,14 +9,16 @@ export async function createCanvas(formData: FormData) {
     if (error) throw new Error(error.message)
 }
 
-export async function updateCanvas(canvasId: string, canvasData: CanvasData) {
+export async function updateCanvas(
+    canvasId: string,
+    canvasData: string
+) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("canvas_doc")
         .update({ data: canvasData })
         .eq("id", canvasId)
-        .select("*")
-        .single();
+        .select("id")
 
     if (error) return null
 

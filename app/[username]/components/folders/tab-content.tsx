@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect } from "react"
+import { useProfile } from '@/app/[username]/components/provider';
 import { useInView } from "react-intersection-observer"
 import { createClient } from "@/utils/supabase/client"
 import { getUsersFolders } from "@/lib/queries/folders"
@@ -9,15 +10,17 @@ import { useOffsetInfiniteScrollQuery } from '@supabase-cache-helpers/postgrest-
 import { NoUserFolders, NoFoldersOrPrivate } from "@/app/[username]/components/folders/not-found";
 
 const supabase = createClient();
-export default function FoldersContainer(
-    { userId, isMe }: { userId: string, isMe: boolean }
-) {
-    const { ref, inView } = useInView({ threshold: 0 });
 
+export const FolderTab = (
+) => {
+    const { ref, inView } = useInView({ threshold: 0 });
+    const { user, isMe, sort } = useProfile();
+    const ascending = sort.folders === 'latest' ? false : true;
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
-            () => getUsersFolders(supabase, userId),
-            { pageSize: 10 });
+            () => getUsersFolders(supabase, user.id)
+                .order('createdAt', { ascending }),
+            { pageSize: 10, revalidateFirstPage: false });
 
     useEffect(() => {
         if (inView && !isValidating && loadMore) loadMore()
@@ -44,4 +47,6 @@ export default function FoldersContainer(
         </>
     )
 
-}   
+}
+
+export default FolderTab;

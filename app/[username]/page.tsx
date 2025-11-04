@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 import Container from '@/app/[username]/components/container';
 import ProfileCard from '@/app/[username]/components/profile';
 import NavTransparencyController from '@/app/[username]/components/navbar-contoller';
+import { ProfileProvider } from '@/app/[username]/components/provider';
 
 export default async function ProfilePage(
     { params }: { params: Promise<{ username: string }> }
@@ -20,17 +21,17 @@ export default async function ProfilePage(
     const isPrivate = data.profilePrivate && !isMe
 
     let showBanner = false
-    if (!!data.bannerUrl && data.isPro === "active")
+    if (data.bannerUrl && data.isPro === "active")
         showBanner = true
 
-    console.log(data)
     return (
         <div className={`${showBanner ? "" : "padding-top"}`}>
-            {/* <EditingProvider> */}
             <NavTransparencyController showBanner={showBanner} />
-            <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
-            {isPrivate ? <div>Private Profile</div> : <Container user={data} isMe={isMe} />}
-            {/* <EditingProvider> */}
-        </div>
+            <ProfileProvider user={data} isMe={isMe}>
+                <ProfileCard user={data} isMe={isMe} showBanner={showBanner} />
+                {isPrivate ? <div>Private Profile</div> : <Container />}
+            </ProfileProvider>
+        </div >
+
     )
 }   

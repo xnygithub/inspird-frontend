@@ -20,7 +20,6 @@ const getFolderPosts = (client: SupabaseClient, f_id: string) => {
 export default function FolderPosts(
     { folder }: { folder: FolderWithCounts }
 ) {
-    console.log(folder);
     const { data, loadMore, isValidating } =
         useOffsetInfiniteScrollQuery(
             () => getFolderPosts(supabase, folder.id),
@@ -37,7 +36,6 @@ export default function FolderPosts(
 
         }
     );
-    console.log(data);
 
     return (
         <div className='mt-8'>

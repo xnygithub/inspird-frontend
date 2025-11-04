@@ -1,5 +1,5 @@
 import { embedText } from "@/lib/api/hf";
-import { matchPosts } from "@/lib/queries/search";
+import { matchPosts, storeQuery } from "@/lib/queries/search";
 import { createClient } from "@/utils/supabase/server";
 import MasonryComponent from "@/app/search/components/masonry";
 
@@ -15,6 +15,7 @@ interface Props {
 
 const supabase = await createClient();
 
+
 export default async function SearchPage(
     { searchParams }: Props
 ) {
@@ -22,6 +23,10 @@ export default async function SearchPage(
     const q = sp?.q;
 
     const res = await embedText(q as string);
+
+    const { data: user } = await supabase.auth.getUser();
+    if (user.user) void storeQuery(supabase, q as string);
+
 
     if (!res.ok) {
         console.error(res.statusText)

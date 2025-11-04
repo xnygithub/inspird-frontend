@@ -3,6 +3,8 @@ import * as React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import Recent from "@/components/search/recent";
+import { useUserContext } from "../userContext";
 
 export const SearchBar: React.FC = () => {
     const [open, setOpen] = React.useState(false);
@@ -10,6 +12,8 @@ export const SearchBar: React.FC = () => {
     const anchorRef = React.useRef<HTMLDivElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const router = useRouter();
+    const { history } = useUserContext();
+
 
     React.useEffect(() => {
         if (open) {
@@ -59,7 +63,7 @@ export const SearchBar: React.FC = () => {
                                 autoComplete="off"
                                 placeholder="Search"
                                 id="navbar-search-input"
-                                className="px-6 border-none rounded-2xl outline-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white placeholder:text-white transition-all duration-500"
+                                className="border-none rounded-2xl outline-none focus-visible:ring-0 focus-visible:ring-offset-0 font-sanspx-6 text-white placeholder:text-white transition-all duration-500"
                                 ref={inputRef}
                                 value={query}
                                 onChange={(e) => {
@@ -106,11 +110,14 @@ export const SearchBar: React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <div className="opacity-60 px-3 pt-4 text-xs uppercase tracking-wide">Recent</div>
-                                <ul className="p-2">
-                                    <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 1")}>last search 1</li>
-                                    <li className="hover:bg-accent px-3 py-2 rounded-md cursor-pointer" onClick={() => setQuery("last search 2")}>last search 2</li>
-                                </ul>
+                                {history && history.length > 0 && (
+                                    <>
+                                        <div className="opacity-60 px-3 pt-4 font-sans text-sm uppercase tracking-wide">Recent</div>
+                                        <ul className="flex flex-row items-start gap-2.5 p-2 pl-3 max-h-1/4 overflow-x-hidden">
+                                            {history.map((item) => (<Recent key={item.id} query={item} setQuery={setQuery} />))}
+                                        </ul>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>

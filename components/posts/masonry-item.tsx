@@ -1,8 +1,11 @@
-import Image from "next/image";
+"use client"
 import Link from "next/link";
+import Image from "next/image";
+import { toast } from "sonner";
 import { getMediaUrl } from "@/utils/urls";
-import { Quicksave } from '@/components/posts/quicksave'
 import { Button } from "@/components/ui/button";
+import { ProfilePostsType } from "@/types/posts";
+import { Quicksave } from '@/components/posts/quicksave'
 import {
     ContextMenu,
     ContextMenuContent,
@@ -11,6 +14,8 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 
+
+type ItemType = ProfilePostsType;
 
 const OpenNewTab = (
     { postId }: { postId: string }
@@ -47,10 +52,37 @@ const OpenImageNewTab = (
     )
 }
 
+const DeletePost = (
+    { postId }: { postId: string }
+) => {
+    const handleDelete = async () => {
+        toast.success(`Post ${postId} deleted`)
+        // const supabase = createClient()
+        // const { error } = await deletePost(supabase, postId)
+        // if (error) {
+        //     console.log("Error deleting post", error.message)
+        // } else {
+        //     toast.success("Post deleted ")
+        // }
+    }
+    return (
+        <ContextMenuItem
+            variant="destructive"
+            onClick={handleDelete}>
+            Delete
+        </ContextMenuItem>
+    )
+}
+
+
+interface CtxProps {
+    children: React.ReactNode;
+    data: ItemType;
+    isMe: boolean;
+}
 
 const ContextMenuWrapper = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { children, data }: { children: React.ReactNode, data: any }
+    { children, data, isMe }: CtxProps
 ) => {
     return (
         <ContextMenu>
@@ -62,18 +94,23 @@ const ContextMenuWrapper = (
                 <OpenImageNewTab mediaUrl={data.mediaUrl} />
                 <CopyLink postId={data.id} />
                 <ContextMenuSeparator />
+                {isMe && <DeletePost postId={data.id} />}
                 <ContextMenuItem variant="destructive">Report</ContextMenuItem>
             </ContextMenuContent>
         </ContextMenu>
     )
 }
 
+interface MasonryItemProps {
+    index: number;
+    data: ItemType;
+    isMe: boolean;
+}
 
 export const MasonryItem = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { index, data }: { index: number, data: any }
+    { index, data, isMe }: MasonryItemProps
 ) => (
-    <ContextMenuWrapper data={data}>
+    <ContextMenuWrapper data={data} isMe={isMe}>
         <div className="group relative w-full" key={index}>
             <Link href={`/posts/${data.id}`}>
                 <Image

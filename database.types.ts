@@ -291,6 +291,27 @@ export type Database = {
           },
         ]
       }
+      search_history: {
+        Row: {
+          createdAt: string
+          id: string
+          query: string
+          userId: string
+        }
+        Insert: {
+          createdAt?: string
+          id?: string
+          query: string
+          userId?: string
+        }
+        Update: {
+          createdAt?: string
+          id?: string
+          query?: string
+          userId?: string
+        }
+        Relationships: []
+      }
       userSubscriptionHistory: {
         Row: {
           endDate: string
@@ -356,6 +377,7 @@ export type Database = {
       folders_summary: {
         Args: Record<PropertyKey, never> | { user_id: string }
         Returns: {
+          createdAt: string
           description: string
           id: string
           isPrivate: boolean
@@ -412,6 +434,7 @@ export type Database = {
       get_posts: {
         Args: { user_uuid: string }
         Returns: {
+          createdAt: string
           id: string
           isAiGenerated: boolean
           isNsfw: boolean
@@ -431,11 +454,11 @@ export type Database = {
         Args: { p_username: string } | { user_id: string }
         Returns: {
           avatarUrl: string
-          bannerUrl: string
           canvasCount: number
           createdAt: string
           displayName: string
           folderCount: number
+          bannerUrl: string
           id: string
           isPro: string
           itemCount: number

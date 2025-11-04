@@ -1,5 +1,6 @@
 import { slugify } from "@/utils/slufigy";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "@/database.types";
 
 export const createCanvasDoc = (
     client: SupabaseClient,
@@ -25,7 +26,7 @@ export const deleteCanvasDoc = (
 };
 
 export const getCanvasDoc = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     username: string,
     canvasTitle: string
 ) => {

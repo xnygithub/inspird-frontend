@@ -3,6 +3,17 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/database.types";
 
 
+export const getFoldersSimpleQuery = (
+    client: SupabaseClient<Database>,
+    userId: string
+) => {
+    return client
+        .from("folders")
+        .select("id, name, isPrivate, updatedAt, slug")
+        .eq("userId", userId)
+        .order("createdAt", { ascending: false });
+}
+
 export async function getFolderWithCounts(
     client: SupabaseClient,
     f_slug: string,

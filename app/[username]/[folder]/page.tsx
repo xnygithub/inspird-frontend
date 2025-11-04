@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import FolderPosts from '@/app/[username]/[folder]/components/posts'
 import { FolderDetails } from "@/app/[username]/[folder]/components/details"
 import { FolderWithCounts } from '@/types/folders'
+import Sections from './components/sections'
 
 export default async function FolderPage(
     { params }: { params: Promise<{ username: string, folder: string }> }
@@ -22,6 +23,7 @@ export default async function FolderPage(
     return (
         <div className='padding-top mx-4'>
             <FolderDetails folder={items} canEdit={canEdit} />
+            <Sections />
             <FolderPosts folder={items} />
         </div>
     )

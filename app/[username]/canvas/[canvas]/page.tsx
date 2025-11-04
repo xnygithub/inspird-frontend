@@ -1,21 +1,17 @@
-import CanvasPageComponent from "@/app/[username]/canvas/[canvas]/pages/canvas"
-import { notFound } from "next/navigation"
-import { createClient } from "@/utils/supabase/server"
-import { getCanvasDoc } from "@/lib/queries/canvas"
-import { CanvasType } from "@/types/canvas"
+import Canvas from "@/app/[username]/canvas/[canvas]/features/page"
+import { createClient } from '@/utils/supabase/server'
 
-interface Props {
-    params: Promise<{ username: string; canvas: string }>;
-}
-
-
-export default async function CanvasPage(
-    { params }: Props
-) {
-    const { canvas, username } = await params
+export default async function CanvasPage({ params }: {
+    params: Promise<{ canvas: string }>
+}) {
     const supabase = await createClient()
-    const { data, error } = await getCanvasDoc(supabase, username, canvas)
-    const res = data as unknown as CanvasType
-    if (error || !data) return notFound()
-    return <CanvasPageComponent canvas={res} />
-}   
+
+    const { canvas } = await params;
+    const { data, error } = await supabase
+        .from("canvas_doc")
+        .select("*")
+        .eq("slug", canvas)
+        .single()
+    if (error) throw new Error(error.message)
+    return <Canvas data={data} />
+}

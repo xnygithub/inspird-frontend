@@ -1,51 +1,58 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Sort from '@/app/[username]/components/sort';
-import Search from '@/app/[username]/components/search';
-import PinsContainer from '@/app/[username]/components/pin-tab';
-import FoldersContainer from '@/app/[username]/components/folders/tab-content';
-import CanvasContainer from '@/app/[username]/components/canvas-tab';
-import ToggleSearch from '@/app/[username]/components/toggle-search';
+import { Sort } from '@/app/[username]/components/sort';
+import { SearchBar, ToggleSearch } from '@/app/[username]/components/search';
+import PinTab from '@/app/[username]/components/pin-tab';
+import FolderTab from '@/app/[username]/components/folders/tab-content';
+import { CanvasTab } from '@/app/[username]/components/canvas-tab';
+import { useProfile, type TabKey } from '@/app/[username]/components/provider';
+import { getTabCounts } from '@/utils/tabCount';
 
-function getTabCount(count: number, text: string) {
-    return count + " " + (count === 1 ? text : text + "s")
-}
-const Container = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { user, isMe }: { user: any, isMe: boolean }
+
+
+export const Container = (
 ) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [tab, setTab] = useState('pins');
-    const [sort, setSort] = useState('latest');
+    const { user } = useProfile();
+    const [tab, setTab] = useState<TabKey>('pins');
+
+    const counts = useMemo(() => getTabCounts({
+        itemCount: user.itemCount,
+        folderCount: user.folderCount,
+        canvasCount: user.canvasCount
+    }), [user]);
 
     return (
-        <Tabs className="profile-tabs" defaultValue={tab} onValueChange={setTab}>
+        <Tabs
+            className="profile-tabs"
+            defaultValue={tab}
+            onValueChange={(value) => setTab(value as TabKey)}>
             <TabsList variant='profile'>
                 <TabsTrigger value="pins" variant='profile'>
-                    {getTabCount(user.itemCount, "Pin")}
+                    {counts.pins}
                 </TabsTrigger>
                 <TabsTrigger value="folders" variant='profile'>
-                    {getTabCount(user.folderCount, "Folder")}
+                    {counts.folders}
                 </TabsTrigger>
                 <TabsTrigger value="canvas" variant='profile'>
-                    {getTabCount(user.canvasCount, "Canvas")}
+                    {counts.canvas}
                 </TabsTrigger>
-                <div className='top-0 right-0 absolute flex items-center gap-2 mr-[6px]'>
-                    {tab === 'pins' && <ToggleSearch open={isOpen} setOpen={setIsOpen} />}
-                    <Sort setSort={setSort} />
+
+                <div className='tab-filter'>
+                    {tab === 'pins' && <ToggleSearch />}
+                    <Sort tab={tab} />
                 </div>
             </TabsList>
-            {tab == 'pins' && <Search open={isOpen} />}
+            {tab == 'pins' && <SearchBar />}
 
-            <TabsContent id="tabs-content" value="pins">
-                <PinsContainer userId={user.id} />
+            <TabsContent value="pins">
+                <PinTab />
             </TabsContent>
-            <TabsContent id="tabs-content" value="folders">
-                <FoldersContainer userId={user.id} isMe={isMe} />
+            <TabsContent value="folders">
+                <FolderTab />
             </TabsContent>
-            <TabsContent id="tabs-content" value="canvas">
-                <CanvasContainer userId={user.id} />
+            <TabsContent value="canvas">
+                <CanvasTab />
             </TabsContent>
         </Tabs>
     )

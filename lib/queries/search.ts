@@ -12,3 +12,18 @@ export const matchPosts = (
         include_private: false,
     });
 }
+
+
+export const storeQuery = (
+    client: SupabaseClient<Database>,
+    query: string
+) => {
+    return client.from('search_history').insert({ query })
+}
+
+export const deleteQuery = (
+    client: SupabaseClient,
+    id: string
+) => {
+    return client.from('search_history').delete().eq('id', id);
+}
