@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const DEFAULT_TAB = "profile";
 const allowedTabs = ["profile", "account", "filtering", "subscription"];
+const LOGIN_PATHS = ['/login', '/signup', '/forgot-password']
+
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
@@ -40,7 +42,7 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     // Prevent logged in users from accessing login page
-    if (user && request.nextUrl.pathname.startsWith('/login')) {
+    if (user && LOGIN_PATHS.includes(request.nextUrl.pathname)) {
         const url = request.nextUrl.clone()
         url.pathname = '/'
         return NextResponse.redirect(url)
@@ -84,7 +86,7 @@ export async function updateSession(request: NextRequest) {
 
     if (
         !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
+        !LOGIN_PATHS.includes(request.nextUrl.pathname) &&
         !request.nextUrl.pathname.startsWith('/auth') &&
         !request.nextUrl.pathname.startsWith('/error')
     ) {

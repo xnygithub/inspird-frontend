@@ -11,6 +11,7 @@ const getBaseUrl = () => {
 }
 
 function getSignInErrorMessage(error: AuthError) {
+    console.log(error)
     if (error.message.includes('Email not confirmed'))
         return "Please confirm your email"
 
@@ -66,4 +67,17 @@ export async function signOut() {
     const { error } = await supabase.auth.signOut({ scope: 'local' })
     if (error) redirect('/error')
     redirect('/')
+}
+
+export async function resetPassword(
+    initialState: { message: string },
+    formData: FormData
+) {
+    const email = formData.get('email') as string
+    const supabase = await createClient()
+    const baseUrl = getBaseUrl()
+    const redirectTo = `${baseUrl}/change-password`
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    if (error) return { error: true, message: error.message }
+    return { message: 'Please check your email for a reset password link.' }
 }

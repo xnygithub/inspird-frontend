@@ -1,44 +1,75 @@
 "use client"
-import { login, signup } from '@/app/login/actions'
-import { useActionState } from 'react'
-import { Input } from '@/components/ui/input'
+import { LoginForm } from './login'
+import { ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { SignupForm } from './signup'
+import { ForgotPasswordForm } from './forgot-password'
+import KenBurnsSlideshow from './gallery'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { createClient } from '@/utils/supabase/client'
+import { ChangePasswordForm } from './change-password'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
-const initialState = { error: false, message: '' }
 export default function LoginPage() {
-    const [signInState, signInAction, signInPending] = useActionState(login, initialState)
-    const [signUpState, signUpAction, signUpPending] = useActionState(signup, initialState)
+    const [path, setPath] = useState<string | null>(null)
+    const supabase = createClient()
+
+    const pathname = usePathname()
+    useEffect(() => {
+        setPath(pathname)
+    }, [pathname])
+
+
+    useEffect(() => {
+        const { data: sub } = supabase.auth.onAuthStateChange(async (event) => {
+            if (event === "PASSWORD_RECOVERY") {
+                const newPassword = prompt("Enter your new password");
+                if (newPassword) {
+                    const { error } = await supabase.auth.updateUser({ password: newPassword });
+                    if (error) alert(error.message);
+                    else alert("Password updated!");
+                }
+            }
+        });
+
+        return () => {
+            sub.subscription.unsubscribe();
+        };
+    }, []);
 
     return (
-        <div className='mx-auto w-[300px]'>
-            <Tabs defaultValue="login">
-                <TabsList className='self-center'>
-                    <TabsTrigger value="login">Login</TabsTrigger>
-                    <TabsTrigger value="signup">Sign up</TabsTrigger>
-                </TabsList>
-                <TabsContent value="login">
-                    <form action={signInAction} className="flex flex-col">
-                        <Label htmlFor="email">Email:</Label>
-                        <Input id="email" name="email" type="email" required />
-                        <Label htmlFor="password">Password:</Label>
-                        <Input id="password" name="password" type="password" required />
-                        {signInState.error && <p className='text-red-500'>{signInState?.message}</p>}
-                        <Button disabled={signInPending} className='self-center mt-2'>Log in</Button>
-                    </form>
-                </TabsContent>
-                <TabsContent value="signup">
-                    <form action={signUpAction} className="flex flex-col">
-                        <Label htmlFor="email">Email:</Label>
-                        <Input id="email" name="email" type="email" required />
-                        <Label htmlFor="password">Password:</Label>
-                        <Input id="password" name="password" type="password" required />
-                        {signUpState.error && <p className='text-red-500'>{signUpState?.message}</p>}
-                        <Button disabled={signUpPending} className='self-center mt-2'>Sign up</Button>
-                    </form>
-                </TabsContent>
-            </Tabs>
+        <div className="padding-top grid lg:grid-cols-2 min-h-svh font-sans">
+            <div className="flex flex-col gap-4 p-6 md:p-10">
+                <div className="flex justify-center md:justify-start gap-2">
+                    <Link href="/login">
+                        <Button
+                            variant="icon"
+                            type="button"
+                            className="rounded-full">
+                            <ArrowLeft className="size-4" />
+                        </Button>
+                    </Link>
+                    <a href="#" className="flex items-center gap-2 font-medium">
+                        Inspird Inc.
+                    </a>
+
+                </div>
+                <div className="flex flex-1 justify-center items-center">
+                    <div className="padding-bottom w-full max-w-sm">
+                        {path === '/login' && <LoginForm />}
+                        {path === '/signup' && <SignupForm />}
+                        {path === '/forgot-password' && <ForgotPasswordForm />}
+                        {path === '/change-password' && <ChangePasswordForm />}
+                    </div>
+                </div>
+            </div>
+            <KenBurnsSlideshow
+                slideDuration={20000}
+                fadeDuration={2000}
+                className="hidden lg:block relative overflow-hidden"
+            />
         </div>
     )
 }
+
