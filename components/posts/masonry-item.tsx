@@ -3,8 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/utils/urls";
-import { Button } from "@/components/ui/button";
-import { ProfilePostsType } from "@/types/posts";
+import { cn } from "@/lib/utils";
+import { FolderPostsType, ProfilePostsType } from "@/types/posts";
 import { Quicksave } from '@/components/posts/quicksave'
 import {
     ContextMenu,
@@ -14,8 +14,7 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 
-
-type ItemType = ProfilePostsType;
+type ItemType = ProfilePostsType | FolderPostsType;
 
 const OpenNewTab = (
     { postId }: { postId: string }
@@ -101,35 +100,41 @@ const ContextMenuWrapper = (
     )
 }
 
-interface MasonryItemProps {
-    index: number;
-    data: ItemType;
-    isMe: boolean;
-}
 
-export const MasonryItem = (
-    { index, data, isMe }: MasonryItemProps
-) => (
-    <ContextMenuWrapper data={data} isMe={isMe}>
-        <div className="group relative w-full" key={index}>
-            <Link href={`/posts/${data.id}`}>
-                <Image
-                    className="object-cover"
-                    alt={data.mediaAltText || ''}
-                    src={getMediaUrl(data.mediaUrl)}
-                    width={data.mediaWidth}
-                    height={data.mediaHeight}
-                    style={{ width: '100%', height: 'auto' }}
-                />
-            </Link>
-            <div id="group-hover">
-                <Link href={`/${data.ownerUsername}`}>
-                    <Button variant="pinUsername" size="username">
-                        @{data.ownerUsername}
-                    </Button>
+export const MasonryItem = ({
+    data,
+    isMe
+}: {
+    data: ItemType;
+    isMe: boolean
+}
+) => {
+    return (
+
+        <ContextMenuWrapper data={data} isMe={isMe}>
+            <div className="group relative w-full overflow-hidden">
+                <Link href={`/posts/${data.id}`}>
+                    <Image
+                        className="object-cover"
+                        alt={data.mediaAltText || ''}
+                        src={getMediaUrl(data.mediaUrl)}
+                        width={data.mediaWidth}
+                        height={data.mediaHeight}
+                        style={{ width: '100%', height: 'auto' }}
+                    />
                 </Link>
-                <Quicksave isAlreadySaved={data.isSaved} postId={data.id} />
+                <div id="group-hover">
+                    <Link
+                        href={`/${data.ownerUsername}`}
+                        className={cn(
+                            "inline-flex right-[.5rem] bottom-[.5rem] absolute p-0 px-3 py-1.5",
+                            "bg-[var(--background)] text-[var(--primary)] font-medium font-sans text-xs rounded-full",
+                            "hover:underline hover:underline-offset-4 space-x-0.5")}>
+                        @{data.ownerUsername}
+                    </Link>
+                    <Quicksave isAlreadySaved={data.isSaved} postId={data.id} />
+                </div>
             </div>
-        </div>
-    </ContextMenuWrapper>
-)
+        </ContextMenuWrapper>
+    )
+}

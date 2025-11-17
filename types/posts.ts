@@ -11,3 +11,4 @@ export interface SimilarPost {
 import { Database } from "@/database.types";
 
 export type ProfilePostsType = Database['public']['Functions']['get_posts']['Returns'][number];
+export type FolderPostsType = Database['public']['Functions']['get_folder_posts']['Returns'][number];

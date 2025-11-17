@@ -4,17 +4,21 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/login',
-        destination: '/login'
-      },
-      {
         source: '/signup',
         destination: '/login'
       },
       {
         source: '/forgot-password',
         destination: '/login'
-      }
+      },
+      {
+        source: '/change-password',
+        destination: '/login'
+      },
+      {
+        source: '/settings',
+        destination: '/settings/profile'
+      },
     ];
   },
 
@@ -22,11 +26,9 @@ const nextConfig: NextConfig = {
     domains: [
       "i.pinimg.com",
       "xtuvouuyblwehrqsmhqb.supabase.co",
-      "images.squarespace-cdn.com",
-      "picsum.photos"
+      "images.squarespace-cdn.com"
     ],
   },
-  /* config options here */
 };
 
 export default nextConfig;

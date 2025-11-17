@@ -1,21 +1,16 @@
 "use client"
 import Image from "next/image"
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { uploadAvatar } from "@/lib/queries/profile"
-import { getUserId } from "@/lib/session"
 import { toast } from "sonner"
+import { getUserId } from "@/lib/session"
+import { Input } from "@/components/ui/input"
+import { updateAvatar, uploadAvatar } from "@/lib/queries/profile"
+import { useUserContext } from "./userContext"
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 
-interface Props {
-    url: string
-    className: string
-    props?: React.HTMLAttributes<HTMLDivElement>
-    canEdit: boolean
-}
 
 const validateImage = (file: File) => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
@@ -27,34 +22,49 @@ const validateImage = (file: File) => {
     return true
 }
 
-
 const handleUpload = async (file: File) => {
     const { supabase, userId } = await getUserId()
     if (!userId) throw new Error("No user session")
 
     const extension = file.name.split(".").pop()
-    const key = `${userId}.${extension}`
+    const randomeKey = crypto.randomUUID().slice(0, 4)
+    const key = `${userId}/${randomeKey}.${extension}`
 
     const { error: storageError } = await uploadAvatar(supabase, key, file)
     if (storageError) throw storageError
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user-avatars/${key}`
 }
 
-export const Avatar = (
-    { url, className, props, canEdit }: Props
-) => {
-    const [avatarUrl] = useState<string>(url)
+export const handleUpdate = async (avatarUrl: string) => {
+    const { supabase, userId } = await getUserId()
+    if (!userId) throw new Error("No user session")
+    const { error } = await updateAvatar(supabase, avatarUrl, userId)
+    if (error) throw error
+}
+
+export const Avatar = ({
+    url,
+    className,
+    props
+}: {
+    url: string
+    className?: string
+    props?: React.HTMLAttributes<HTMLDivElement>
+}) => {
+    const { user, updateUser } = useUserContext()
+    const [avatarUrl] = useState<string>(user?.avatarUrl || url)
     const handleAvatarClick = () => {
-        if (!canEdit) return
         const doc = document.getElementById("avatar-input")
         if (doc) doc.click()
     }
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!canEdit) return
         const file = e.target.files?.[0]
         if (file && validateImage(file)) {
             try {
-                await handleUpload(file)
+                const newAvatarUrl = await handleUpload(file)
+                await handleUpdate(newAvatarUrl)
+                updateUser({ avatarUrl: newAvatarUrl })
                 toast.success("Avatar updated")
             } catch (error) {
                 toast.error("Failed to update avatar")
@@ -66,21 +76,23 @@ export const Avatar = (
     }
 
     return (
-        <>
-            <Image
-                fill
-                src={avatarUrl}
-                alt="Avatar"
-                className={cn(canEdit ? "cursor-pointer" : "", className)}
-                {...props}
-                onClick={canEdit ? handleAvatarClick : undefined} />
-            {canEdit &&
+        <div className={cn("space-y-2 md:max-w-xs", className)}>
+            <div className="relative mx-auto rounded-full w-28 h-28 overflow-hidden">
+                <Image
+                    fill
+                    {...props}
+                    alt="Avatar"
+                    src={avatarUrl}
+                    className={cn("object-cover cursor-pointer")}
+                    onClick={handleAvatarClick} />
                 <Input
                     type="file"
                     id="avatar-input"
                     accept={ACCEPTED_IMAGE_TYPES.join(",")}
                     hidden onChange={handleImageChange}
-                />}
-        </>
+                />
+            </div>
+            <span className="block text-muted-foreground text-xs text-center">Click to change</span>
+        </div>
     )
 }

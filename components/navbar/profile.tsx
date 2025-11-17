@@ -8,13 +8,16 @@ export const Avatar = () => {
     const { user } = useUserContext()
     if (!user) return null;
     return (
-        <Link href={`/${user.username}`} className="relative">
-            <div className="relative rounded-full w-8 h-8 overflow-hidden">
-                <Image fill sizes="32px" alt="Avatar" priority
-                    src={user.avatarUrl}
-                    className="object-cover"
-                />
-            </div>
+        <Link
+            href={`/${user.username}`}
+            className="relative rounded-full w-9 h-9 overflow-hidden">
+            <Image
+                fill
+                alt="Avatar"
+                priority
+                src={user.avatarUrl}
+                className="object-cover"
+            />
         </Link>
     )
 }

@@ -17,6 +17,7 @@ model Profile {
   displayName             String                    @db.VarChar(50)
   avatarUrl               String                    @default("") @db.VarChar(255)
   bannerUrl               String                    @default("") @db.VarChar(255)
+  profileBio              String                    @default("") @db.VarChar(255)
   profilePrivate          Boolean                   @default(false)
   hasOnboarded            Boolean                   @default(false)
   stripeCustomerId        String?                   @db.VarChar(255)

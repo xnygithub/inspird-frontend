@@ -26,7 +26,7 @@ const tabsListVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-muted text-muted-foreground h-9 w-fit  rounded-lg p-[3px]",
+        default: "bg-muted text-muted-foreground h-9 w-fit rounded-lg p-[3px]",
         profile: "text-muted-foreground w-fit gap-2 relative w-full",
       },
     },
@@ -49,7 +49,7 @@ const tabsTriggerVariants = cva(
         default:
           "text-lg font-medium",
         profile:
-          "text-base active:translate-y-0.5 transition-transform font-medium select-none font-sans",
+          "select-none font-sans ",
       },
     },
     defaultVariants: {
