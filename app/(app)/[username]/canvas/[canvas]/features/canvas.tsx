@@ -15,7 +15,6 @@ const KonvaCanvas = ({ data }: { data: any }) => {
     const size = useWindowSize();
 
     useEffect(() => {
-        console.log("initialized", initialized);
         if (initialized) return;
         if (!divRef.current)
             throw new Error("ContainerRef not provided");

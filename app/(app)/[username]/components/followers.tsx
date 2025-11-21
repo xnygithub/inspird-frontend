@@ -4,36 +4,45 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-interface DialogProps {
-    tab: string
+enum Tab {
+    Followers = 'followers',
+    Following = 'following'
+}
+
+type DialogProps = {
+    tab: Tab
     open: boolean
     setOpen: (open: boolean) => void
 }
 
-interface ItemProps {
+type FItemProps = {
     name: string
     username: string
     buttonText: string
 }
 
-interface ButtonProps {
-    followers: number
+type FButtonProps = {
+    followers: number,
     following: number
-}
+};
 
-const FollowerItem = (
-    { name, username, buttonText }: ItemProps
-) => {
+
+function FollowerItem({
+    name,
+    username,
+    buttonText
+}: FItemProps
+) {
     return (
-        <div className="flex justify-between items-center gap-2 hover:bg-accent px-4 py-2.5 w-full font-sans cursor-pointer">
+        <div className="flex justify-between items-center gap-2 hover:bg-accent px-4 py-3 w-full font-sans cursor-pointer">
             <div className="flex items-center gap-2.5">
-                <img src="https://placehold.co/50x50" alt="Follower" className="rounded-full" />
+                <img src="https://placehold.co/40x40" alt="Follower" className="rounded-md" />
                 <div>
-                    <p className="font-semibold">{name}</p>
-                    <p className="opacity-80 text-sm">@{username}</p>
+                    <div className="font-medium text-[15px]">{name}</div>
+                    <div className="opacity-80 text-xs">@{username}</div>
                 </div>
             </div>
-            <Button variant="genericRounded" className="group relative w-22">
+            <Button variant="genericRounded" className="group relative px-4 py-2 w-22 h-fit text-xs">
                 <span className="group-hover:hidden">{buttonText === 'Follow' ? buttonText : "Unfollow"}</span>
                 <span className="hidden group-hover:inline">{buttonText === 'Follow' ? "Unfollow" : "Follow"}</span>
             </Button>
@@ -41,12 +50,17 @@ const FollowerItem = (
     )
 }
 
-const FollowerDialog = (
-    { tab, open, setOpen }: DialogProps
-) => {
+function FollowerDialog({
+    tab,
+    open,
+    setOpen
+}: DialogProps
+) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent showCloseButton={false} className="flex flex-col items-center px-0 rounded-3xl w-[425px] min-h-[600px]">
+            <DialogContent
+                showCloseButton={false}
+                className="flex flex-col items-center px-3 rounded-3xl w-[400px] min-h-[600px]">
                 <DialogHeader hidden>
                     <DialogTitle>{tab === 'followers' ? 'Followers' : 'Following'}</DialogTitle>
                 </DialogHeader>
@@ -58,13 +72,14 @@ const FollowerDialog = (
                     <TabsContent value="followers" className="items-center w-full">
                         <div className="flex flex-col gap-2">
                             <FollowerItem name="John Doe" username="john_doe" buttonText="Follow" />
-                            <FollowerItem name="John Doe" username="john_doe" buttonText="Follow" />
+                            <FollowerItem name="Mary Jane" username="mary_jane" buttonText="Unfollow" />
                         </div>
                     </TabsContent>
                     <TabsContent value="following" className="items-center w-full">
                         <div className="flex flex-col gap-2">
                             <FollowerItem name="Mary Jane" username="mary_jane" buttonText="Unfollow" />
-                            <FollowerItem name="Mary Jane" username="mary_jane" buttonText="Unfollow" />
+                            <FollowerItem name="John Doe" username="john_doe" buttonText="Follow" />
+
                         </div>
                     </TabsContent>
                 </Tabs>
@@ -73,36 +88,39 @@ const FollowerDialog = (
     )
 }
 
-type Tab = 'followers' | 'following'
-type Props = { followers: number, following: number };
-const FollowersButton = (
-    { followers, following }: Props
-) => {
+function FollowersButton({
+    followers,
+    following
+}: FButtonProps
+) {
     const [open, setOpen] = useState(false)
-    const [tab, setTab] = useState<Tab>('followers')
+    const [tab, setTab] = useState<Tab>(Tab.Followers)
 
-    const handleClick = (tab: Tab) => {
-        setTab(tab); setOpen(true)
+    function openTab(tab: Tab) {
+        setTab(tab);
+        setOpen(true)
     }
 
     return (
-        <div className="flex gap-8 mt-4 [&_button]:text-base">
+        <div className="flex gap-2 mt-4">
             <Button
                 size="wrap"
                 variant="followButton"
-                onClick={() => handleClick('followers')}>
+                onClick={() => openTab(Tab.Followers)}>
                 {followers} Followers
             </Button>
             <Button
                 size="wrap"
                 variant="followButton"
-                onClick={() => { setTab("following"); setOpen(true) }}>
+                onClick={() => openTab(Tab.Following)}>
                 {following} Following
             </Button>
-            <FollowerDialog tab={tab} open={open} setOpen={setOpen} />
+            <FollowerDialog
+                tab={tab}
+                open={open}
+                setOpen={setOpen} />
         </div>
     )
 }
-
 
 export { FollowersButton }

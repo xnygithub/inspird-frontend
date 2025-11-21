@@ -39,7 +39,7 @@ const ProfileSettingsPage = async () => {
                 heading='Your Profile'
                 description='
                 Manage your public profile.'>
-                <Avatar url={user.avatarUrl} className='my-6' />
+                <Avatar url={user.avatarUrl} />
 
                 {/* Core profile information */}
                 <form className='space-y-6 w-full'>

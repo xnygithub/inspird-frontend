@@ -1,7 +1,9 @@
-// app/auth/callback/route.ts
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
+/**
+ * This route is used to handle the callback from supabase
+ */
 export async function GET(req: Request) {
     const url = new URL(req.url);
     const code = url.searchParams.get('code');

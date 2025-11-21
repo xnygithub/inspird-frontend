@@ -1,33 +1,47 @@
 import './post.css'
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { Post } from '@/app/generated/prisma'
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "@/utils/supabase/server"
 import SidebarProvider from "@/app/(app)/posts/[id]/_components/sidebar.provider"
 import ToggleSidebarButton from "@/app/(app)/posts/[id]/_components/toggle"
 import Similar from "@/app/(app)/posts/[id]/_components/similar"
-import { FolderSave } from '@/components/posts/save'
+import { FolderSave } from '@/components/posts/popover-save'
 import Edit from "@/app/(app)/posts/[id]/_components/edit"
 import { getMediaUrl } from "@/utils/urls"
+import { SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/database.types'
 
-async function getPost(id: string) {
-    const supabase = await createClient()
-    const { data } = await supabase
+interface Props {
+    id: string
+}
+
+async function getPost(
+    client: SupabaseClient<Database>,
+    id: string
+) {
+    const { data, error } = await client
         .from('posts')
-        .select('*')
+        .select('id, mediaUrl, mediaAltText, mediaWidth, mediaHeight')
         .eq('id', id)
-        .single() as { data: Post }
-    if (!data) return notFound()
+        .single()
+    if (error || !data) return null
     return data
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+
+export default async function PostPage({
+    params
+}: {
+    params: Promise<Props>
+}) {
     const { id } = await params
-    const data = await getPost(id)
+    const supabase = await createClient()
+    const data = await getPost(supabase, id)
     if (!data) return notFound()
+
     return (
         <SidebarProvider>
-            <div id="selected-post-container" >
+            <div id="selected-post-container" className='padding-top relative mt-20'>
                 <Image
                     src={getMediaUrl(data.mediaUrl)}
                     alt={data.mediaAltText}

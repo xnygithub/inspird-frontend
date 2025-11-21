@@ -11,7 +11,6 @@ const getBaseUrl = () => {
 }
 
 function getSignInErrorMessage(error: AuthError) {
-    console.log(error)
     if (error.message.includes('Email not confirmed'))
         return "Please confirm your email"
 

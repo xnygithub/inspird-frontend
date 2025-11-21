@@ -138,24 +138,27 @@ export default function Banner(
                         </div>}
                 </div>
             ) : (
-                <div ref={ref} style={lockSize ? { minWidth: lockSize.w } : undefined}
-                    className="left-1/2 absolute inset-0 w-full overflow-x-auto -translate-x-1/2">
-                    <Cropper
-                        crop={crop}
-                        zoom={1}
-                        showGrid={false}
-                        image={bannerUrl}
-                        objectFit="horizontal-cover"
-                        aspect={containerSize.width / containerSize.height}
-                        onCropChange={setCrop}
-                        onCropComplete={onCropComplete}
-                        onMediaLoaded={onMediaLoaded}
-                    />
+                <>
+                    <div ref={ref} style={lockSize ? { minWidth: lockSize.w } : undefined}
+                        className="left-1/2 absolute inset-0 w-full overflow-x-auto -translate-x-1/2">
+                        <Cropper
+                            crop={crop}
+                            zoom={1}
+                            showGrid={false}
+                            image={bannerUrl}
+                            objectFit="horizontal-cover"
+                            aspect={containerSize.width / containerSize.height}
+                            onCropChange={setCrop}
+                            onCropComplete={onCropComplete}
+                            onMediaLoaded={onMediaLoaded}
+                        />
+
+                    </div>
                     <div className="bottom-3 left-3 z-10 absolute flex items-center gap-2">
                         <Button variant="genericRounded" onClick={handleSave}>Save</Button>
                         <Button variant="genericRounded" onClick={handleDiscard}>Cancel</Button>
                     </div>
-                </div>
+                </>
             )}
         </div>
     )

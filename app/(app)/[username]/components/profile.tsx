@@ -2,24 +2,18 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { User } from '@/types/users'
-import Banner from '@/app/(app)/[username]/components/banner'
-// import { Avatar } from '@/components/avatar'
-// import { FollowersButton } from '@/app/(app)/[username]/components/followers'
+import { FollowersButton } from '@/app/(app)/[username]/components/followers'
+import UserBanner from '@/app/(app)/[username]/components/custom-banner'
 
-interface Props {
-    user: User
-    isMe: boolean
-    showBanner: boolean
-}
 
-const DisplayName = ({ displayName }: { displayName: string }) => {
+function DisplayName({ displayName }: { displayName: string }) {
     return (
         <span className="block mt-4 text-primary text-2xl leading-none tracking-tight">{displayName}
         </span>
     )
 }
 
-const Username = ({ username }: { username: string }) => {
+function Username({ username }: { username: string }) {
     return (
         <span className="mt-1.5 text-muted-foreground leading-none">
             <span className='text-sm'>@</span>{username}
@@ -27,7 +21,7 @@ const Username = ({ username }: { username: string }) => {
     )
 }
 
-const CoreButton = ({ isMe }: { isMe: boolean }) => {
+function CoreButton({ isMe }: { isMe: boolean }) {
     return (
         <div className='flex flex-row gap-2 mt-4'>
             {isMe && <Link
@@ -47,7 +41,7 @@ const CoreButton = ({ isMe }: { isMe: boolean }) => {
     )
 }
 
-const UserAvatar = ({ url }: { url: string }) => {
+function UserAvatar({ url }: { url: string }) {
     return (
         <Image
             fill
@@ -58,29 +52,23 @@ const UserAvatar = ({ url }: { url: string }) => {
     )
 }
 
-const FollowersButton = ({ followers, following }: { followers: number, following: number }) => {
-    return (
-        <div className='flex flex-row gap-2 mt-2'>
-            <button className='font-sans text-primary text-sm decoration-1 hover:underline underline-offset-4 cursor-pointer'>
-                {followers} Followers
-            </button>
-            <button className='font-sans text-primary text-sm decoration-1 hover:underline underline-offset-4 cursor-pointer'>
-                {following} Following
-            </button>
-        </div>
-    )
+
+export function ProfileCard({
+    user,
+    isMe,
+    showBanner
+}: {
+    user: User
+    isMe: boolean
+    showBanner: boolean
 }
-
-const ProfileCard = (
-    { user, isMe, showBanner }: Props
-) => {
-
+) {
     if (showBanner) {
         return (
             <>
                 <div className="flex flex-col justify-center items-center">
-                    <div className="relative w-full h-72 max-md:h-36 transition-all duration-500">
-                        <Banner url={user.bannerUrl} />
+                    <div className="relative w-full h-[300px]">
+                        <UserBanner url={user.bannerUrl} />
                         <div className="bottom-0 left-1/2 absolute rounded-full outline-[var(--background)] outline-8 w-32 h-32 overflow-hidden -translate-x-1/2 translate-y-1/2">
                             <UserAvatar url={user.avatarUrl} />
                         </div>
@@ -106,14 +94,6 @@ const ProfileCard = (
             <Username username={user.username} />
             <FollowersButton followers={20} following={10} />
             <CoreButton isMe={isMe} />
-            {/* {isMe &&
-                <CustomLink
-                    href='/settings'
-                    text='Settings'
-                    variant='default'
-                    className='mt-8 px-6 py-2 rounded-full font-sans font-medium bg-text-primary-foreground text-primary text-base' />
-
-            } */}
         </div >
     )
 }

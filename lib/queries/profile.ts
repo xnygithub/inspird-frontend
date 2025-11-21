@@ -35,12 +35,6 @@ export const getUserSettings = (
         .single();
 }
 
-export function getProfileRPC(
-    client: SupabaseClient<Database>,
-    p_username: string
-) {
-    return client.rpc("get_profile", { p_username }).maybeSingle();
-}
 
 export function updateAvatar(
     client: SupabaseClient<Database>,
@@ -50,16 +44,26 @@ export function updateAvatar(
     return client.from("profiles").update({ avatarUrl }).eq("id", userId);
 }
 
-export function uploadAvatar(
+export function uploadStorage(
     client: SupabaseClient<Database>,
-    avatarUrl: string,
+    bucket: string,
+    key: string,
     file: File
 ) {
     return client.storage
-        .from("user-avatars")
-        .update(avatarUrl, file, {
+        .from(bucket)
+        .upload(key, file, {
             contentType: file.type,
-            upsert: true,
             cacheControl: "600"
         });
+}
+
+export function removeStorage(
+    client: SupabaseClient<Database>,
+    bucket: string,
+    key: string
+) {
+    return client.storage
+        .from(bucket)
+        .remove([key]);
 }

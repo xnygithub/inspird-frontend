@@ -45,6 +45,7 @@
   
 }
 
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -146,12 +147,26 @@ html {
 
 body { 
   overflow-x: hidden; 
+  @media (max-width: 768px) {
+    margin-bottom: var(--nav-height);
+  }
 } 
 
 [data-scroll-locked][data-scroll-locked] {
   margin-right: 0 !important;
 }
 
+
+.squircle {
+  border-radius: 12px;
+}
+
+@supports (corner-shape: squircle) {
+  .squircle {
+    border-radius: 24px;
+    corner-shape: squircle;
+  }
+}
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {

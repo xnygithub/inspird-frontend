@@ -1,21 +1,16 @@
 'use client'
 import React, { useMemo, useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sort } from '@/app/(app)/[username]/components/sort';
 import { SearchBar, ToggleSearch } from '@/app/(app)/[username]/components/search';
-import PinTab from '@/app/(app)/[username]/components/pin-tab';
-import FolderTab from '@/app/(app)/[username]/components/folders/tab-content';
-import { CanvasTab } from '@/app/(app)/[username]/components/canvas-tab';
+import PinTab from '@/app/(app)/[username]/components/tab-pin';
+import FolderTab from '@/app/(app)/[username]/components/tab-folder';
+import { CanvasTab } from '@/app/(app)/[username]/components/tab-canvas';
 import { useProfile, type TabKey } from '@/app/(app)/[username]/components/provider';
-import { getTabCounts } from '@/utils/tabCount';
 
-
-
-export const Container = (
-) => {
+function Container() {
     const { user } = useProfile();
     const [tab, setTab] = useState<TabKey>('pins');
-
 
     const counts = useMemo(() => getTabCounts({
         itemCount: user.itemCount,
@@ -23,9 +18,10 @@ export const Container = (
         canvasCount: user.canvasCount
     }), [user]);
 
+
     return (
         <Tabs
-            className="pt-8 profile-tabs"
+            className="mx-[1rem] mt-12"
             defaultValue={tab}
             onValueChange={(value) => setTab(value as TabKey)}>
             <TabsList variant='profile' >
@@ -46,17 +42,32 @@ export const Container = (
             </TabsList>
             {tab == 'pins' && <SearchBar />}
 
-            <TabsContent value="pins">
-                <PinTab />
-            </TabsContent>
-            <TabsContent value="folders">
-                <FolderTab />
-            </TabsContent>
-            <TabsContent value="canvas">
-                <CanvasTab />
-            </TabsContent>
+            <TabsContent value="pins"><PinTab /></TabsContent>
+            <TabsContent value="folders" ><FolderTab /></TabsContent>
+            <TabsContent value="canvas" ><CanvasTab /></TabsContent>
         </Tabs>
     )
+}
+
+function getTabCount(
+    count: number,
+    text: string
+) {
+    return count + " " + (count === 1 ? text : text + "s")
+}
+
+function getTabCounts(
+    counts: {
+        itemCount: number,
+        folderCount: number,
+        canvasCount: number
+    }
+) {
+    return {
+        pins: getTabCount(counts.itemCount, "Pin"),
+        folders: getTabCount(counts.folderCount, "Folder"),
+        canvas: getTabCount(counts.canvasCount, "Canvas")
+    }
 }
 
 export default Container

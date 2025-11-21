@@ -1,11 +1,10 @@
 import { useState } from "react"
 import type { FolderSummary } from "@/types/folders"
-import { FormContainer } from "@/app/(app)/[username]/[folder]/components/edit/container"
+import { FormContainer } from "@/app/(app)/[username]/[folder]/components/form-container"
 import {
     ContextMenu,
     ContextMenuContent,
     ContextMenuItem,
-    ContextMenuSeparator,
     ContextMenuTrigger
 } from "@/components/ui/context-menu"
 
@@ -25,13 +24,13 @@ export const FolderContextMenuWrapper = (
             <ContextMenu>
                 <ContextMenuTrigger>{children}</ContextMenuTrigger>
                 <ContextMenuContent>
-                    <ContextMenuItem>Share Link</ContextMenuItem>
+                    <ContextMenuItem className="text-xs">Share Link</ContextMenuItem>
                     {isOwner && <>
-                        <ContextMenuItem onClick={() => setOpen(true)}>
+                        <ContextMenuItem className="text-xs" onClick={() => setOpen(true)}>
                             Edit Details
                         </ContextMenuItem>
-                        <ContextMenuItem>Toggle Privacy</ContextMenuItem>
-                        <ContextMenuItem variant="destructive">Delete Folder</ContextMenuItem>
+                        <ContextMenuItem className="text-xs">Toggle Privacy</ContextMenuItem>
+                        <ContextMenuItem variant="destructive" className="text-xs">Delete Folder</ContextMenuItem>
                     </>}
                 </ContextMenuContent>
             </ContextMenu >

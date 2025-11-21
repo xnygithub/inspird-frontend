@@ -8,7 +8,6 @@ import { Search, X } from "lucide-react";
 import { useNavbarStore } from "@/components/navbar/store";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-import { createPortal } from "react-dom";
 
 
 import { useRef, useCallback, useEffect, useState } from "react";
@@ -90,7 +89,7 @@ export const SearchBar: React.FC = (
 
     return (
         <>
-            {typeof window !== "undefined" &&
+            {/* {typeof window !== "undefined" &&
                 createPortal(
                     <div
                         className={cn(
@@ -102,7 +101,7 @@ export const SearchBar: React.FC = (
                         onClick={() => setOpen(false)}
                     />,
                     document.body
-                )}
+                )} */}
 
             <Popover.Root open={open} onOpenChange={setOpen}>
                 {/* Anchor defines the sizing variable used below */}

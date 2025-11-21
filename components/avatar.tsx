@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { getUserId } from "@/lib/session"
 import { Input } from "@/components/ui/input"
-import { updateAvatar, uploadAvatar } from "@/lib/queries/profile"
+import { removeStorage, updateAvatar, uploadStorage } from "@/lib/queries/profile"
 import { useUserContext } from "./userContext"
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"]
@@ -26,33 +26,40 @@ const handleUpload = async (file: File) => {
     const { supabase, userId } = await getUserId()
     if (!userId) throw new Error("No user session")
 
-    const extension = file.name.split(".").pop()
-    const randomeKey = crypto.randomUUID().slice(0, 4)
-    const key = `${userId}/${randomeKey}.${extension}`
+    const bucket = "u"
+    const ext = file.name.split(".").pop()
+    const uuid = crypto.randomUUID()
+    const key = `${userId}/${uuid}.${ext}`
 
-    const { error: storageError } = await uploadAvatar(supabase, key, file)
-    if (storageError) throw storageError
-    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user-avatars/${key}`
+    const { error } = await uploadStorage(supabase, bucket, key, file)
+
+    if (error) throw error
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${key}`
 }
 
-export const handleUpdate = async (avatarUrl: string) => {
+export const handleUpdate = async (
+    oldKey: string,
+    newKey: string
+) => {
     const { supabase, userId } = await getUserId()
+
     if (!userId) throw new Error("No user session")
-    const { error } = await updateAvatar(supabase, avatarUrl, userId)
+    const { error } = await updateAvatar(supabase, newKey, userId)
     if (error) throw error
+
+    const { error: deleteError } = await removeStorage(supabase, "u", oldKey)
+    if (deleteError) throw deleteError
+
 }
 
 export const Avatar = ({
     url,
-    className,
-    props
 }: {
     url: string
-    className?: string
-    props?: React.HTMLAttributes<HTMLDivElement>
 }) => {
     const { user, updateUser } = useUserContext()
-    const [avatarUrl] = useState<string>(user?.avatarUrl || url)
+    const [avatarUrl, setAvatarUrl] = useState<string>(user?.avatarUrl || url)
+
     const handleAvatarClick = () => {
         const doc = document.getElementById("avatar-input")
         if (doc) doc.click()
@@ -62,9 +69,11 @@ export const Avatar = ({
         const file = e.target.files?.[0]
         if (file && validateImage(file)) {
             try {
-                const newAvatarUrl = await handleUpload(file)
-                await handleUpdate(newAvatarUrl)
-                updateUser({ avatarUrl: newAvatarUrl })
+                const oldKey = avatarUrl.split("/u/")[1]
+                const newKey = await handleUpload(file)
+                await handleUpdate(oldKey, newKey)
+                updateUser({ avatarUrl: newKey })
+                setAvatarUrl(newKey)
                 toast.success("Avatar updated")
             } catch (error) {
                 toast.error("Failed to update avatar")
@@ -76,11 +85,10 @@ export const Avatar = ({
     }
 
     return (
-        <div className={cn("space-y-2 md:max-w-xs", className)}>
+        <div className="space-y space-y-2 md:max-w-xs">
             <div className="relative mx-auto rounded-full w-28 h-28 overflow-hidden">
                 <Image
                     fill
-                    {...props}
                     alt="Avatar"
                     src={avatarUrl}
                     className={cn("object-cover cursor-pointer")}

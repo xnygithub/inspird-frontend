@@ -1,20 +1,20 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import FolderPosts from '@/app/(app)/[username]/[folder]/components/posts'
-import { FolderDetails } from "@/app/(app)/[username]/[folder]/components/details"
-import Sections from './components/sections'
+import FolderPosts from '@/app/(app)/[username]/[folder]/components/folder-posts'
+import FolderDetails from "@/app/(app)/[username]/[folder]/components/folder-details"
+import Sections from './components/folder-sections'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/database.types'
 import { FolderWithCounts } from '@/types/folders'
 
 async function getFolder(
     supabase: SupabaseClient<Database>,
-    folder: string,
+    slug: string,
     username: string
 ) {
     const { data, error } = await supabase
         .rpc('get_folder_with_counts', {
-            f_slug: folder,
+            f_slug: slug,
             p_username: username
         }).single();
 
@@ -22,8 +22,13 @@ async function getFolder(
     return data as FolderWithCounts;
 }
 
+interface Props {
+    username: string
+    folder: string
+}
+
 export default async function FolderPage(
-    { params }: { params: Promise<{ username: string, folder: string }> }
+    { params }: { params: Promise<Props> }
 ) {
     const supabase = await createClient();
     const { folder, username } = await params;
@@ -34,10 +39,10 @@ export default async function FolderPage(
     const canEdit = !!user && user.id === data.ownerUserId;
 
     return (
-        <div className='space-y-8 px-4 md:px-6 pt-12 md:pt-24 transition-all duration-100'>
+        <div className='space-y-8 px-4 md:px-6 pt-12 md:pt-24'>
             <FolderDetails folder={data} canEdit={canEdit} />
             <Sections />
-            <FolderPosts folder={data} />
+            <FolderPosts folderId={data.id} />
         </div>
     )
 }   

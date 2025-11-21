@@ -15,7 +15,7 @@ export const getFoldersSimpleQuery = (
 }
 
 export async function getFolderWithCounts(
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     f_slug: string,
     p_username: string
 ): Promise<FolderWithCounts> {
@@ -32,7 +32,7 @@ export async function getFolderWithCounts(
 
 
 export const deleteFolder = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     folderId: string
 ) => {
     return client
@@ -42,7 +42,7 @@ export const deleteFolder = (
 }
 
 export const deletePostFromFolder = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     folderId: string,
     postId: string
 ) => {
@@ -54,7 +54,7 @@ export const deletePostFromFolder = (
 }
 
 export const savePostToFolder = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     savedItemsId: string,
     folderId: string,
     postId: string
@@ -73,8 +73,9 @@ export const getUsersFolders = (
 }
 
 export const getFolderDropdown = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     postId: string
 ) => {
     return client.rpc('folder_dropdown', { post_id: postId });
 }
+

@@ -194,7 +194,6 @@ function attachStageLogic(
             setSelectedNodes([]);
             transformer.nodes([]);
             tfLayer.batchDraw();
-            console.log("clicked on stage");
         }
     });
 

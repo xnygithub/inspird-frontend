@@ -1,11 +1,13 @@
 "use client"
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react"
 import { toast } from "sonner";
 import { getMediaUrl } from "@/utils/urls";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { quickSavePost } from "@/lib/queries/posts"
+import { createClient } from "@/utils/supabase/client"
 import { FolderPostsType, ProfilePostsType } from "@/types/posts";
-import { Quicksave } from '@/components/posts/quicksave'
 import {
     ContextMenu,
     ContextMenuContent,
@@ -14,11 +16,16 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 
+
+
 type ItemType = ProfilePostsType | FolderPostsType;
 
-const OpenNewTab = (
-    { postId }: { postId: string }
-) => {
+function OpenNewTab({
+    postId
+}: {
+    postId: string
+}
+) {
     return (
         <ContextMenuItem
             onClick={() => window.open(`/posts/${postId}`, "_blank")}>
@@ -27,9 +34,12 @@ const OpenNewTab = (
     )
 }
 
-const CopyLink = (
-    { postId }: { postId: string }
-) => {
+function CopyLink({
+    postId
+}: {
+    postId: string
+}
+) {
     return (
         <ContextMenuItem onClick={() => {
             navigator.clipboard.writeText(`${window.location.origin}/posts/${postId}`)
@@ -39,9 +49,12 @@ const CopyLink = (
     )
 }
 
-const OpenImageNewTab = (
-    { mediaUrl }: { mediaUrl: string }
-) => {
+function OpenImageNewTab({
+    mediaUrl
+}: {
+    mediaUrl: string
+}
+) {
     return (
         <ContextMenuItem onClick={() => {
             window.open(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/i/${mediaUrl}`, "_blank")
@@ -51,10 +64,10 @@ const OpenImageNewTab = (
     )
 }
 
-const DeletePost = (
-    { postId }: { postId: string }
-) => {
-    const handleDelete = async () => {
+function DeletePost({
+    postId }: { postId: string }
+) {
+    async function handleDelete() {
         toast.success(`Post ${postId} deleted`)
         // const supabase = createClient()
         // const { error } = await deletePost(supabase, postId)
@@ -73,16 +86,40 @@ const DeletePost = (
     )
 }
 
+function Quicksave({
+    isAlreadySaved,
+    postId
+}: {
+    isAlreadySaved: boolean
+    postId: string
+}) {
+    const [isSaved, setIsSaved] = useState(isAlreadySaved)
+    const supabase = createClient()
 
-interface CtxProps {
+    async function handleQuicksave() {
+        const { error } = await quickSavePost(supabase, postId)
+        if (!error) setIsSaved(true)
+    }
+
+    return (
+        <Button
+            variant="savePin"
+            disabled={isSaved}
+            onClick={handleQuicksave} >
+            {isSaved ? "Saved" : "Save"}
+        </Button >
+    )
+}
+function ContextMenuWrapper({
+    children,
+    data,
+    isMe
+}: {
     children: React.ReactNode;
     data: ItemType;
     isMe: boolean;
 }
-
-const ContextMenuWrapper = (
-    { children, data, isMe }: CtxProps
-) => {
+) {
     return (
         <ContextMenu>
             <ContextMenuTrigger asChild>
@@ -101,6 +138,7 @@ const ContextMenuWrapper = (
 }
 
 
+
 export const MasonryItem = ({
     data,
     isMe
@@ -110,28 +148,29 @@ export const MasonryItem = ({
 }
 ) => {
     return (
-
         <ContextMenuWrapper data={data} isMe={isMe}>
-            <div className="group relative w-full overflow-hidden">
+            <div className="group relative w-full overflow-hidden squircle">
                 <Link href={`/posts/${data.id}`}>
-                    <Image
-                        className="object-cover"
+                    <img
+                        className="hover:brightness-70 object-cover hover:scale-105 transition-all duration-300"
                         alt={data.mediaAltText || ''}
                         src={getMediaUrl(data.mediaUrl)}
                         width={data.mediaWidth}
                         height={data.mediaHeight}
+                        loading="lazy"
+                        fetchPriority="low"
                         style={{ width: '100%', height: 'auto' }}
                     />
                 </Link>
                 <div id="group-hover">
-                    <Link
+                    {/* <Link
                         href={`/${data.ownerUsername}`}
                         className={cn(
                             "inline-flex right-[.5rem] bottom-[.5rem] absolute p-0 px-3 py-1.5",
                             "bg-[var(--background)] text-[var(--primary)] font-medium font-sans text-xs rounded-full",
                             "hover:underline hover:underline-offset-4 space-x-0.5")}>
                         @{data.ownerUsername}
-                    </Link>
+                    </Link> */}
                     <Quicksave isAlreadySaved={data.isSaved} postId={data.id} />
                 </div>
             </div>

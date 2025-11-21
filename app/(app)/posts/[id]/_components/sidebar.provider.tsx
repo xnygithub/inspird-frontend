@@ -4,7 +4,6 @@ import { createContext, useContext, useMemo, useState } from "react";
 import { OFFSET, WIDTH } from "@/app/(app)/posts/[id]/sidebar.constants"
 import Sidebar from "@/app/(app)/posts/[id]/_components/sidebar"
 
-
 interface SidebarProviderProps {
     children: React.ReactNode
 }

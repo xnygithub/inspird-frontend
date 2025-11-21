@@ -11,9 +11,11 @@ export const SubscribeButton = (
 ) => {
     const router = useRouter();
     const { user } = useUserContext();
+
+    console.log("user", user);
     const [isLoading, startTransition] = useTransition();
     const open = useNavbarStore((state) => state.open);
-    console.log("open", open);
+
 
     const handleSubscribe = async () => {
         if (!user) return;
