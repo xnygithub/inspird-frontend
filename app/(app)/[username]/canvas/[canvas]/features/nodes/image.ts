@@ -41,8 +41,6 @@ async function addImage(
     return node;
 }
 
-
-
 function attachImageLogic(
     node: Konva.Image,
     transformer: Konva.Transformer,
@@ -58,10 +56,6 @@ function attachImageLogic(
     } = useStore.getState();
 
     node.off(".image");
-
-    node.name(node.name() + ", object");
-    console.info("node name", node.name());
-
     const stage = node.getStage();
     if (!stage) return;
     stage.container().style.cursor = 'default';

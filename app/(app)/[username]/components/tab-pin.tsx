@@ -6,7 +6,7 @@ import { MasonryGrid } from "./masonry-grid";
 import { ProfilePostsType } from "@/types/posts";
 import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { MasonryItem } from '@/components/posts/masonry-item'
+import { UserMasonryItem } from '@/components/posts/masonry-item'
 import { SortValue, useProfile } from '@/app/(app)/[username]/components/provider';
 import { useInView } from "react-intersection-observer";
 
@@ -97,7 +97,7 @@ export const PinTab = () => {
                 }}
             >
                 {items.map((item) => (
-                    <MasonryItem
+                    <UserMasonryItem
                         key={item.id}
                         data={item}
                         isMe={isMe}

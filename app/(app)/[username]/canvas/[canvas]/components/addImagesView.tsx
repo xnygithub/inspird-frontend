@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { getMediaUrl } from "@/utils/urls";
 import { useEffect, useState } from "react";
-import Masonry from "react-responsive-masonry"
 import { getPosts } from "@/lib/queries/posts";
 import { Button } from "@/components/ui/button";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -11,6 +10,8 @@ import { useInView } from "react-intersection-observer";
 import { getFoldersSimpleQuery } from "@/lib/queries/folders";
 import type { ProfilePostsType as Posts } from "@/types/posts";
 import { useOffsetInfiniteScrollQuery, useQuery } from "@supabase-cache-helpers/postgrest-swr";
+import { MasonryGrid } from "@/app/(app)/[username]/components/masonry-grid";
+import { UserMasonryItem } from "@/components/posts/masonry-item";
 
 const getFolderPosts = (client: SupabaseClient, f_id: string) => {
     return client.rpc('get_folder_posts', { f_id });
@@ -25,11 +26,11 @@ type FolderPath = {
     slug: string;
 }
 
-export const AddImagesView = ({
-    addPost
-}: {
+type AddImagesViewProps = {
     addPost: (post: Posts) => void;
-}) => {
+}
+
+export default function AddImagesView({ addPost }: AddImagesViewProps) {
     const supabase = createClient();
     const id = "f4bfd097-7b65-491f-9a9c-71e2f71c05c0"
     const [folderPath, setFolderPath] = useState<FolderPath | null>(null);
@@ -74,7 +75,6 @@ export const AddImagesView = ({
     }
 
 
-
     return (
         <div className="flex flex-row gap-2 w-full h-full overflow-y-hidden font-sans">
             <div className="flex flex-col w-[12.5%]">
@@ -108,24 +108,15 @@ export const AddImagesView = ({
                 <div className="mt-2 p-1 overflow-y-auto no-scrollbar">
                     {items.length === 0 && !isValidating && !loadMore &&
                         <div className="mt-10 text-center">No posts found</div>}
-                    <Masonry columnsCount={5} gutter="10px" >
+                    <MasonryGrid columns={5} gap={10}>
                         {items.map((image) => (
-                            <div
+                            <UserMasonryItem
                                 key={image.id}
-                                className="relative w-full cursor-pointer"
-                                onClick={() => selectImage(image)}>
-                                <Image
-                                    key={image.id}
-                                    src={getMediaUrl(image.mediaUrl)}
-                                    alt={image.mediaAltText || ''}
-                                    width={image.mediaWidth}
-                                    height={image.mediaHeight}
-                                    className={`${selected.includes(image) ? 'opacity-30' : ''} object-cover`}
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                            </div >
+                                data={image}
+                                isMe={true}
+                            />
                         ))}
-                    </Masonry>
+                    </MasonryGrid>
                     {!isValidating && loadMore && <div ref={ref} className="h-[1px]"></div>}
                 </div>
             </div >
@@ -133,7 +124,7 @@ export const AddImagesView = ({
             <div className="flex flex-col w-[20%]">
                 <span className="py-1 text-lg text-center">Selected Images ({selected.length})</span>
                 <div className="mt-2 px-0.5 h-full overflow-y-auto no-scrollbar">
-                    <Masonry columnsCount={2} gutter="10px" >
+                    <MasonryGrid columns={2} gap={10}>
                         {selected.map((image) => (
                             <Image
                                 key={image.id}
@@ -145,7 +136,7 @@ export const AddImagesView = ({
                                 className="object-cover cursor-pointer"
                             />
                         ))}
-                    </Masonry>
+                    </MasonryGrid>
                 </div>
                 <div className="space-x-2 pt-3 pb-0.5 w-full text-center">
                     <Button variant="genericRounded" onClick={() => addImages()}>Add</Button>
@@ -155,3 +146,4 @@ export const AddImagesView = ({
         </div >
     );
 }
+

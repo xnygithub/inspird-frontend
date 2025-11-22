@@ -56,7 +56,6 @@ export const SearchBar: React.FC = (
     const open = useNavbarStore((state) => state.open);
     const setOpen = useNavbarStore((state) => state.setOpen);
 
-
     const {
         run: markStoppedTyping,
         cancel: cancelStopTimer // eslint-disable-line @typescript-eslint/no-unused-vars
