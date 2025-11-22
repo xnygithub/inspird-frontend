@@ -76,6 +76,6 @@ export const getFolderDropdown = (
     client: SupabaseClient<Database>,
     postId: string
 ) => {
-    return client.rpc('folder_dropdown', { post_id: postId });
+    return client.rpc('folder_dropdown', { post_id: postId }).select("*");
 }
 

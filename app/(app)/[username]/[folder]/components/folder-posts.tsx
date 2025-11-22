@@ -6,7 +6,7 @@ import { FolderPostsType } from '@/types/posts';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/utils/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js';
-import { MasonryItem } from '@/components/posts/masonry-item'
+import { UserMasonryItem } from '@/components/posts/masonry-item'
 import { MasonryGrid } from '@/app/(app)/[username]/components/masonry-grid';
 
 function getFolderPosts(
@@ -79,7 +79,7 @@ export default function FolderPosts({
                 }}
             >
                 {items.map((item) => (
-                    <MasonryItem
+                    <UserMasonryItem
                         key={item.id}
                         data={item}
                         isMe={false}

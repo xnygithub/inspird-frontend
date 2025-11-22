@@ -6,20 +6,20 @@ import { Container } from "@/app/(app)/search/components/container";
 interface Props {
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-const supabase = await createClient();
 
 export default async function SearchPage(
     { searchParams }: Props
 ) {
     const sp = await searchParams;
     const q = sp?.q as string;
+    const supabase = await createClient();
 
     if (!q) {
         return notFound()
     }
 
-    const { data: user } = await supabase.auth.getUser();
-    if (user.user) void storeQuery(supabase, q);
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) void storeQuery(supabase, q);
 
     return (
         <div className="padding-top px-4 font-sans">

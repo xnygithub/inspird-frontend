@@ -1,9 +1,10 @@
 "use client"
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-import Masonry from "react-responsive-masonry"
 import { Loader2 } from 'lucide-react'
 import { getMediaUrl } from '@/utils/urls'
+import { MasonryGrid } from '@/app/(app)/[username]/components/masonry-grid'
+import { MASONRY_BREAKPOINTS_CONFIG } from '@/types/config'
+import { FeedMasonryItem } from '@/components/posts/masonry-item'
 
 export const Container = ({ query }: { query: string }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,24 +48,17 @@ export const Container = ({ query }: { query: string }) => {
 
     return (
         <>
-            <Masonry columnsCount={4} gutter="10px" >
+            <MasonryGrid
+                gap={12}
+                columns={2}
+                columnBreakpoints={MASONRY_BREAKPOINTS_CONFIG} >
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {data && data.map((item: any) => (
-                    <div
+                    <FeedMasonryItem
                         key={item.id}
-                        className="relative w-full cursor-pointer">
-                        <Image
-                            key={item.id}
-                            src={getMediaUrl(item.mediaUrl)}
-                            alt={item.mediaAltText || ''}
-                            width={item.mediaWidth}
-                            height={item.mediaHeight}
-                            className={` object-cover`}
-                            style={{ width: '100%', height: 'auto' }}
-                        />
-                    </div >
+                        data={item} />
                 ))}
-            </Masonry>
+            </MasonryGrid>
             {loading && <Loader2 className="animate-spin" />}
         </>
     )

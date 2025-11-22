@@ -1,90 +1,12 @@
 "use client"
 import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react"
-import { toast } from "sonner";
+import { useMemo, useState } from "react"
 import { getMediaUrl } from "@/utils/urls";
 import { Button } from "@/components/ui/button"
 import { quickSavePost } from "@/lib/queries/posts"
 import { createClient } from "@/utils/supabase/client"
-import { FolderPostsType, ProfilePostsType } from "@/types/posts";
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuSeparator,
-    ContextMenuTrigger,
-} from "@/components/ui/context-menu"
-
-
-
-type ItemType = ProfilePostsType | FolderPostsType;
-
-function OpenNewTab({
-    postId
-}: {
-    postId: string
-}
-) {
-    return (
-        <ContextMenuItem
-            onClick={() => window.open(`/posts/${postId}`, "_blank")}>
-            Open in new tab
-        </ContextMenuItem>
-    )
-}
-
-function CopyLink({
-    postId
-}: {
-    postId: string
-}
-) {
-    return (
-        <ContextMenuItem onClick={() => {
-            navigator.clipboard.writeText(`${window.location.origin}/posts/${postId}`)
-        }}>
-            Copy link
-        </ContextMenuItem>
-    )
-}
-
-function OpenImageNewTab({
-    mediaUrl
-}: {
-    mediaUrl: string
-}
-) {
-    return (
-        <ContextMenuItem onClick={() => {
-            window.open(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/i/${mediaUrl}`, "_blank")
-        }}>
-            View image
-        </ContextMenuItem>
-    )
-}
-
-function DeletePost({
-    postId }: { postId: string }
-) {
-    async function handleDelete() {
-        toast.success(`Post ${postId} deleted`)
-        // const supabase = createClient()
-        // const { error } = await deletePost(supabase, postId)
-        // if (error) {
-        //     console.log("Error deleting post", error.message)
-        // } else {
-        //     toast.success("Post deleted ")
-        // }
-    }
-    return (
-        <ContextMenuItem
-            variant="destructive"
-            onClick={handleDelete}>
-            Delete
-        </ContextMenuItem>
-    )
-}
+import { FolderPostsType, ProfilePostsType, SimilarPost } from "@/types/posts";
+import PostContextMenu from "./context-menu";
 
 function Quicksave({
     isAlreadySaved,
@@ -110,47 +32,29 @@ function Quicksave({
         </Button >
     )
 }
-function ContextMenuWrapper({
-    children,
-    data,
-    isMe
-}: {
-    children: React.ReactNode;
-    data: ItemType;
+
+
+type UserMasonryItemProps = {
+    data: ProfilePostsType | FolderPostsType;
     isMe: boolean;
 }
-) {
-    return (
-        <ContextMenu>
-            <ContextMenuTrigger asChild>
-                {children}
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-                <OpenNewTab postId={data.id} />
-                <OpenImageNewTab mediaUrl={data.mediaUrl} />
-                <CopyLink postId={data.id} />
-                <ContextMenuSeparator />
-                {isMe && <DeletePost postId={data.id} />}
-                <ContextMenuItem variant="destructive">Report</ContextMenuItem>
-            </ContextMenuContent>
-        </ContextMenu>
-    )
-}
 
-
-
-export const MasonryItem = ({
+/**
+ * A Masonry item for the user's profile. This will be displayed
+ * in places such as the users profile page, folders etc.
+ * @param data - The post data
+ * @param isMe - Whether the user is the owner of the post. Used to show the delete button.
+ * @returns A Masonry item for the user's profile
+ */
+export const UserMasonryItem = ({
     data,
     isMe
-}: {
-    data: ItemType;
-    isMe: boolean
-}
-) => {
+}: UserMasonryItemProps) => {
     return (
-        <ContextMenuWrapper data={data} isMe={isMe}>
+        <PostContextMenu data={data} isMe={isMe}>
             <div className="group relative w-full overflow-hidden squircle">
                 <Link href={`/posts/${data.id}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         className="hover:brightness-70 object-cover hover:scale-105 transition-all duration-300"
                         alt={data.mediaAltText || ''}
@@ -174,6 +78,39 @@ export const MasonryItem = ({
                     <Quicksave isAlreadySaved={data.isSaved} postId={data.id} />
                 </div>
             </div>
-        </ContextMenuWrapper>
+        </PostContextMenu>
+    )
+}
+
+export function FeedMasonryItem({ data }: { data: SimilarPost }) {
+
+    const mediaUrl = useMemo(() => {
+        return getMediaUrl(data.mediaUrl)
+    }, [data.mediaUrl])
+
+    return (
+        <PostContextMenu data={data} isMe={false}>
+            <div className="group relative w-full overflow-hidden squircle">
+                <Link href={`/posts/${data.id}`}>
+                    {/* We use <img/> here to prevent next/Image 
+                    caching but we can revert to next/Image component later. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        className="hover:brightness-70 object-cover hover:scale-105 transition-all duration-300"
+                        alt={data.mediaAltText || ''}
+                        src={mediaUrl}
+                        width={data.mediaWidth}
+                        height={data.mediaHeight}
+                        loading="lazy"
+                        fetchPriority="low"
+                        style={{ width: '100%', height: 'auto' }}
+                    />
+                </Link>
+                <div id="group-hover">
+                    {/* TODO: Implement quicksave */}
+                    <Quicksave isAlreadySaved={false} postId={data.id} />
+                </div>
+            </div>
+        </PostContextMenu>
     )
 }

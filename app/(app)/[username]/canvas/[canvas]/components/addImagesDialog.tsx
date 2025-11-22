@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AddImagesView } from "@/app/(app)/[username]/canvas/[canvas]/components/addImagesView";
+import AddImagesView from "@/app/(app)/[username]/canvas/[canvas]/components/addImagesView";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from 'lucide-react';
 import type { ProfilePostsType as Posts } from "@/types/posts";
