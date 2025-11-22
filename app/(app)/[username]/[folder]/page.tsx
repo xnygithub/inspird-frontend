@@ -1,0 +1,48 @@
+import { notFound } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server'
+import FolderPosts from '@/app/(app)/[username]/[folder]/components/folder-posts'
+import FolderDetails from "@/app/(app)/[username]/[folder]/components/folder-details"
+import Sections from './components/folder-sections'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/database.types'
+import { FolderWithCounts } from '@/types/folders'
+
+async function getFolder(
+    supabase: SupabaseClient<Database>,
+    slug: string,
+    username: string
+) {
+    const { data, error } = await supabase
+        .rpc('get_folder_with_counts', {
+            f_slug: slug,
+            p_username: username
+        }).single();
+
+    if (error || !data) notFound();
+    return data as FolderWithCounts;
+}
+
+interface Props {
+    username: string
+    folder: string
+}
+
+export default async function FolderPage(
+    { params }: { params: Promise<Props> }
+) {
+    const supabase = await createClient();
+    const { folder, username } = await params;
+    const data = await getFolder(supabase, folder, username);
+
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const canEdit = !!user && user.id === data.ownerUserId;
+
+    return (
+        <div className='space-y-8 px-4 md:px-6 pt-12 md:pt-24'>
+            <FolderDetails folder={data} canEdit={canEdit} />
+            <Sections />
+            <FolderPosts folderId={data.id} />
+        </div>
+    )
+}   

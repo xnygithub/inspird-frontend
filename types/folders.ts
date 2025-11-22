@@ -8,8 +8,8 @@ export interface FolderWithCounts extends Omit<FolderDetailsType, 'mediaCounts'>
     mediaCounts: Record<MediaType, number>;
 }
 
-export type FolderCard = Database['public']['Functions']['folders_summary']['Returns'][number];
 export type FolderSummary = Database['public']['Functions']['folders_summary']['Returns'][number];
+
 
 
 export interface FolderPosts {

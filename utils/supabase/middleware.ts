@@ -1,9 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const DEFAULT_TAB = "profile";
-const allowedTabs = ["profile", "account", "filtering", "subscription"];
-const LOGIN_PATHS = ['/login', '/signup', '/forgot-password']
+
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -37,64 +35,7 @@ export async function updateSession(request: NextRequest) {
 
     // IMPORTANT: DO NOT REMOVE auth.getUser()
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
-    // Prevent logged in users from accessing login page
-    if (user && LOGIN_PATHS.includes(request.nextUrl.pathname)) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-        return NextResponse.redirect(url)
-
-    }
-
-    // Handle settings routes by redirecting to "/" and bootstrapping modal via cookies
-    const { pathname } = request.nextUrl
-    const isSettingsRoute =
-        pathname === '/settings' ||
-        pathname === '/settings/' ||
-        pathname.startsWith('/settings/')
-
-    // Only settings cookies here if user is logged in
-    if (isSettingsRoute && user) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-
-        const redirectResponse = NextResponse.redirect(url)
-        // Preserve Supabase-managed cookies to avoid session desync
-        const supaCookies = supabaseResponse.cookies.getAll()
-        supaCookies.forEach((cookie) => redirectResponse.cookies.set(cookie))
-
-        // Set short-lived cookies to open settings UI on the client
-        const parts = pathname.split('/').filter(Boolean)
-        const tab = allowedTabs.includes(parts[1]) ? parts[1] : DEFAULT_TAB
-
-        redirectResponse.cookies.set('openSettings', '1', {
-            path: '/',
-            maxAge: 15,
-            httpOnly: false,
-        })
-        redirectResponse.cookies.set('openSettingsTab', tab, {
-            path: '/',
-            maxAge: 15,
-            httpOnly: false,
-        })
-
-        return redirectResponse
-    }
-
-    if (
-        !user &&
-        !LOGIN_PATHS.includes(request.nextUrl.pathname) &&
-        !request.nextUrl.pathname.startsWith('/auth') &&
-        !request.nextUrl.pathname.startsWith('/error')
-    ) {
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
-    }
+    const { data: { user } } = await supabase.auth.getUser()
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is.
     // If you're creating a new response object with NextResponse.next() make sure to:
@@ -109,5 +50,6 @@ export async function updateSession(request: NextRequest) {
     // If this is not done, you may be causing the browser and server to go out
     // of sync and terminate the user's session prematurely!
 
-    return supabaseResponse
+    return { supabaseResponse, user }
 }
+

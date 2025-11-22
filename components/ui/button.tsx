@@ -22,7 +22,7 @@ const buttonVariants = cva(
         genericRounded:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-full cursor-pointer",
         savePin:
-          "absolute top-[.5rem] right-[.5rem] bg-primary text-primary-foreground disabled:bg-secondary disabled:text-secondary-foreground shadow-xs hover:bg-primary/90 rounded-full cursor-pointer disabled:opacity-100",
+          "absolute top-[1rem] right-[.5rem] dark:[background-color:rgba(14,159,40,0.43)]   disabled:bg-secondary disabled:text-secondary-foreground shadow-lg hover:bg-primary/90 rounded-full cursor-pointer disabled:opacity-100",
         pinUsername:
           "absolute bottom-[.5rem] right-[.5rem] bg-primary text-primary-foreground rounded-[0.8rem] cursor-pointer p-0",
         icon:
@@ -34,7 +34,7 @@ const buttonVariants = cva(
         link:
           "text-primary underline-offset-4 hover:underline",
         followButton:
-          "cursor-pointer brightness-80 hover:brightness-95 transition-all duration-200 w-fit",
+          "font-normal font-sans text-primary text-sm decoration-1 hover:underline underline-offset-4 cursor-pointer",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

@@ -8,11 +8,7 @@ export default function DeleteButton({ canvasId }: { canvasId: string }) {
 
     const handleDelete = async () => {
         const { error } = await deleteCanvasDoc(supabase, canvasId)
-        if (!error) {
-            console.log("Canvas deleted successfully")
-        } else {
-            console.log("Error deleting canvas", error.message)
-        }
+        if (error) throw new Error(error.message)
     }
 
     return (

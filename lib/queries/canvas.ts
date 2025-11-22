@@ -41,7 +41,7 @@ export const getCanvasDoc = (
 };
 
 export const getUsersCanvasDocs = (
-    client: SupabaseClient,
+    client: SupabaseClient<Database>,
     userId: string
 ) => {
     return client

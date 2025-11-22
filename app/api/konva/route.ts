@@ -18,7 +18,6 @@ async function saveCanvas(
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient()
-
     const { data, canvasDocId } = await req.json()
     const savedData = await saveCanvas(supabase, data, canvasDocId)
     return NextResponse.json({ success: true, data: savedData })

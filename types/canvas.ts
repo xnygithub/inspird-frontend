@@ -1,5 +1,5 @@
 import { Post, SavedItems } from "@/app/generated/prisma";
-import { GroupItem, TextItem } from "@/app/[username]/canvas/[canvas]/types";
+import { GroupItem, TextItem } from "@/app/(app)/[username]/canvas/[canvas]/types";
 
 export type ImgItem = {
     id: string;

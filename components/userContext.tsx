@@ -1,34 +1,34 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { RawUser } from "@/types/users";
+import { UserObject } from "@/types/users";
 import { createClient } from "@/utils/supabase/client";
 
 type UserContextType = {
-    user: RawUser | null;
-    setUser: (user: RawUser | null) => void;
-    updateUser: (data: Partial<RawUser>) => void;
-    refetchUser: () => void;
+    user: UserObject | null;
     history: { id: string, query: string }[] | null;
+    setUser: (user: UserObject | null) => void;
     setHistory: (history: { id: string, query: string }[] | null) => void;
+    updateUser: (data: Partial<UserObject>) => void;
+    refetchUser: () => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 interface UserProviderProps {
     children: ReactNode;
-    initialUser: RawUser | null;
-    initialHistory: { id: string, query: string }[] | null;
+    user: UserObject | null;
+    history: { id: string, query: string }[] | null;
 }
 
 export function UserProvider(
-    { children, initialUser, initialHistory }: UserProviderProps
+    { children, user, history }: UserProviderProps
 ) {
-    const [user, setUser] = useState<RawUser | null>(initialUser);
-    const [history, setHistory] = useState<{ id: string, query: string }[] | null>(initialHistory);
+    const [userState, setUserState] = useState<UserObject | null>(user);
+    const [historyState, setHistoryState] = useState<{ id: string, query: string }[] | null>(history);
 
-    const updateUser = async (data: Partial<RawUser>) => {
-        setUser({ ...user, ...data } as RawUser);
+    const updateUser = (data: Partial<UserObject>) => {
+        setUserState((prev) => ({ ...prev, ...data }) as UserObject);
     }
 
     const refetchUser = async () => {
@@ -39,17 +39,17 @@ export function UserProvider(
             .select("*")
             .eq("id", user.id)
             .single();
-        setUser(data)
+        if (data) setUserState(data);
     }
 
     return (
         <UserContext.Provider value={{
-            user,
-            setUser,
+            user: userState,
+            history: historyState,
+            setUser: setUserState,
+            setHistory: setHistoryState,
             updateUser,
             refetchUser,
-            history,
-            setHistory
         }}>
             {children}
         </UserContext.Provider>

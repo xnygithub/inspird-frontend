@@ -6,27 +6,12 @@ import * as TabsPrimitive from "@radix-ui/react-tabs"
 import { cva, VariantProps } from "class-variance-authority"
 
 
-const tabsContentVariants = cva(
-  cn(),
-  {
-    variants: {
-      variant: {
-        default: "w-full"
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
-
-
 const tabsListVariants = cva(
   "inline-flex justify-center items-center",
   {
     variants: {
       variant: {
-        default: "bg-muted text-muted-foreground h-9 w-fit  rounded-lg p-[3px]",
+        default: "bg-muted text-muted-foreground h-9 w-fit rounded-lg p-[3px]",
         profile: "text-muted-foreground w-fit gap-2 relative w-full",
       },
     },
@@ -49,7 +34,7 @@ const tabsTriggerVariants = cva(
         default:
           "text-lg font-medium",
         profile:
-          "text-base active:translate-y-0.5 transition-transform font-medium select-none font-sans",
+          "select-none font-sans ",
       },
     },
     defaultVariants: {
@@ -105,13 +90,13 @@ function TabsTrigger({
 
 function TabsContent({
   className,
-  variant,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content> & VariantProps<typeof tabsContentVariants>) {
+}: React.ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn(tabsContentVariants({ variant }), className)}
+      forceMount={true}
+      className={cn("data-[state=inactive]:hidden flex-1 outline-none", className)}
       {...props}
     />
   )

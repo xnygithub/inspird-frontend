@@ -1,3 +1,8 @@
+/**
+ * Returns the time ago string for a given ISO string
+ * @param isoString - The ISO string to format
+ * @returns The time ago string in the format of "x days ago", "x months ago", or "x years ago"
+ */
 export function timeAgo(isoString: string) {
     const then = new Date(isoString);
     const now = new Date();

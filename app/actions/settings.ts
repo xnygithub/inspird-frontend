@@ -25,7 +25,7 @@ export async function updateAccount(data: EditAccountInput) {
         })
         .eq("id", currentUser.data.user.id)
 
-    if (error) console.log(error.message)
+    if (error) throw new Error(error.message)
     revalidateTag(`profile:${currentUser.data.user.id}`);
     redirect(`/${username}`);
 }

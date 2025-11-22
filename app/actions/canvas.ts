@@ -2,7 +2,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { createCanvasDoc } from "@/lib/queries/canvas";
 
-export async function createCanvas(formData: FormData) {
+export async function createCanvas(
+    formData: FormData
+) {
     const supabase = await createClient();
     const canvasTitle = formData.get("canvasTitle") as string;
     const { error } = await createCanvasDoc(supabase, canvasTitle)
@@ -21,6 +23,5 @@ export async function updateCanvas(
         .select("id")
 
     if (error) return null
-
     return data;
 }

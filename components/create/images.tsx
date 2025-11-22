@@ -7,11 +7,9 @@ import { createPost } from "@/lib/queries/posts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageMeta } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { ImageIcon } from "lucide-react";
 
-interface UploadImageProps {
-    setUploadOpen: (open: boolean) => void;
-    uploadOpen: boolean;
-}
 
 // TODO: Move call to HF endpoint to the server side
 // TODO: HF endpoint has cold starts when scaled to zero, returns 500 whilst warming up
@@ -30,8 +28,13 @@ function createPostInput(imageData: ImageMeta, embedding: number[]) {
     }
 }
 
-export const UploadImage = (
-    { setUploadOpen, uploadOpen }: UploadImageProps
+export const UploadImage = ({
+    setUploadOpen,
+    uploadOpen
+}: {
+    setUploadOpen: (open: boolean) => void;
+    uploadOpen: boolean;
+}
 ) => {
     const [status, setStatus] = useState("Ready");
     async function handleFile(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -86,10 +89,13 @@ export const UploadImage = (
 
     return (
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-            <DialogContent >
-                <DialogTitle>Upload Image</DialogTitle>
-                <p>{status}</p>
-                <Label htmlFor="image">Upload Image</Label>
+            <DialogContent showCloseButton={false} className="bg-popover rounded-xl w-md max-w-md font-sans text-white">
+                <DialogTitle hidden>Upload Image Form</DialogTitle>
+                {/* <p>{status}</p> */}
+                <div className="flex flex-col items-center gap-1 text-center">
+                    <h1 className="font-semibold text-xl">Upload Image</h1>
+                </div>
+                <Label htmlFor="image" hidden>Upload Image</Label>
                 <Input
                     hidden
                     id="image"
@@ -97,6 +103,13 @@ export const UploadImage = (
                     accept="image/jpeg,image/png,image/jpg"
                     onChange={handleFile}
                 />
+                <Button
+                    type="button"
+                    className="mt-2"
+                    onClick={() => document.getElementById('image')?.click()}>
+                    <ImageIcon size={16} />
+                    Choose Image
+                </Button>
             </DialogContent>
         </Dialog >
     );
